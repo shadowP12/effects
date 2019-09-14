@@ -11,7 +11,9 @@ add_library(glad STATIC third_party/glad/src/glad.c)
 
 add_executable (effects 
 				main.cpp
-				utils/gl_utils.cpp)
+				utils/gl_utils.cpp
+				utils/utils.cpp
+				core/ocean_rendering/ocean_rendering.cpp)
 target_link_libraries(effects glad)
 
 IF (CMAKE_BUILD_TYPE MATCHES "Debug")

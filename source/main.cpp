@@ -1,5 +1,6 @@
 #include <iostream>
 #include "utils/gl_inc.h"
+#include "core/effects_define.h"
 int main()
 {
 	//≥ı ºªØglfw
