@@ -3,13 +3,21 @@
 
 #define N 64
 #define A 3e-6f
-OceanRenderer::OceanRenderer()
+OceanRenderer::OceanRenderer(int width, int height)
 {
+	resize(width, height);
 }
 
 OceanRenderer::~OceanRenderer()
 {
 	delete[] m_height_data;
+}
+
+void OceanRenderer::resize(int width, int height)
+{
+	m_width = width;
+	m_height = height;
+	glViewport(0, 0, width, height);
 }
 
 void OceanRenderer::set_camera(Camera* camera)
@@ -27,15 +35,17 @@ void OceanRenderer::create_grid(float horizontal_length, float vertical_length, 
 	{
 		x = (float)(i % (columns + 1)) / (float)columns;
 		y = 1.0 - (float)(i / (columns + 1)) / (float)rows;
-		glm::vec3 vertex;
-		vertex.x = horizontal_length * (x - 0.5f);
-		vertex.y = vertical_length * (y - 0.5f);
-		vertex.z = 0.0f;
+		glm::vec3 pos;
+		pos.x = horizontal_length * (x - 0.5f);
+		pos.y = vertical_length * (y - 0.5f);
+		pos.z = 0.0f;
 		glm::vec2 uv;
 		uv.x = x;
 		uv.y = y;
+		Vertex vertex;
+		vertex.pos = pos;
+		vertex.uv = uv;
 		m_mesh_vertices.push_back(vertex);
-		m_mesh_texcoords.push_back(uv);
 	}
 
 	uint32_t current_column, current_row;
@@ -62,6 +72,28 @@ void OceanRenderer::prepare()
 	float v = 0.5;
 	float l = v * v / g;
 	m_height_data = new float[N * N];
+
+	create_grid(m_ocean_patch_length, m_ocean_patch_length, N, N);
+
+	m_program = create_shader_program("F:/Dev/effects/source/res/shaders/default.vs", "F:/Dev/effects/source/res/shaders/default.fs");
+
+	glGenVertexArrays(1, &m_grid_vao);
+	glGenBuffers(1, &m_grid_vbo);
+	glGenBuffers(1, &m_grid_vbo);
+
+	glBindVertexArray(m_grid_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_grid_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_mesh_vertices.size() * sizeof(Vertex), &m_mesh_vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_grid_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_mesh_indices.size() * sizeof(uint32_t), &m_mesh_indices[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+	glBindVertexArray(0);
 }
 
 void OceanRenderer::update(float t)
@@ -100,7 +132,11 @@ void OceanRenderer::update(float t)
 
 void OceanRenderer::render()
 {
-	
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glBindVertexArray(m_grid_vao);
+	glDrawElements(GL_LINES, m_mesh_indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 std::complex<float> OceanRenderer::h(uint32_t n, uint32_t m, float t)

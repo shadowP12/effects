@@ -12,7 +12,7 @@ void update_camera_vectors(Camera* camera)
 	camera->up = glm::normalize(glm::cross(camera->right, camera->front));
 }
 
-Camera* create_camera(glm::vec3 position, float yaw = -90.0f, float pitch = 0.0f)
+Camera* create_camera(glm::vec3 position, float yaw, float pitch)
 {
 	Camera* camera = new Camera;
 	camera->position = position;
@@ -39,7 +39,31 @@ glm::mat4 get_camera_view_matrix(Camera* camera)
 	return glm::lookAt(camera->position, camera->position + camera->front, camera->up);
 }
 
+glm::mat4 get_camera_projection_matrix(Camera* camera, int width, int height, float fov, float near, float far)
+{
+	float ratio = width / float(height);
+	return glm::perspective(glm::radians(fov), ratio, near, far);
+}
+
 void destroy_camera(Camera* camera)
 {
 	delete camera;
+}
+
+Input* create_input()
+{
+	Input* input = new Input();
+	return input;
+}
+
+void uptate_input(Input* input)
+{
+	memset(input->mouse_button_up, 0, sizeof(input->mouse_button_up));
+	memset(input->mouse_button_down, 0, sizeof(input->mouse_button_down));
+	input->mouse_scroll_wheel = 0.0;
+}
+
+void destroy_input(Input* input)
+{
+	delete input;
 }

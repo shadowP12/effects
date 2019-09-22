@@ -7,12 +7,18 @@
 class OceanRenderer
 {
 public:
-	OceanRenderer();
+	OceanRenderer(int width, int height);
 	~OceanRenderer();
 	void set_camera(Camera* camera);
 	void prepare();
 	void update(float t);
 	void render();
+	void resize(int width, int height);
+	struct Vertex
+	{
+		glm::vec3 pos;
+		glm::vec2 uv;
+	};
 private:
 	void create_grid(float horizontal_length, float vertical_length, uint32_t rows, uint32_t columns);
 	std::complex<float> h(uint32_t n, uint32_t m, float t);
@@ -20,10 +26,15 @@ private:
 	std::complex<float> ph(int n, int m);
 private:
 	Camera* m_camera;
+	int m_width;
+	int m_height;
 	glm::vec2 m_wind_direction;
 	float m_ocean_patch_length;
 	float* m_height_data;
-	std::vector<glm::vec3> m_mesh_vertices;
-	std::vector<glm::vec2> m_mesh_texcoords;
+	std::vector<Vertex> m_mesh_vertices;
 	std::vector<uint32_t> m_mesh_indices;
+	GLuint m_program;
+	GLuint m_grid_vao;
+	GLuint m_grid_vbo;
+	GLuint m_grid_ibo;
 };
