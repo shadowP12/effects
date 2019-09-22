@@ -1,5 +1,8 @@
 #include "ocean_rendering.h"
+#include <fftw3.h>
 
+#define N 64
+#define A 3e-6f
 OceanRenderer::OceanRenderer()
 {
 }
@@ -49,56 +52,84 @@ void OceanRenderer::create_grid(float horizontal_length, float vertical_length, 
 	}
 }
 
-float OceanRenderer::phillips_spectrum(float a, float l, glm::vec2 k, glm::vec2 wind_direction)
-{
-	//菲利普频谱(phillips spectrum)
-	//l= v * v/ g, v:风速, g:重力加速度
-	float _k = glm::length(k);
-
-	if (l == 0.0 || _k == 0.0)
-	{
-		return 0.0;
-	}
-	float _dot = glm::dot(k, wind_direction);
-	return a * expf(-1.0 / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
-}
-
 void OceanRenderer::prepare()
 {
 	//初始化参数
-	m_number = 64;
 	m_ocean_patch_length = 512.0;
 	m_wind_direction = glm::vec2(0.5, 0.5);
 	m_wind_direction = glm::normalize(m_wind_direction);
 	float g = 9.8;
 	float v = 0.5;
 	float l = v * v / g;
-	m_height_data = new float[m_number * m_number * 2 * sizeof(float)];
+	m_height_data = new float[N * N];
+}
 
-	//利用phillips频谱计算出初始波形
-	glm::vec2 k;
-	float phillips_spectrum_value;
-	for (uint32_t i = 0; i < m_number; i++)
+void OceanRenderer::update(float t)
+{
+	fftw_complex *in, *out;
+	fftw_plan plan;
+
+	in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N * N);
+	out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N * N);
+
+	for (int n = 0; n < N; ++n)
 	{
-		k.y = ((float)i - (float)m_number / 2.0) * (2.0 * PI / m_ocean_patch_length);
-		for (uint32_t j = 0; j < m_number; j++)
+		for (int m = 0; m < N; ++m)
 		{
-			k.x = ((float)j - (float)m_number / 2.0f) * (2.0f * PI / m_ocean_patch_length);
-			phillips_spectrum_value = phillips_spectrum(1.0, l, k, m_wind_direction);
-			//todo:需要添加随机波普
-			m_height_data[i * 2 * m_number + j * 2 + 0] = 1.0f / sqrtf(2.0f) * 0.5 * phillips_spectrum_value;
-			m_height_data[i * 2 * m_number + j * 2 + 1] = 1.0f / sqrtf(2.0f) * 0.3 * phillips_spectrum_value;
+			std::complex<float> _h = h(n, m, t);
+			in[m * N + n][0] = real(_h);
+			in[m * N + n][1] = imag(_h);
 		}
 	}
 
-}
+	plan = fftw_plan_dft_2d(N, N, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+	fftw_execute(plan);
 
-void OceanRenderer::update()
-{
+	for (int n = 0; n < N; ++n)
+	{
+		for (int m = 0; m < N; ++m) 
+		{
+			m_height_data[n * N + m] = out[m * N + n][0];
+		}
+	}
 
+	fftw_destroy_plan(plan);
+	fftw_free(in);
+	fftw_free(out);
 }
 
 void OceanRenderer::render()
 {
 	
+}
+
+std::complex<float> OceanRenderer::h(uint32_t n, uint32_t m, float t)
+{
+	//_k为k的模
+	glm::vec2 k;
+	k.x = (n - N / 2) * (2.0 * PI / m_ocean_patch_length);
+	k.y = (m - N / 2) * (2.0 * PI / m_ocean_patch_length);
+	float _k = glm::length(k);
+	float w = sqrt(9.8 * _k);
+	//快速验证未使用随机数
+	std::complex<float> i(0, t), xi(0.5, 0.5);
+	return h0(n, m, xi)*exp(i * w) + conj(h0(-n, -m, xi))*exp(-i * w);
+}
+
+std::complex<float> OceanRenderer::h0(int n, int m, std::complex<float> xi)
+{
+	return sqrt(0.5f) * xi * sqrt(ph(n, m));
+}
+
+std::complex<float> OceanRenderer::ph(int n, int m)
+{
+	glm::vec2 k;
+	k.x = (n - N / 2) * (2.0 * PI / m_ocean_patch_length);
+	k.y = (m - N / 2) * (2.0 * PI / m_ocean_patch_length);
+	float _k = glm::length(k);
+	//v为风速
+	float v = 0.5;
+	float l = v * v / 9.8;
+	float _dot = glm::dot(k, m_wind_direction);
+	return A * expf(-1.0 / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
 }
