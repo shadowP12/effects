@@ -40,3 +40,4 @@ Input* create_input();
 void uptate_input(Input* input);
 
 void destroy_input(Input* input);
+

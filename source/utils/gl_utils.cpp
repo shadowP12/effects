@@ -56,3 +56,69 @@ GLuint create_shader_program(std::string vs, std::string fs)
 
 	return program_id;
 }
+
+DebugLine* create_debug_line()
+{
+	DebugLine* debug_line = new DebugLine();
+	glGenVertexArrays(1, &debug_line->vao);
+	glBindVertexArray(debug_line->vao);
+	glGenBuffers(1, &debug_line->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, debug_line->vbo);
+	glBufferData(GL_ARRAY_BUFFER, 4 * MAX_GL_LINES * 14, NULL, GL_DYNAMIC_DRAW);
+
+	GLsizei stride = 4 * 7;
+	GLintptr offs = 4 * 3;
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offs);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
+
+	return debug_line;
+}
+
+void draw_debug_line(DebugLine* debug_line)
+{
+	glBindVertexArray(debug_line->vao);
+	glDrawArrays(GL_LINES, 0, 2 * debug_line->lines_count);
+	glBindVertexArray(0);
+}
+
+void add_debug_line(DebugLine* debug_line, float* start_xyz, float* end_xyz, float* colour_rgba)
+{
+	if (debug_line->lines_count >= MAX_GL_LINES)
+	{
+		LOGE("too many gl lines");
+		return;
+	}
+
+	float sd[14];
+	sd[0] = start_xyz[0];
+	sd[1] = start_xyz[1];
+	sd[2] = start_xyz[2];
+	sd[3] = colour_rgba[0];
+	sd[4] = colour_rgba[1];
+	sd[5] = colour_rgba[2];
+	sd[6] = colour_rgba[3];
+	sd[7] = end_xyz[0];
+	sd[8] = end_xyz[1];
+	sd[9] = end_xyz[2];
+	sd[10] = colour_rgba[0];
+	sd[11] = colour_rgba[1];
+	sd[12] = colour_rgba[2];
+	sd[13] = colour_rgba[3];
+
+	glBindBuffer(GL_ARRAY_BUFFER, debug_line->vbo);
+	GLintptr os = sizeof(sd) * debug_line->lines_count;
+	GLsizei sz = sizeof(sd);
+	glBufferSubData(GL_ARRAY_BUFFER, os, sz, sd);
+
+	debug_line->lines_count++;
+}
+
+void destroy_debug_line(DebugLine* debug_line)
+{
+	glDeleteBuffers(1, &debug_line->vao);
+	glDeleteVertexArrays(1, &debug_line->vbo);
+	delete debug_line;
+}
