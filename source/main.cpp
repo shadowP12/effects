@@ -33,8 +33,9 @@ void release()
 void update(float t)
 {
 	_time += t;
-	camera_rotate(_camera, _input->mouse_position - _input->mouse_previou_position);
-	camera_move(_camera, _input->mouse_scroll_wheel);
+	if(_input->mouse_button_held[1])
+		camera_rotate(_camera, _input->mouse_position - _input->mouse_previou_position);
+	camera_move(_camera, _input->mouse_scroll_wheel * 5.0);
 	uptate_input(_input);
 	_ocean_renderer->update(_time);
 }

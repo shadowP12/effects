@@ -17,6 +17,7 @@ Camera* create_camera(glm::vec3 position, float yaw, float pitch)
 	Camera* camera = new Camera;
 	camera->position = position;
 	camera->front = glm::vec3(0, 0, -1);
+	camera->up = glm::vec3(0, 1, 0);
 	camera->yaw = yaw;
 	camera->pitch = pitch;
 	return camera;

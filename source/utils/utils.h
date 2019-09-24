@@ -20,7 +20,7 @@ void camera_rotate(Camera* camera, glm::vec2 offset);
 
 glm::mat4 get_camera_view_matrix(Camera* camera);
 
-glm::mat4 get_camera_projection_matrix(Camera* camera, int width, int height, float fov = 45, float near = 0.1, float far = 100.0);
+glm::mat4 get_camera_projection_matrix(Camera* camera, int width, int height, float fov = 45, float near = 0.1, float far = 1000.0);
 
 void destroy_camera(Camera* camera);
 

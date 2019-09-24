@@ -79,7 +79,7 @@ void OceanRenderer::prepare()
 
 	glGenVertexArrays(1, &m_grid_vao);
 	glGenBuffers(1, &m_grid_vbo);
-	glGenBuffers(1, &m_grid_vbo);
+	glGenBuffers(1, &m_grid_ibo);
 
 	glBindVertexArray(m_grid_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_grid_vbo);
@@ -134,6 +134,15 @@ void OceanRenderer::render()
 {
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUseProgram(m_program);
+	glm::mat4 model = glm::mat4(1.0);
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+	glm::mat4 view = get_camera_view_matrix(m_camera);
+	glm::mat4 proj = get_camera_projection_matrix(m_camera, m_width, m_height);
+	glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 	glBindVertexArray(m_grid_vao);
 	glDrawElements(GL_LINES, m_mesh_indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
