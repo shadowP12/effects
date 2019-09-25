@@ -2,7 +2,7 @@
 #include <fftw3.h>
 
 #define N 64
-#define A 3e-6f
+#define A 0.3
 OceanRenderer::OceanRenderer(int width, int height)
 {
 	resize(width, height);
@@ -109,8 +109,11 @@ void OceanRenderer::update(float t)
 		for (int m = 0; m < N; ++m)
 		{
 			std::complex<float> _h = h(n, m, t);
-			in[m * N + n][0] = real(_h);
-			in[m * N + n][1] = imag(_h);
+			double r = std::real(_h);
+			double i = std::imag(_h);
+			in[m * N + n][0] = r;
+			in[m * N + n][1] = i;
+			printf("%f   %f \n",r,i);
 		}
 	}
 
@@ -152,29 +155,40 @@ std::complex<float> OceanRenderer::h(uint32_t n, uint32_t m, float t)
 {
 	//_k为k的模
 	glm::vec2 k;
-	k.x = (n - N / 2) * (2.0 * PI / m_ocean_patch_length);
-	k.y = (m - N / 2) * (2.0 * PI / m_ocean_patch_length);
+	k.x = ((float)n - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
+	k.y = ((float)m - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
 	float _k = glm::length(k);
 	float w = sqrt(9.8 * _k);
 	//快速验证未使用随机数
-	std::complex<float> i(0, t), xi(0.5, 0.5);
+	std::complex<float> i(0, t), xi(0.5f, 0.5f);
 	return h0(n, m, xi)*exp(i * w) + conj(h0(-n, -m, xi))*exp(-i * w);
 }
 
 std::complex<float> OceanRenderer::h0(int n, int m, std::complex<float> xi)
 {
-	return sqrt(0.5f) * xi * sqrt(ph(n, m));
+	std::complex<float> res = sqrt(0.5f) * xi * sqrt(ph(n, m));
+	return res;
 }
 
 std::complex<float> OceanRenderer::ph(int n, int m)
 {
 	glm::vec2 k;
-	k.x = (n - N / 2) * (2.0 * PI / m_ocean_patch_length);
-	k.y = (m - N / 2) * (2.0 * PI / m_ocean_patch_length);
+	k.x = ((float)n - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
+	k.y = ((float)m - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
 	float _k = glm::length(k);
 	//v为风速
-	float v = 0.5;
+	float v = 50.0;
 	float l = v * v / 9.8;
 	float _dot = glm::dot(k, m_wind_direction);
-	return A * expf(-1.0 / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
+	if (l == 0.0f || _k == 0.0f)
+	{
+		return 0.0f;
+	}
+	float t = exp(-1.0f / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
+	float ttttt = -1.0f / (_k * l * _k * l);
+	float ttt = expf(ttttt);
+	float tttt = (_k * _k * _k * _k) * _dot * _dot;
+	float tt = A * exp(-1.0f / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
+	std::complex<float> res = A * exp(-1.0 / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
+	return res;
 }
