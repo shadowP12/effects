@@ -37,4 +37,7 @@ private:
 	GLuint m_grid_vao;
 	GLuint m_grid_vbo;
 	GLuint m_grid_ibo;
+	GLuint m_hight_map;
+	std::default_random_engine m_random_gen;
+	std::normal_distribution<> m_xi{ 0,1 };
 };

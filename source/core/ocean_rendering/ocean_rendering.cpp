@@ -2,10 +2,11 @@
 #include <fftw3.h>
 
 #define N 64
-#define A 0.3
+#define A 3e-3f
 OceanRenderer::OceanRenderer(int width, int height)
 {
 	resize(width, height);
+	m_random_gen.seed(time(NULL));
 }
 
 OceanRenderer::~OceanRenderer()
@@ -66,11 +67,8 @@ void OceanRenderer::prepare()
 {
 	//初始化参数
 	m_ocean_patch_length = 512.0;
-	m_wind_direction = glm::vec2(0.5, 0.5);
+	m_wind_direction = glm::vec2(1.0, 0.0);
 	m_wind_direction = glm::normalize(m_wind_direction);
-	float g = 9.8;
-	float v = 0.5;
-	float l = v * v / g;
 	m_height_data = new float[N * N];
 
 	create_grid(m_ocean_patch_length, m_ocean_patch_length, N, N);
@@ -94,6 +92,13 @@ void OceanRenderer::prepare()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 	glBindVertexArray(0);
+
+	glGenTextures(1, &m_hight_map);
+	glBindTexture(GL_TEXTURE_2D, m_hight_map);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void OceanRenderer::update(float t)
@@ -109,11 +114,8 @@ void OceanRenderer::update(float t)
 		for (int m = 0; m < N; ++m)
 		{
 			std::complex<float> _h = h(n, m, t);
-			double r = std::real(_h);
-			double i = std::imag(_h);
-			in[m * N + n][0] = r;
-			in[m * N + n][1] = i;
-			printf("%f   %f \n",r,i);
+			in[m * N + n][0] = std::real(_h);
+			in[m * N + n][1] = std::imag(_h);
 		}
 	}
 
@@ -124,9 +126,11 @@ void OceanRenderer::update(float t)
 	{
 		for (int m = 0; m < N; ++m) 
 		{
-			m_height_data[n * N + m] = out[m * N + n][0];
+			m_height_data[m * N + n] = out[m * N + n][0] / 100.0;
 		}
 	}
+	glBindTexture(GL_TEXTURE_2D, m_hight_map);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, N, N, 0, GL_RED, GL_FLOAT, m_height_data);
 
 	fftw_destroy_plan(plan);
 	fftw_free(in);
@@ -146,6 +150,9 @@ void OceanRenderer::render()
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_hight_map);
+	glUniform1i(glGetUniformLocation(m_program, "u_hightMap"), 0);
 	glBindVertexArray(m_grid_vao);
 	glDrawElements(GL_LINES, m_mesh_indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -159,8 +166,7 @@ std::complex<float> OceanRenderer::h(uint32_t n, uint32_t m, float t)
 	k.y = ((float)m - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
 	float _k = glm::length(k);
 	float w = sqrt(9.8 * _k);
-	//快速验证未使用随机数
-	std::complex<float> i(0, t), xi(0.5f, 0.5f);
+	std::complex<float> i(0, t), xi(m_xi(m_random_gen), m_xi(m_random_gen));
 	return h0(n, m, xi)*exp(i * w) + conj(h0(-n, -m, xi))*exp(-i * w);
 }
 
@@ -177,7 +183,7 @@ std::complex<float> OceanRenderer::ph(int n, int m)
 	k.y = ((float)m - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
 	float _k = glm::length(k);
 	//v为风速
-	float v = 50.0;
+	float v = 3.5;
 	float l = v * v / 9.8;
 	float _dot = glm::dot(k, m_wind_direction);
 	if (l == 0.0f || _k == 0.0f)

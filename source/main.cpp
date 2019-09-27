@@ -38,6 +38,7 @@ void update(float t)
 	camera_move(_camera, _input->mouse_scroll_wheel * 5.0);
 	uptate_input(_input);
 	_ocean_renderer->update(_time);
+		
 }
 
 void render()
@@ -75,7 +76,7 @@ int main()
 	init();
 	while (!glfwWindowShouldClose(window))
 	{
-		update(0.001);
+		update(10000.0);
 		render();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
