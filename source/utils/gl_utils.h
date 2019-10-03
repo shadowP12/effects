@@ -4,6 +4,8 @@
 
 GLuint create_shader_program(std::string vs, std::string fs);
 
+GLuint load_texture(std::string file);
+
 //Debug Line
 #define MAX_GL_LINES 819200
 struct DebugLine

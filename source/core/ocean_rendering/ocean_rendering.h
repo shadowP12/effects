@@ -23,11 +23,12 @@ private:
 	void create_grid(float horizontal_length, float vertical_length, uint32_t rows, uint32_t columns);
 	std::complex<float> h(uint32_t n, uint32_t m, float t);
 	std::complex<float> h0(int n, int m, std::complex<float> xi);
-	std::complex<float> ph(int n, int m);
+	float ph(int n, int m);
 private:
 	Camera* m_camera;
 	int m_width;
 	int m_height;
+	float m_wind_speed;
 	glm::vec2 m_wind_direction;
 	float m_ocean_patch_length;
 	float* m_height_data;

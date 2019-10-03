@@ -1,5 +1,7 @@
 #include "gl_utils.h"
 #include "file_utils.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 void check_shader_compile_errors(GLuint id)
 {
@@ -55,6 +57,35 @@ GLuint create_shader_program(std::string vs, std::string fs)
 	glDeleteShader(fragment_id);
 
 	return program_id;
+}
+
+GLuint load_texture(std::string file)
+{
+	int width, height, channels;
+	unsigned char * pixels = stbi_load(file.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+	if (!pixels)
+	{
+		return 0;
+	}
+	GLuint texture_id = 0;
+	if (channels == 4)
+	{
+		glGenTextures(1, &texture_id);
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	}
+	else if (channels == 3)
+	{
+		glGenTextures(1, &texture_id);
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+	}
+	else
+	{
+		LOGE("invalid texture's channel\n");
+	}
+	stbi_image_free(pixels);
+	return texture_id;
 }
 
 DebugLine* create_debug_line()

@@ -76,7 +76,7 @@ int main()
 	init();
 	while (!glfwWindowShouldClose(window))
 	{
-		update(10000.0);
+		update(0.001);
 		render();
 		glfwSwapBuffers(window);
 		glfwPollEvents();

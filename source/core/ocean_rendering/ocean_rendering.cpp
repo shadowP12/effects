@@ -2,7 +2,8 @@
 #include <fftw3.h>
 
 #define N 64
-#define A 3e-3f
+//用于调整水波高度
+#define A 3e-1f
 OceanRenderer::OceanRenderer(int width, int height)
 {
 	resize(width, height);
@@ -66,12 +67,13 @@ void OceanRenderer::create_grid(float horizontal_length, float vertical_length, 
 void OceanRenderer::prepare()
 {
 	//初始化参数
-	m_ocean_patch_length = 512.0;
+	m_ocean_patch_length = 10.0;
 	m_wind_direction = glm::vec2(1.0, 0.0);
 	m_wind_direction = glm::normalize(m_wind_direction);
+	m_wind_speed = 30.0;
 	m_height_data = new float[N * N];
 
-	create_grid(m_ocean_patch_length, m_ocean_patch_length, N, N);
+	create_grid(m_ocean_patch_length, m_ocean_patch_length, N - 1, N - 1);
 
 	m_program = create_shader_program("F:/Dev/effects/source/res/shaders/default.vs", "F:/Dev/effects/source/res/shaders/default.fs");
 
@@ -124,9 +126,11 @@ void OceanRenderer::update(float t)
 
 	for (int n = 0; n < N; ++n)
 	{
-		for (int m = 0; m < N; ++m) 
+		for (int m = 0; m < N; ++m)
 		{
-			m_height_data[m * N + n] = out[m * N + n][0] / 100.0;
+			m_height_data[n * N + m] = out[m * N + n][0];
+			//数据转置
+			m_mesh_vertices[n * N + m].pos.z = out[n * N + m][0];
 		}
 	}
 	glBindTexture(GL_TEXTURE_2D, m_hight_map);
@@ -139,12 +143,16 @@ void OceanRenderer::update(float t)
 
 void OceanRenderer::render()
 {
+	//更新顶点数据
+	//glBindBuffer(GL_ARRAY_BUFFER, m_grid_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, m_mesh_vertices.size() * sizeof(Vertex), &m_mesh_vertices[0], GL_STATIC_DRAW);
+	//绘制
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(m_program);
 	glm::mat4 model = glm::mat4(1.0);
-	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+	//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
 	glm::mat4 view = get_camera_view_matrix(m_camera);
 	glm::mat4 proj = get_camera_projection_matrix(m_camera, m_width, m_height);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
@@ -154,7 +162,7 @@ void OceanRenderer::render()
 	glBindTexture(GL_TEXTURE_2D, m_hight_map);
 	glUniform1i(glGetUniformLocation(m_program, "u_hightMap"), 0);
 	glBindVertexArray(m_grid_vao);
-	glDrawElements(GL_LINES, m_mesh_indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLE_STRIP, m_mesh_indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -162,11 +170,12 @@ std::complex<float> OceanRenderer::h(uint32_t n, uint32_t m, float t)
 {
 	//_k为k的模
 	glm::vec2 k;
-	k.x = ((float)n - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
-	k.y = ((float)m - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
-	float _k = glm::length(k);
-	float w = sqrt(9.8 * _k);
-	std::complex<float> i(0, t), xi(m_xi(m_random_gen), m_xi(m_random_gen));
+	k.x = (2 * PI * n - PI * N) / m_ocean_patch_length;
+	k.y = (2 * PI * m - PI * N) / m_ocean_patch_length;
+	float k_length = glm::length(k);
+	float w = sqrt(9.81f * k_length);
+	std::complex<float> i(0, t);
+	std::complex<float> xi(m_xi(m_random_gen), m_xi(m_random_gen));
 	return h0(n, m, xi)*exp(i * w) + conj(h0(-n, -m, xi))*exp(-i * w);
 }
 
@@ -176,25 +185,22 @@ std::complex<float> OceanRenderer::h0(int n, int m, std::complex<float> xi)
 	return res;
 }
 
-std::complex<float> OceanRenderer::ph(int n, int m)
+float OceanRenderer::ph(int n, int m)
 {
+	//菲利普波普
 	glm::vec2 k;
-	k.x = ((float)n - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
-	k.y = ((float)m - (float)N / 2.0f) * (2.0f * PI / m_ocean_patch_length);
-	float _k = glm::length(k);
-	//v为风速
-	float v = 3.5;
-	float l = v * v / 9.8;
-	float _dot = glm::dot(k, m_wind_direction);
-	if (l == 0.0f || _k == 0.0f)
+	k.x = (2 * PI * n - PI * N) / m_ocean_patch_length;
+	k.y = (2 * PI * m - PI * N) / m_ocean_patch_length;
+	float k_length = glm::length(k);
+	if (k_length == 0.0f)
 	{
 		return 0.0f;
 	}
-	float t = exp(-1.0f / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
-	float ttttt = -1.0f / (_k * l * _k * l);
-	float ttt = expf(ttttt);
-	float tttt = (_k * _k * _k * _k) * _dot * _dot;
-	float tt = A * exp(-1.0f / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
-	std::complex<float> res = A * exp(-1.0 / (_k * l * _k * l)) / (_k * _k * _k * _k) * _dot * _dot;
+	float g = 9.81;
+	float l = m_wind_speed * m_wind_speed / 9.81f;
+	float _dot = glm::dot(k, m_wind_direction);
+
+	float res = 0.0f;
+	res = A * exp(-1.0f / pow(k_length * l, 2)) / (pow(k_length, 4)) * pow(k.x * m_wind_direction.x + k.y * m_wind_direction.y, 2.0f);
 	return res;
 }

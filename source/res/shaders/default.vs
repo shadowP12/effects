@@ -7,12 +7,8 @@ out vec2 v_texCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform sampler2D u_hightMap;
 void main()
 {
-	float hight_data = texture(u_hightMap, a_texCoords).r;
-	vec3 pos = a_pos;
-	pos.z = hight_data * 100.0;
-    gl_Position = projection * view * model * vec4(pos, 1.0);
+    gl_Position = projection * view * model * vec4(a_pos, 1.0);
     v_texCoords = a_texCoords;
 }
