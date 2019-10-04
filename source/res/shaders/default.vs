@@ -11,7 +11,6 @@ uniform sampler2D u_hightMap;
 void main()
 {
 	float r = texture(u_hightMap, a_texCoords).r;
-	r = 2.0 * r - 1.0;
 	vec3 pos = a_pos;
 	pos.z = pos.z + r;
     gl_Position = projection * view * model * vec4(pos, 1.0);

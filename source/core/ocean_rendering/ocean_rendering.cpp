@@ -4,7 +4,7 @@
 //频谱的尺寸,必须为2的倍数
 #define N 128
 //水波高度
-#define A 3e-5f
+#define A 0.00008
 //fftw资源
 fftw_complex *in_data, *out_data;
 fftw_plan plan;
@@ -80,7 +80,7 @@ void OceanRenderer::prepare()
 	m_ocean_patch_length = 256.0f;
 	m_wind_direction = glm::vec2(3.0, 3.0);
 	m_wind_direction = glm::normalize(m_wind_direction);
-	m_wind_speed = 4.0;
+	m_wind_speed = 30.0;
 	m_height_data = new float[N * N];
 
 	create_grid(m_ocean_patch_length, m_ocean_patch_length, N, N);
@@ -115,8 +115,8 @@ void OceanRenderer::prepare()
 	glBindTexture(GL_TEXTURE_2D, m_hight_map);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//初始化fftw资源
 	in_data = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N * N);
