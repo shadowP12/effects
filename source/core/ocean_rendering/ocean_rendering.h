@@ -35,6 +35,7 @@ private:
 	std::vector<Vertex> m_mesh_vertices;
 	std::vector<uint32_t> m_mesh_indices;
 	GLuint m_program;
+	GLuint m_test_map;
 	GLuint m_grid_vao;
 	GLuint m_grid_vbo;
 	GLuint m_grid_ibo;

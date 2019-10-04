@@ -1,7 +1,7 @@
 #include "ocean_rendering.h"
 #include <fftw3.h>
 
-#define N 64
+#define N 1
 //用于调整水波高度
 #define A 3e-1f
 OceanRenderer::OceanRenderer(int width, int height)
@@ -13,6 +13,7 @@ OceanRenderer::OceanRenderer(int width, int height)
 OceanRenderer::~OceanRenderer()
 {
 	delete[] m_height_data;
+	//销毁gl资源
 }
 
 void OceanRenderer::resize(int width, int height)
@@ -73,9 +74,15 @@ void OceanRenderer::prepare()
 	m_wind_speed = 30.0;
 	m_height_data = new float[N * N];
 
-	create_grid(m_ocean_patch_length, m_ocean_patch_length, N - 1, N - 1);
+	create_grid(m_ocean_patch_length, m_ocean_patch_length, N, N);
 
 	m_program = create_shader_program("F:/Dev/effects/source/res/shaders/default.vs", "F:/Dev/effects/source/res/shaders/default.fs");
+	m_test_map = load_texture("F:/Dev/effects/source/res/textures/test.png");
+	glBindTexture(GL_TEXTURE_2D, m_test_map);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glGenVertexArrays(1, &m_grid_vao);
 	glGenBuffers(1, &m_grid_vbo);
@@ -97,10 +104,10 @@ void OceanRenderer::prepare()
 
 	glGenTextures(1, &m_hight_map);
 	glBindTexture(GL_TEXTURE_2D, m_hight_map);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void OceanRenderer::update(float t)
@@ -159,7 +166,7 @@ void OceanRenderer::render()
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_hight_map);
+	glBindTexture(GL_TEXTURE_2D, m_test_map);
 	glUniform1i(glGetUniformLocation(m_program, "u_hightMap"), 0);
 	glBindVertexArray(m_grid_vao);
 	glDrawElements(GL_TRIANGLE_STRIP, m_mesh_indices.size(), GL_UNSIGNED_INT, 0);

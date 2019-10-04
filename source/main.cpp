@@ -33,8 +33,16 @@ void release()
 void update(float t)
 {
 	_time += t;
-	if(_input->mouse_button_held[1])
+	if (_input->mouse_button_down[1])
+	{
+		_input->mouse_previou_position = _input->mouse_position;
+	}
+	if (_input->mouse_button_held[1])
+	{
+		//LOGI("%f %f , %f %f\n",_input->mouse_position.x, _input->mouse_position.y, _input->mouse_previou_position.x, _input->mouse_previou_position.y);
 		camera_rotate(_camera, _input->mouse_position - _input->mouse_previou_position);
+		_input->mouse_previou_position = _input->mouse_position;
+	}
 	camera_move(_camera, _input->mouse_scroll_wheel * 5.0);
 	uptate_input(_input);
 	_ocean_renderer->update(_time);
@@ -88,7 +96,6 @@ int main()
 
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y)
 {
-	_input->mouse_previou_position = _input->mouse_position;
 	_input->mouse_position = glm::vec2(pos_x, pos_y);
 }
 
