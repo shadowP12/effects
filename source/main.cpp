@@ -6,6 +6,7 @@
 Camera* _camera = nullptr;
 Input* _input = nullptr;
 float _time = 0.0;
+float _timer = 0.0;
 OceanRenderer* _ocean_renderer = nullptr;
 
 //窗口回调函数
@@ -32,7 +33,6 @@ void release()
 
 void update(float t)
 {
-	_time += t;
 	if (_input->mouse_button_down[1])
 	{
 		_input->mouse_previou_position = _input->mouse_position;
@@ -45,8 +45,13 @@ void update(float t)
 	}
 	camera_move(_camera, _input->mouse_scroll_wheel * 5.0);
 	uptate_input(_input);
-	_ocean_renderer->update(_time);
-		
+	_time += t;
+	_timer += t;
+	if (_timer > 0.15)
+	{
+		_ocean_renderer->update(_time);
+		_timer = 0.0;
+	}
 }
 
 void render()
