@@ -68,3 +68,24 @@ void destroy_input(Input* input)
 {
 	delete input;
 }
+
+Device* create_device()
+{
+	Device* device = new Device();
+	return device;
+}
+
+void set_device_input(Device* device, Input* input)
+{
+	device->input = input;
+}
+
+void set_device_camera(Device* device, Camera* camera)
+{
+	device->camera = camera;
+}
+
+void destroy_device(Device* device)
+{
+	delete device;
+}

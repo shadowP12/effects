@@ -1,19 +1,14 @@
 #pragma once
-#include "../../utils/base.h"
-#include "../../utils/gl_inc.h"
-#include "../../utils/gl_utils.h"
-#include "../../utils/utils.h"
+#include "core_renderer.h"
 
-class OceanRenderer
+class OceanRenderer : public CoreRenderer
 {
 public:
 	OceanRenderer(int width, int height);
 	~OceanRenderer();
-	void set_camera(Camera* camera);
-	void prepare();
-	void update(float t);
-	void render();
-	void resize(int width, int height);
+	virtual void prepare();
+	virtual void update(float t);
+	virtual void render();
 	struct Vertex
 	{
 		glm::vec3 pos;
@@ -25,7 +20,6 @@ private:
 	std::complex<float> h0(int n, int m, std::complex<float> xi);
 	float ph(int n, int m);
 private:
-	Camera* m_camera;
 	int m_width;
 	int m_height;
 	float m_wind_speed;

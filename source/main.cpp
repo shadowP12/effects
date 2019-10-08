@@ -5,6 +5,7 @@
 //全局变量
 Camera* _camera = nullptr;
 Input* _input = nullptr;
+Device* _device = nullptr;
 float _time = 0.0;
 float _timer = 0.0;
 OceanRenderer* _ocean_renderer = nullptr;
@@ -19,8 +20,11 @@ void init()
 {
 	_camera = create_camera(glm::vec3(0,0,0));
 	_input = create_input();
+	_device = create_device();
+	set_device_input(_device, _input);
+	set_device_camera(_device, _camera);
 	_ocean_renderer = new OceanRenderer(800, 600);
-	_ocean_renderer->set_camera(_camera);
+	_ocean_renderer->set_device(_device);
 	_ocean_renderer->prepare();
 }
 
@@ -29,6 +33,7 @@ void release()
 	delete _ocean_renderer;
 	destroy_input(_input);
 	destroy_camera(_camera);
+	destroy_device(_device);
 }
 
 void update(float t)

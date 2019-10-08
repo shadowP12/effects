@@ -41,3 +41,18 @@ void uptate_input(Input* input);
 
 void destroy_input(Input* input);
 
+//Device
+struct Device
+{
+	Input* input;
+	Camera* camera;
+};
+
+Device* create_device();
+
+void set_device_input(Device* device, Input* input);
+
+void set_device_camera(Device* device, Camera* camera);
+
+void destroy_device(Device* device);
+

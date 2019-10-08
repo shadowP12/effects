@@ -10,8 +10,8 @@ fftw_complex *in_data, *out_data;
 fftw_plan plan;
 
 OceanRenderer::OceanRenderer(int width, int height)
+	:CoreRenderer(width, height)
 {
-	resize(width, height);
 	m_random_gen.seed(time(NULL));
 }
 
@@ -23,18 +23,6 @@ OceanRenderer::~OceanRenderer()
 	fftw_destroy_plan(plan);
 	fftw_free(in_data);
 	fftw_free(out_data);
-}
-
-void OceanRenderer::resize(int width, int height)
-{
-	m_width = width;
-	m_height = height;
-	glViewport(0, 0, width, height);
-}
-
-void OceanRenderer::set_camera(Camera* camera)
-{
-	m_camera = camera;
 }
 
 void OceanRenderer::create_grid(float horizontal_length, float vertical_length, uint32_t rows, uint32_t columns)
@@ -162,8 +150,8 @@ void OceanRenderer::render()
 	glUseProgram(m_program);
 	glm::mat4 model = glm::mat4(1.0);
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
-	glm::mat4 view = get_camera_view_matrix(m_camera);
-	glm::mat4 proj = get_camera_projection_matrix(m_camera, m_width, m_height);
+	glm::mat4 view = get_camera_view_matrix(m_device->camera);
+	glm::mat4 proj = get_camera_projection_matrix(m_device->camera, m_width, m_height);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
