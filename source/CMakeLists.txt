@@ -13,6 +13,7 @@ add_library(glad STATIC third_party/glad/src/glad.c)
 add_executable (effects 
 				main.cpp
 				utils/gl_utils.cpp
+				utils/gltf_utils.cpp
 				utils/utils.cpp
 				core/ocean_rendering/ocean_rendering.cpp
 				core/ocean_rendering/pbr_rendering.cpp)
