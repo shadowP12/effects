@@ -1,6 +1,7 @@
 #pragma once
 #include "base.h"
-
+#include "gl_utils.h"
+#include "utils.h"
 struct GltfNode
 {
 	int node_id;
@@ -13,11 +14,25 @@ struct GltfNode
 
 struct GltfMesh
 {
-	
+	struct Vertex
+	{
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec2 uv;
+	};
+	std::vector<Vertex> vertices;
+	std::vector<int> indices;
+	int material_id;
+	GLuint vao;
+	GLuint vbo;
+	GLuint ibo;
 };
+
+void init_gltf_mesh(GltfMesh* mesh);
 
 struct GltfScene
 {
+	std::vector<GltfMesh*> meshs;
 	std::map<int, GltfNode> nodes;
 };
 
