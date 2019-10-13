@@ -1,6 +1,5 @@
 #include "gltf_utils.h"
 #define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
 
@@ -24,10 +23,33 @@ GltfScene* load_gltf_scene(std::string file)
 		GltfNode node;
 		node.node_id = i;
 		node.parent = -1;
-		node.translation = glm::make_vec3(gltf_node.translation.data());
-		node.scale = glm::make_vec3(gltf_node.scale.data());
-		node.rotation = glm::make_quat(gltf_node.rotation.data());
+		glm::vec3 translation = glm::vec3(0.0f);
+		if (gltf_node.translation.size() == 3)
+		{
+			translation = glm::make_vec3(gltf_node.translation.data());
+		}
+
+		glm::quat rotation = glm::quat(1, 0, 0, 0);
+		if (gltf_node.rotation.size() == 4)
+		{
+			glm::quat rotation = glm::make_quat(gltf_node.rotation.data());
+		}
+
+		glm::vec3 scale = glm::vec3(1.0f);
+		if (gltf_node.scale.size() == 3)
+		{
+			scale = glm::make_vec3(gltf_node.scale.data());
+		}
+
+		node.translation = translation;
+		node.scale = scale;
+		node.rotation = rotation;
 		res->nodes[node.node_id] = node;
+		node.mesh = -1;
+		if (gltf_node.mesh > -1)
+		{
+			node.mesh = gltf_node.mesh;
+		}
 	}
 	//加载网格数据
 	for (int i = 0; i < gltf_model.meshes.size(); i++)
@@ -131,7 +153,11 @@ GltfScene* load_gltf_scene(std::string file)
 		}
 	}
 	//加载图片资源
+	for (int i = 0; i < gltf_model.images.size(); i++)
+	{
+		const tinygltf::Image& gltf_image = gltf_model.images[i];
 
+	}
 	//加载材质数据
 
 	//设置节点的数据
@@ -155,7 +181,13 @@ void delete_gltf_scene(GltfScene* scene)
 	for (int i = 0; i < scene->meshs.size(); i++)
 	{
 		if (scene->meshs[i])
-			delete scene->meshs[i];
+		{
+			GltfMesh* mesh = scene->meshs[i];
+			glDeleteVertexArrays(1, &mesh->vao);
+			glDeleteBuffers(1, &mesh->vbo);
+			glDeleteBuffers(1, &mesh->ibo);
+			delete mesh;
+		}
 	}
 	if (scene)
 		delete scene;
@@ -184,4 +216,36 @@ glm::mat4 get_world_matrix(GltfScene* scene, int id)
 		parent_id = cur_node.parent;
 	}
 	return out;
+}
+
+void init_gltf_mesh(GltfMesh* mesh)
+{
+	//初始化gltf mesh的gpu资源
+	glGenVertexArrays(1, &mesh->vao);
+	glGenBuffers(1, &mesh->vbo);
+	glGenBuffers(1, &mesh->ibo);
+
+	glBindVertexArray(mesh->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+	glBufferData(GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(GltfMesh::Vertex), &mesh->vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indices.size() * sizeof(int), &mesh->indices[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GltfMesh::Vertex), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GltfMesh::Vertex), (void*)offsetof(GltfMesh::Vertex, normal));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GltfMesh::Vertex), (void*)offsetof(GltfMesh::Vertex, uv));
+	glBindVertexArray(0);
+}
+
+void draw_gltf_mesh(GltfMesh* mesh, int draw_type)
+{
+	glBindVertexArray(mesh->vao);
+	glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

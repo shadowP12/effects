@@ -1,5 +1,5 @@
 #pragma once
-#include "core_renderer.h"
+#include "../core_renderer.h"
 
 class OceanRenderer : public CoreRenderer
 {
@@ -20,8 +20,6 @@ private:
 	std::complex<float> h0(int n, int m, std::complex<float> xi);
 	float ph(int n, int m);
 private:
-	int m_width;
-	int m_height;
 	float m_wind_speed;
 	glm::vec2 m_wind_direction;
 	float m_ocean_patch_length;

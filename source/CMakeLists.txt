@@ -16,7 +16,7 @@ add_executable (effects
 				utils/gltf_utils.cpp
 				utils/utils.cpp
 				core/ocean_rendering/ocean_rendering.cpp
-				core/ocean_rendering/pbr_rendering.cpp)
+				core/standard_rendering/pbr_rendering.cpp)
 target_link_libraries(effects glad)
 
 IF (CMAKE_BUILD_TYPE MATCHES "Debug")

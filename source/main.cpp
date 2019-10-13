@@ -8,7 +8,7 @@ Input* _input = nullptr;
 Device* _device = nullptr;
 float _time = 0.0;
 float _timer = 0.0;
-OceanRenderer* _ocean_renderer = nullptr;
+PBRRenderer* _renderer = nullptr;
 
 //窗口回调函数
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
@@ -23,14 +23,14 @@ void init()
 	_device = create_device();
 	set_device_input(_device, _input);
 	set_device_camera(_device, _camera);
-	_ocean_renderer = new OceanRenderer(800, 600);
-	_ocean_renderer->set_device(_device);
-	_ocean_renderer->prepare();
+	_renderer = new PBRRenderer(800, 600);
+	_renderer->set_device(_device);
+	_renderer->prepare();
 }
 
 void release()
 {
-	delete _ocean_renderer;
+	delete _renderer;
 	destroy_input(_input);
 	destroy_camera(_camera);
 	destroy_device(_device);
@@ -54,14 +54,14 @@ void update(float t)
 	_timer += t;
 	if (_timer > 0.15)
 	{
-		_ocean_renderer->update(_time);
+		_renderer->update(_time);
 		_timer = 0.0;
 	}
 }
 
 void render()
 {
-	_ocean_renderer->render();
+	_renderer->render();
 }
 
 int main()
@@ -133,5 +133,5 @@ void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y
 
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
-	_ocean_renderer->resize(width, height);
+	_renderer->resize(width, height);
 }

@@ -7,6 +7,7 @@ struct GltfNode
 	int node_id;
 	int parent;
 	std::vector<int> childrens;
+	int mesh;
 	glm::vec3 translation;
 	glm::vec3 scale;
 	glm::quat rotation;
@@ -29,6 +30,11 @@ struct GltfMesh
 };
 
 void init_gltf_mesh(GltfMesh* mesh);
+
+//1:GL_TRIANGLES
+//2:GL_TRIANGLE_STRIP
+//3:GL_LINE
+void draw_gltf_mesh(GltfMesh* mesh, int draw_type);
 
 struct GltfScene
 {
