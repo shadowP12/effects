@@ -6,9 +6,10 @@
 GltfScene* load_gltf_scene(std::string file)
 {
 	std::string error;
+	std::string warn;
 	tinygltf::Model gltf_model;
 	tinygltf::TinyGLTF gltf_context;
-	bool loaded = gltf_context.LoadASCIIFromFile(&gltf_model, &error, file.c_str());
+	bool loaded = gltf_context.LoadASCIIFromFile(&gltf_model, &error, &warn, file);
 	if (!loaded)
 	{
 		LOGE("%s\n",error.c_str());
@@ -44,12 +45,9 @@ GltfScene* load_gltf_scene(std::string file)
 		node.translation = translation;
 		node.scale = scale;
 		node.rotation = rotation;
+		node.mesh = gltf_node.mesh;
+		node.node_name = gltf_node.name;
 		res->nodes[node.node_id] = node;
-		node.mesh = -1;
-		if (gltf_node.mesh > -1)
-		{
-			node.mesh = gltf_node.mesh;
-		}
 	}
 	//加载网格数据
 	for (int i = 0; i < gltf_model.meshes.size(); i++)
@@ -159,6 +157,24 @@ GltfScene* load_gltf_scene(std::string file)
 
 	}
 	//加载材质数据
+	for (tinygltf::Material &gltf_material : gltf_model.materials)
+	{
+		tinygltf::ParameterMap parameter_map = gltf_material.values;
+		GltfMaterial material;
+		if (gltf_material.values.find("roughnessFactor") != gltf_material.values.end())
+		{
+			material.roughness = static_cast<float>(parameter_map["roughnessFactor"].Factor());
+		}
+		if (gltf_material.values.find("metallicFactor") != gltf_material.values.end())
+		{
+			material.metallic = static_cast<float>(parameter_map["metallicFactor"].Factor());
+		}
+		if (gltf_material.values.find("baseColorFactor") != gltf_material.values.end())
+		{
+			material.base_color = glm::make_vec4(parameter_map["baseColorFactor"].ColorFactor().data());
+		}
+		res->materials.push_back(material);
+	}
 
 	//设置节点的数据
 	for (int i = 0; i < gltf_model.nodes.size(); i++)
@@ -248,4 +264,9 @@ void draw_gltf_mesh(GltfMesh* mesh, int draw_type)
 	glBindVertexArray(mesh->vao);
 	glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+GltfNode& get_gltf_node(GltfScene* scene, int id)
+{
+	return scene->nodes[id];
 }

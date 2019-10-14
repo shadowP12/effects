@@ -18,7 +18,7 @@ void window_size_callback(GLFWwindow* window, int width, int height);
 
 void init()
 {
-	_camera = create_camera(glm::vec3(0,0,0));
+	_camera = create_camera(glm::vec3(0.0, 5.0, 0.0));
 	_input = create_input();
 	_device = create_device();
 	set_device_input(_device, _input);

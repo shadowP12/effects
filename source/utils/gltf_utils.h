@@ -4,13 +4,22 @@
 #include "utils.h"
 struct GltfNode
 {
+	std::string node_name;
 	int node_id;
 	int parent;
 	std::vector<int> childrens;
 	int mesh;
+	int light;
 	glm::vec3 translation;
 	glm::vec3 scale;
 	glm::quat rotation;
+};
+
+struct GltfMaterial
+{
+	glm::vec4 base_color;
+	float metallic;
+	float roughness;
 };
 
 struct GltfMesh
@@ -39,6 +48,7 @@ void draw_gltf_mesh(GltfMesh* mesh, int draw_type);
 struct GltfScene
 {
 	std::vector<GltfMesh*> meshs;
+	std::vector<GltfMaterial> materials;
 	std::map<int, GltfNode> nodes;
 };
 
@@ -51,3 +61,5 @@ glm::mat4 get_local_matrix(GltfScene* scene, int id);
 
 //获取节点的世界矩阵
 glm::mat4 get_world_matrix(GltfScene* scene, int id);
+
+GltfNode& get_gltf_node(GltfScene* scene, int id);

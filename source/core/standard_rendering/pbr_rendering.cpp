@@ -30,17 +30,17 @@ void PBRRenderer::render()
 	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(m_program);
-	glm::mat4 model = glm::mat4(1.0);
-	glm::mat4 view = get_camera_view_matrix(m_device->camera);
-	glm::mat4 proj = get_camera_projection_matrix(m_device->camera, m_width, m_height);
-	glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 
 	for (auto& entry : m_scene->nodes)
 	{
 		if (entry.second.mesh > -1)
 		{
+			glm::mat4 model = get_world_matrix(m_scene, entry.second.node_id);
+			glm::mat4 view = get_camera_view_matrix(m_device->camera);
+			glm::mat4 proj = get_camera_projection_matrix(m_device->camera, m_width, m_height);
+			glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 			draw_gltf_mesh(m_scene->meshs[entry.second.mesh], 1);
 		}
 	}

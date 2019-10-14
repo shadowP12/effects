@@ -1,7 +1,9 @@
 #include "gl_utils.h"
 #include "file_utils.h"
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 void check_shader_compile_errors(GLuint id)
 {
