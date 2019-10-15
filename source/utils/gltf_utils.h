@@ -63,3 +63,5 @@ glm::mat4 get_local_matrix(GltfScene* scene, int id);
 glm::mat4 get_world_matrix(GltfScene* scene, int id);
 
 GltfNode& get_gltf_node(GltfScene* scene, int id);
+
+void print_node_info(GltfScene* scene, int id);

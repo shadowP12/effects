@@ -19,6 +19,11 @@ void PBRRenderer::prepare()
 	{
 		init_gltf_mesh(m_scene->meshs[i]);
 	}
+
+	for (auto& entry : m_scene->nodes)
+	{
+		print_node_info(m_scene, entry.second.node_id);
+	}
 }
 
 void PBRRenderer::update(float t)

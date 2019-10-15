@@ -33,7 +33,7 @@ GltfScene* load_gltf_scene(std::string file)
 		glm::quat rotation = glm::quat(1, 0, 0, 0);
 		if (gltf_node.rotation.size() == 4)
 		{
-			glm::quat rotation = glm::make_quat(gltf_node.rotation.data());
+			rotation = glm::make_quat(gltf_node.rotation.data());
 		}
 
 		glm::vec3 scale = glm::vec3(1.0f);
@@ -183,9 +183,9 @@ GltfScene* load_gltf_scene(std::string file)
 		GltfNode& node = res->nodes[i];
 		for (int j = 0; j < gltf_node.children.size(); j++)
 		{
-			GltfNode& children_node = res->nodes[j];
+			GltfNode& children_node = res->nodes[gltf_node.children[j]];
 			children_node.parent = node.node_id;
-			node.childrens.push_back(gltf_node.children[0]);
+			node.childrens.push_back(children_node.node_id);
 		}
 	}
 	return res;
@@ -269,4 +269,15 @@ void draw_gltf_mesh(GltfMesh* mesh, int draw_type)
 GltfNode& get_gltf_node(GltfScene* scene, int id)
 {
 	return scene->nodes[id];
+}
+
+void print_node_info(GltfScene* scene, int id)
+{
+	GltfNode& node = scene->nodes[id];
+	LOGI("########NODE_INFO###########\n");
+	LOGI("Node Name : %s\n", node.node_name.c_str());
+	LOGI("Node ID : %d\n",node.node_id);
+	LOGI("Node Translation : %f  %f  %f\n",node.translation.x, node.translation.y, node.translation.z);
+	LOGI("Node Scale : %f  %f  %f\n", node.scale.x, node.scale.y, node.scale.z);
+	LOGI("Node Rotation : %f  %f  %f  %f\n", node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w);
 }
