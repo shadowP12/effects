@@ -1,11 +1,11 @@
 #include "ocean_rendering.h"
 #include <fftw3.h>
 
-//ÆµÆ×µÄ³ß´ç,±ØÐëÎª2µÄ±¶Êý
+//Æµï¿½×µÄ³ß´ï¿½,ï¿½ï¿½ï¿½ï¿½Îª2ï¿½Ä±ï¿½ï¿½ï¿½
 #define N 128
-//Ë®²¨¸ß¶È
+//Ë®ï¿½ï¿½ï¿½ß¶ï¿½
 #define A 0.00008
-//fftw×ÊÔ´
+//fftwï¿½ï¿½Ô´
 fftw_complex *in_data, *out_data;
 fftw_plan plan;
 
@@ -18,8 +18,8 @@ OceanRenderer::OceanRenderer(int width, int height)
 OceanRenderer::~OceanRenderer()
 {
 	delete[] m_height_data;
-	//Ïú»Ùgl×ÊÔ´
-	//Ïú»Ùfftw×ÊÔ´
+	//ï¿½ï¿½ï¿½ï¿½glï¿½ï¿½Ô´
+	//ï¿½ï¿½ï¿½ï¿½fftwï¿½ï¿½Ô´
 	fftw_destroy_plan(plan);
 	fftw_free(in_data);
 	fftw_free(out_data);
@@ -64,7 +64,7 @@ void OceanRenderer::create_grid(float horizontal_length, float vertical_length, 
 
 void OceanRenderer::prepare()
 {
-	//³õÊ¼»¯²ÎÊý
+	//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	m_ocean_patch_length = 256.0f;
 	m_wind_direction = glm::vec2(3.0, 3.0);
 	m_wind_direction = glm::normalize(m_wind_direction);
@@ -106,7 +106,7 @@ void OceanRenderer::prepare()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	//³õÊ¼»¯fftw×ÊÔ´
+	//ï¿½ï¿½Ê¼ï¿½ï¿½fftwï¿½ï¿½Ô´
 	in_data = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N * N);
 	out_data = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N * N);
 	plan = fftw_plan_dft_2d(N, N, in_data, out_data, FFTW_BACKWARD, FFTW_ESTIMATE);
@@ -140,10 +140,10 @@ void OceanRenderer::update(float t)
 
 void OceanRenderer::render()
 {
-	//¸üÐÂ¶¥µãÊý¾Ý
+	//ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	//glBindBuffer(GL_ARRAY_BUFFER, m_grid_vbo);
 	//glBufferData(GL_ARRAY_BUFFER, m_mesh_vertices.size() * sizeof(Vertex), &m_mesh_vertices[0], GL_STATIC_DRAW);
-	//»æÖÆ
+	//ï¿½ï¿½ï¿½ï¿½
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -165,7 +165,7 @@ void OceanRenderer::render()
 
 std::complex<float> OceanRenderer::h(uint32_t n, uint32_t m, float t)
 {
-	//_kÎªkµÄÄ£
+	//_kÎªkï¿½ï¿½Ä£
 	glm::vec2 k;
 	k.x = (2 * PI * n - PI * N) / m_ocean_patch_length;
 	k.y = (2 * PI * m - PI * N) / m_ocean_patch_length;
@@ -186,7 +186,7 @@ std::complex<float> OceanRenderer::h0(int n, int m, std::complex<float> xi)
 
 float OceanRenderer::ph(int n, int m)
 {
-	//·ÆÀûÆÕ²¨ÆÕ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Õ²ï¿½ï¿½ï¿½
 	glm::vec2 k;
 	k.x = (2 * PI * n - PI * N) / m_ocean_patch_length;
 	k.y = (2 * PI * m - PI * N) / m_ocean_patch_length;

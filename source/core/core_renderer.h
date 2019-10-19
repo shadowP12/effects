@@ -12,7 +12,7 @@ public:
 		resize(width, height);
 	}
 	virtual ~CoreRenderer()
-	{
+	{	
 	}
 	virtual void prepare() = 0;
 	virtual void update(float t) = 0;

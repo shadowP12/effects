@@ -1,4 +1,4 @@
-#include <iostream>
+/*#include <iostream>
 #include "utils/gl_inc.h"
 #include "core/effects_define.h"
 
@@ -134,4 +134,31 @@ void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
 	_renderer->resize(width, height);
+}
+*/
+#include<iostream>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+int main()
+{	//初始化glfw
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//创建带窗口的gl环境
+	GLFWwindow* window = glfwCreateWindow(800, 600, "effects", NULL, NULL);
+	glfwMakeContextCurrent(window);
+	//初始化gl函数指针
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	glfwTerminate();
+	return 0;
 }

@@ -1,28 +1,28 @@
 ﻿{
   "configurations": [
     {
-      "name": "x86-Debug",
-      "generator": "Visual Studio 15 2017",
-      "configurationType": "Debug",
-      "inheritEnvironments": [
-        "msvc_x86"
-      ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "buildCommandArgs": "",
+      "buildRoot": "${projectDir}\\build\\${name}",
       "cmakeCommandArgs": "-DCMAKE_BUILD_TYPE=Debug",
-      "ctestCommandArgs": ""
+      "configurationType": "Debug",
+      "ctestCommandArgs": "",
+      "generator": "Visual Studio 16 2019",
+      "inheritEnvironments": [ "msvc_x86" ],
+      "installRoot": "${projectDir}\\build\\${name}",
+      "name": "x86-Debug",
+      "variables": []
     },
     {
       "name": "x86-Release",
-      "generator": "Visual Studio 15 2017",
-      "configurationType": "Release",
-      "inheritEnvironments": [
-        "msvc_x86"
-      ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "cmakeCommandArgs": "-DCMAKE_BUILD_TYPE=Release",
-      "ctestCommandArgs": ""
+      "configurationType": "Release",
+      "ctestCommandArgs": "",
+      "generator": "Visual Studio 16 2019",
+      "inheritEnvironments": [ "msvc_x86" ],
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "variables": [],
+      "buildCommandArgs": ""
     }
   ]
 }

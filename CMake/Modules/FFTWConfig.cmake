@@ -1,0 +1,16 @@
+# FFTW_INCLUDE_DIR
+# FFTW_LIBS
+# FFTW_DYNLIBS
+
+set(FFTW_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/fftw)
+
+set(FFTW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/fftw)
+
+set(FFTW_LIBS ${FFTW_ROOT}/libfftw3-3.lib)
+set(FFTW_LIBS ${FFTW_LIBS} ${FFTW_ROOT}/libfftw3f-3.lib)
+set(FFTW_LIBS ${FFTW_LIBS} ${FFTW_ROOT}/libfftw3l-3.lib)
+
+set(FFTW_DYNLIBS ${FFTW_ROOT}/libfftw3-3.dll)
+set(FFTW_DYNLIBS ${FFTW_DYNLIBS} ${FFTW_ROOT}/libfftw3f-3.dll)
+set(FFTW_DYNLIBS ${FFTW_DYNLIBS} ${FFTW_ROOT}/libfftw3l-3.dll)
+
