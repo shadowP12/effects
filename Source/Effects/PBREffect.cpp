@@ -1,18 +1,22 @@
-#include "pbr_rendering.h"
+#include "PBREffect.h"
+#include "../Core/Utility/FileUtility.h"
+#include "../Core/Gfx/GpuProgram.h"
+#include "../Core/Scene/RenderScene.h"
 
-PBRRenderer::PBRRenderer(int width, int height)
-	:CoreRenderer(width, height)
+EFFECTS_NAMESPACE_BEGIN
+
+PBREffect::PBREffect(int width, int height)
+	:BaseEffect(width, height)
 {
-
 }
-PBRRenderer::~PBRRenderer()
+
+PBREffect::~PBREffect()
 {
-	delete_gltf_scene(m_scene);
-	glDeleteProgram(m_program);
 }
 
-void PBRRenderer::prepare()
+void PBREffect::prepare()
 {
+	/*
 	m_scene = load_gltf_scene("F:/Dev/effects/source/res/scenes/test.gltf");
 	m_program = create_shader_program("F:/Dev/effects/source/res/shaders/pbr.vs", "F:/Dev/effects/source/res/shaders/pbr.fs");
 	for (int i = 0; i < m_scene->meshs.size(); i++)
@@ -24,14 +28,16 @@ void PBRRenderer::prepare()
 	{
 		print_node_info(m_scene, entry.second.node_id);
 	}
+	*/
 }
 
-void PBRRenderer::update(float t)
+void PBREffect::update(float t)
 {
 }
 
-void PBRRenderer::render()
+void PBREffect::render()
 {
+	/*
 	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(m_program);
@@ -49,4 +55,7 @@ void PBRRenderer::render()
 			draw_gltf_mesh(m_scene->meshs[entry.second.mesh], 1);
 		}
 	}
+	*/
 }
+
+EFFECTS_NAMESPACE_END

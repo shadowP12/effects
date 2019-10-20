@@ -1,17 +1,18 @@
 #pragma once
-#include "../utils/base.h"
-#include "../utils/gl_inc.h"
-#include "../utils/gl_utils.h"
-#include "../utils/utils.h"
 
-class CoreRenderer
+#include "../Core/Base.h"
+#include "../Core/Gfx/Gfx.h"
+#include "../Core/Scene/CommonTool.h"
+EFFECTS_NAMESPACE_BEGIN
+
+class BaseEffect
 {
 public:
-	CoreRenderer(int width, int height)
+	BaseEffect(int width, int height)
 	{
 		resize(width, height);
 	}
-	virtual ~CoreRenderer()
+	virtual ~BaseEffect()
 	{	
 	}
 	virtual void prepare() = 0;
@@ -23,12 +24,15 @@ public:
 		m_height = height;
 		glViewport(0, 0, width, height);
 	}
-	void set_device(Device* device)
+
+	void setContext(Context* context)
 	{
-		m_device = device;
+		m_context = context;
 	}
 protected:
 	int m_width;
 	int m_height;
-	Device* m_device;
+	Context* m_context;
 };
+
+EFFECTS_NAMESPACE_END

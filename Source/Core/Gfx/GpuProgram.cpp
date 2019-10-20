@@ -28,11 +28,8 @@ void checkProgramCompileErrors(GLuint id)
 	}
 }
 
-GLuint createGpuProgram(std::string vs, std::string fs)
+GLuint createGpuProgram(std::string vertex_source, std::string fragment_source)
 {
-	std::string vertex_source, fragment_source;
-	read_file(vs, vertex_source);
-	read_file(fs, fragment_source);
 	const char* vertex_source_c = vertex_source.c_str();
 	const char* fragment_source_c = fragment_source.c_str();
 
