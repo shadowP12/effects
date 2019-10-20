@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Core/Utility/FileUtility.h"
 #include "Core/Gfx/Gfx.h"
 #include "Core/Scene/CommonTool.h"
 //全局变量
@@ -19,6 +20,9 @@ void init()
 	g_context = new et::Context();
 	g_context->setInput(g_input);
 	g_context->setCamera(g_camera);
+	// test
+	std::string path = et::getCurrentPath();
+	printf("%s\n",path.c_str());
 }
 
 void release()
