@@ -2,10 +2,16 @@
 #include "Core/Utility/FileUtility.h"
 #include "Core/Gfx/Gfx.h"
 #include "Core/Scene/CommonTool.h"
+#include "Effects/PBREffect.h"
+
+#define SCREEN_WIDTH 800 
+#define SCREEN_HEIGHT 600
+
 //全局变量
 et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::Context* g_context = nullptr;
+et::PBREffect* g_effect = nullptr;
 
 //窗口回调函数
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
@@ -20,9 +26,11 @@ void init()
 	g_context = new et::Context();
 	g_context->setInput(g_input);
 	g_context->setCamera(g_camera);
-	// test
-	std::string path = et::getCurrentPath();
-	printf("%s\n",path.c_str());
+
+	// effect
+	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect->setContext(g_context);
+	g_effect->prepare();
 }
 
 void release()
@@ -34,13 +42,13 @@ void release()
 
 void update(float t)
 {
+	g_effect->update(t);
 	g_context->update(t);
 }
 
 void render()
 {
-	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	g_effect->render();
 }
 
 int main()
@@ -113,4 +121,5 @@ void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
 	// resize
+	g_effect->resize(width, height);
 }

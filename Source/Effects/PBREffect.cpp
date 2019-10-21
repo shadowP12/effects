@@ -12,50 +12,75 @@ PBREffect::PBREffect(int width, int height)
 
 PBREffect::~PBREffect()
 {
+	delete m_scene;
+	delete m_program;
 }
 
 void PBREffect::prepare()
 {
-	/*
-	m_scene = load_gltf_scene("F:/Dev/effects/source/res/scenes/test.gltf");
-	m_program = create_shader_program("F:/Dev/effects/source/res/shaders/pbr.vs", "F:/Dev/effects/source/res/shaders/pbr.fs");
-	for (int i = 0; i < m_scene->meshs.size(); i++)
+	std::string scene_file = getCurrentPath() + "\\BuiltinResources\\Scenes\\test.gltf";
+	m_scene = new Scene();
+	m_scene->load(scene_file);
+
+	std::string vs;
+	std::string vs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\pbr.vs";
+	readFileData(vs_path, vs);
+
+	std::string fs;
+	std::string fs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\pbr.fs";
+	readFileData(fs_path, fs);
+
+	m_program = new GpuProgram(vs, fs);
+	for (int i = 0; i < m_scene->m_meshs.size(); i++)
 	{
-		init_gltf_mesh(m_scene->meshs[i]);
+		initMesh(m_scene->m_meshs[i]);
 	}
 
-	for (auto& entry : m_scene->nodes)
+	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
-		print_node_info(m_scene, entry.second.node_id);
+		Node& node = m_scene->m_nodes[i];
+		m_scene->printNodeInfo(node.node_id);
 	}
-	*/
+
+	m_program_id = m_program->getGpuProgram();
 }
 
 void PBREffect::update(float t)
 {
+	Input* input = m_context->getInput();
+	Camera* camera = m_context->getCamera();
+	if (input->m_mouse_button_down[1])
+	{
+		input->m_mouse_previou_position = input->m_mouse_position;
+	}
+	if (input->m_mouse_button_held[1])
+	{
+		camera->Rotate(input->m_mouse_position - input->m_mouse_previou_position);
+		input->m_mouse_previou_position = input->m_mouse_position;
+	}
+	camera->Move(input->m_mouse_scroll_wheel * 5.0);
 }
 
 void PBREffect::render()
 {
-	/*
 	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glUseProgram(m_program);
 
-	for (auto& entry : m_scene->nodes)
+	glUseProgram(m_program_id);
+	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
-		if (entry.second.mesh > -1)
+		Node& node = m_scene->m_nodes[i];
+		if (node.mesh > -1)
 		{
-			glm::mat4 model = get_world_matrix(m_scene, entry.second.node_id);
-			glm::mat4 view = get_camera_view_matrix(m_device->camera);
-			glm::mat4 proj = get_camera_projection_matrix(m_device->camera, m_width, m_height);
-			glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0][0]);
-			glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0][0]);
-			glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &proj[0][0]);
-			draw_gltf_mesh(m_scene->meshs[entry.second.mesh], 1);
+			glm::mat4 model = m_scene->getWorldMatrix(node.node_id);
+			glm::mat4 view = m_context->getCamera()->getViewMatrix();
+			glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);
+			glUniformMatrix4fv(glGetUniformLocation(m_program_id, "model"), 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(m_program_id, "view"), 1, GL_FALSE, &view[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(m_program_id, "projection"), 1, GL_FALSE, &proj[0][0]);
+			drawMesh(m_scene->m_meshs[node.mesh]);
 		}
 	}
-	*/
 }
 
 EFFECTS_NAMESPACE_END

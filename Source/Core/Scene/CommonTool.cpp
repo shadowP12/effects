@@ -46,6 +46,10 @@ void Camera::updateVectors()
 
 Input::Input()
 {
+	memset(m_mouse_button_up, 0, sizeof(m_mouse_button_up));
+	memset(m_mouse_button_held, 0, sizeof(m_mouse_button_held));
+	memset(m_mouse_button_down, 0, sizeof(m_mouse_button_down));
+	m_mouse_scroll_wheel = 0.0;
 }
 
 Input::~Input()

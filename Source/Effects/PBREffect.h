@@ -18,6 +18,7 @@ public:
 private:
 	Scene* m_scene;
 	GpuProgram* m_program;	
+	GLuint m_program_id;
 };
 
 EFFECTS_NAMESPACE_END

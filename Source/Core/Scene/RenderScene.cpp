@@ -99,7 +99,7 @@ void Scene::load(std::string file_path)
 		node.rotation = rotation;
 		node.mesh = gltf_node.mesh;
 		node.node_name = gltf_node.name;
-		m_nodes[node.node_id] = node;
+		m_nodes.push_back(node);
 	}
 	//加载网格数据
 	for (int i = 0; i < gltf_model.meshes.size(); i++)
