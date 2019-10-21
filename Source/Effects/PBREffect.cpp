@@ -63,9 +63,9 @@ void PBREffect::update(float t)
 
 void PBREffect::render()
 {
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(m_program_id);
 	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
@@ -78,6 +78,13 @@ void PBREffect::render()
 			glUniformMatrix4fv(glGetUniformLocation(m_program_id, "model"), 1, GL_FALSE, &model[0][0]);
 			glUniformMatrix4fv(glGetUniformLocation(m_program_id, "view"), 1, GL_FALSE, &view[0][0]);
 			glUniformMatrix4fv(glGetUniformLocation(m_program_id, "projection"), 1, GL_FALSE, &proj[0][0]);
+			// 灯光参数
+			glm::vec3 light_dir = glm::vec3(0.5, 0.5, 1.0);
+			glm::vec3 light_color = glm::vec3(1.0, 1.0, 1.0);
+			glUniform3fv(glGetUniformLocation(m_program_id, "u_light_dir"), 1, &light_dir[0]);
+			glUniform3fv(glGetUniformLocation(m_program_id, "u_light_color"), 1, &light_color[0]);
+			// 材质参数
+
 			drawMesh(m_scene->m_meshs[node.mesh]);
 		}
 	}

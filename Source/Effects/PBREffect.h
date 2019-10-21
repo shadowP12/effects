@@ -16,6 +16,8 @@ public:
 	virtual void update(float t);
 	virtual void render();
 private:
+	
+private:
 	Scene* m_scene;
 	GpuProgram* m_program;	
 	GLuint m_program_id;
