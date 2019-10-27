@@ -2,6 +2,7 @@
 #include "Core/Utility/FileUtility.h"
 #include "Core/Gfx/Gfx.h"
 #include "Core/Scene/CommonTool.h"
+#include "UI/UISystem.h"
 #include "Effects/PBREffect.h"
 
 #define SCREEN_WIDTH 800 
@@ -10,8 +11,10 @@
 //全局变量
 et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
+et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
 et::PBREffect* g_effect = nullptr;
+GLFWwindow* g_window = nullptr;
 
 //窗口回调函数
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
@@ -23,9 +26,11 @@ void init()
 {
 	g_camera = new et::Camera(glm::vec3(0.0, 5.0, 0.0));
 	g_input = new et::Input();
+	g_ui_system = new et::UISystem(g_window);
 	g_context = new et::Context();
 	g_context->setInput(g_input);
 	g_context->setCamera(g_camera);
+	g_context->setUISystem(g_ui_system);
 
 	// effect
 	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -38,6 +43,7 @@ void release()
 	delete g_context;
 	delete g_input;
 	delete g_camera;
+	delete g_ui_system;
 }
 
 void update(float t)
@@ -60,19 +66,19 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	//创建带窗口的gl环境
-	GLFWwindow* window = glfwCreateWindow(800, 600, "effects", NULL, NULL);
-	if (window == NULL)
+	g_window = glfwCreateWindow(800, 600, "effects", NULL, NULL);
+	if (g_window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
 	//绑定当前gl环境
-	glfwMakeContextCurrent(window);
-	glfwSetMouseButtonCallback(window, mouse_button_callback);
-	glfwSetCursorPosCallback(window, cursor_pos_callback);
-	glfwSetScrollCallback(window, mouse_scroll_callback);
-	glfwSetFramebufferSizeCallback(window, window_size_callback);
+	glfwMakeContextCurrent(g_window);
+	glfwSetMouseButtonCallback(g_window, mouse_button_callback);
+	glfwSetCursorPosCallback(g_window, cursor_pos_callback);
+	glfwSetScrollCallback(g_window, mouse_scroll_callback);
+	glfwSetFramebufferSizeCallback(g_window, window_size_callback);
 	//初始化gl函数指针
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -80,13 +86,15 @@ int main()
 		return -1;
 	}
 	init();
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(g_window))
 	{
 		update(0.001);
 		render();
-		glfwSwapBuffers(window);
+		g_context->drawUI();
+		glfwSwapBuffers(g_window);
 		glfwPollEvents();
 	}
+	glfwDestroyWindow(g_window);
 	glfwTerminate();
 	release();
 	return 0;

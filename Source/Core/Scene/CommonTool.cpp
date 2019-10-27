@@ -1,5 +1,6 @@
 #include "CommonTool.h"
 #include "../Utility/Log.h"
+#include "../../UI/UISystem.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Camera::Camera(glm::vec3 position, float yaw, float pitch)
@@ -71,10 +72,16 @@ Context::~Context()
 {
 }
 
-
 void Context::update(float t)
 {
 	m_time += t;
 	m_input->update();
+	m_ui_system->update();
 }
+
+void Context::drawUI()
+{
+	m_ui_system->draw();
+}
+
 EFFECTS_NAMESPACE_END

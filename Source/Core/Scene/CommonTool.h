@@ -40,6 +40,8 @@ public:
 	glm::vec2 m_mouse_previou_position;
 };
 
+class UISystem;
+
 // Context
 class Context
 {
@@ -49,12 +51,16 @@ public:
 	void update(float t);
 	void setCamera(Camera* camera) { m_camera = camera; }
 	void setInput(Input* input) { m_input = input; }
+	void setUISystem(UISystem* ui_system) { m_ui_system = ui_system; }
 	Camera* getCamera() { return m_camera; }
 	Input* getInput() { return m_input; }
+	UISystem* getUISystem() { return m_ui_system; }
 	float getTime() { return m_time; }
+	void drawUI();
 private:
 	Input* m_input;
 	Camera* m_camera;
+	UISystem* m_ui_system;
 	float m_time;
 };
 
