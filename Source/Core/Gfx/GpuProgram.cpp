@@ -77,7 +77,9 @@ GLuint GpuProgram::getGpuProgram()
 	auto& it = m_variations.find(defines);
 	if (it == m_variations.end())
 	{
-		return createVariation(defines);
+		GLuint res = createVariation(defines);
+		m_variations[defines] = res;
+		return res;
 	}
 	else
 	{
