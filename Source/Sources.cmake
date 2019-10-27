@@ -13,8 +13,18 @@ set(EFFECTS_SRC
 	Source/Effects/PBREffect.cpp
 )
 
+set(UI_SRC
+	Source/UI/IMGUI/imgui.cpp
+	Source/UI/IMGUI/imgui_draw.cpp
+	Source/UI/IMGUI/imgui_widgets.cpp
+	Source/UI/IMGUI/imgui_impl_glfw.cpp
+	Source/UI/IMGUI/imgui_impl_opengl3.cpp
+	Source/UI/UISystem.cpp
+)
+
 set(EFFECTS_SRC
 	${MAIN_SRC}
 	${CORE_SRC}
 	${EFFECTS_SRC}
+	${UI_SRC}
 )
