@@ -3,13 +3,16 @@
 #include "UISystem.h"
 EFFECTS_NAMESPACE_BEGIN
 
-class LightWidget : UIWidget
+class Light;
+
+class LightWidget : public UIWidget
 {
 public:
-	LightWidget()
-	{}
-	~LightWidget()
-	{}
+	LightWidget(Light* light);
+	~LightWidget();
+	virtual void draw();
+private:
+	Light* m_light;
 };
 
 EFFECTS_NAMESPACE_END

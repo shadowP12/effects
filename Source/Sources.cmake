@@ -20,6 +20,7 @@ set(UI_SRC
 	Source/UI/IMGUI/imgui_impl_glfw.cpp
 	Source/UI/IMGUI/imgui_impl_opengl3.cpp
 	Source/UI/UISystem.cpp
+	Source/UI/LightWidget.cpp
 )
 
 set(EFFECTS_SRC

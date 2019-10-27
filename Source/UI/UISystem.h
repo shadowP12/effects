@@ -22,8 +22,9 @@ public:
 	~UISystem();
 	void update();
 	void draw();
+	void addWidget(UIWidget* widget);
 private:
-	std::vector<UIWidget> m_widgets;
+	std::vector<UIWidget*> m_widgets;
 	
 };
 

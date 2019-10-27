@@ -6,6 +6,8 @@ EFFECTS_NAMESPACE_BEGIN
 
 class Scene;
 class GpuProgram;
+class LightWidget;
+struct Light;
 
 class PBREffect : public BaseEffect
 {
@@ -20,6 +22,8 @@ private:
 private:
 	Scene* m_scene;
 	GpuProgram* m_program;	
+	Light* m_light;
+	LightWidget* m_light_widget;
 };
 
 EFFECTS_NAMESPACE_END

@@ -18,6 +18,11 @@ UISystem::~UISystem()
 	ImGui::DestroyContext();
 }
 
+void UISystem::addWidget(UIWidget* widget)
+{
+	m_widgets.push_back(widget);
+}
+
 void UISystem::update()
 {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -29,7 +34,7 @@ void UISystem::draw()
 {
 	for (int i = 0; i < m_widgets.size(); i++)
 	{
-		m_widgets[i].draw();
+		m_widgets[i]->draw();
 	}
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

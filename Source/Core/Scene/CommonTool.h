@@ -40,6 +40,14 @@ public:
 	glm::vec2 m_mouse_previou_position;
 };
 
+// 测试阶段:目前只有方向光
+struct Light
+{
+	glm::vec3 direction;
+	glm::vec3 position;
+	glm::vec3 illuminance;
+};
+
 class UISystem;
 
 // Context

@@ -2,6 +2,7 @@
 #include "../Core/Utility/FileUtility.h"
 #include "../Core/Gfx/GpuProgram.h"
 #include "../Core/Scene/RenderScene.h"
+#include "../UI/LightWidget.h"
 
 EFFECTS_NAMESPACE_BEGIN
 
@@ -14,6 +15,8 @@ PBREffect::~PBREffect()
 {
 	delete m_scene;
 	delete m_program;
+	delete m_light;
+	delete m_light_widget;
 }
 
 void PBREffect::prepare()
@@ -42,6 +45,9 @@ void PBREffect::prepare()
 		m_scene->printNodeInfo(node.node_id);
 	}
 
+	m_light = new Light();
+	m_light_widget = new LightWidget(m_light);
+	m_context->getUISystem()->addWidget(m_light_widget);
 }
 
 void PBREffect::update(float t)
