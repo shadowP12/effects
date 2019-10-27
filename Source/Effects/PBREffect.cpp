@@ -87,7 +87,7 @@ void PBREffect::render()
 			// 灯光参数
 			glm::vec3 light_dir = glm::vec3(0.5, 0.5, 1.0);
 			glm::vec3 light_color = glm::vec3(1.0, 1.0, 1.0);
-			glUniform3fv(glGetUniformLocation(program, "u_light_dir"), 1, &light_dir[0]);
+			glUniform3fv(glGetUniformLocation(program, "u_light_dir"), 1, &m_light->direction[0]);
 			glUniform3fv(glGetUniformLocation(program, "u_light_color"), 1, &light_color[0]);
 			// 材质参数
 
