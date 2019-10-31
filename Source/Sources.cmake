@@ -11,6 +11,7 @@ set(CORE_SRC
 
 set(EFFECTS_SRC
 	Source/Effects/PBREffect.cpp
+	Source/Effects/DebugEffect.cpp
 )
 
 set(UI_SRC
