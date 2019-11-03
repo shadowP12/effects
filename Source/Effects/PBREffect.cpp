@@ -3,6 +3,7 @@
 #include "../Core/Gfx/GpuProgram.h"
 #include "../Core/Scene/RenderScene.h"
 #include "../UI/LightWidget.h"
+#include "../Core/Gfx/GfxDebug.h"
 #include <gearmath/Vector3.h>
 #include <gearmath/Vector2.h>
 
@@ -16,9 +17,11 @@ PBREffect::PBREffect(int width, int height)
 PBREffect::~PBREffect()
 {
 	delete m_scene;
+	delete m_debug_program;
 	delete m_program;
 	delete m_light;
 	delete m_light_widget;
+	delete m_debug_lines;
 }
 
 void PBREffect::prepare()
@@ -36,6 +39,14 @@ void PBREffect::prepare()
 	readFileData(fs_path, fs);
 
 	m_program = new GpuProgram(vs, fs);
+
+	vs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\debug.vs";
+	readFileData(vs_path, vs);
+	fs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\debug.fs";
+	readFileData(fs_path, fs);
+
+	m_debug_program = new GpuProgram(vs, fs);
+
 	for (int i = 0; i < m_scene->m_meshs.size(); i++)
 	{
 		initMesh(m_scene->m_meshs[i]);
@@ -50,6 +61,12 @@ void PBREffect::prepare()
 	m_light = new Light();
 	m_light_widget = new LightWidget(m_light);
 	m_context->getUISystem()->addWidget(m_light_widget);
+
+	m_debug_lines = new DebugLines();
+	
+	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(10.0, 0.0, 0.0)[0], &glm::vec4(1.0, 0.0, 0.0, 0.0)[0]);
+	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 10.0, 0.0)[0], &glm::vec4(0.0, 1.0, 0.0, 0.0)[0]);
+	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 0.0, 10.0)[0], &glm::vec4(0.0, 0.0, 1.0, 0.0)[0]);
 }
 
 void PBREffect::update(float t)
@@ -96,6 +113,17 @@ void PBREffect::render()
 			drawMesh(m_scene->m_meshs[node.mesh]);
 		}
 	}
+
+	// »æÖÆdebugÏß¶Î
+	GLuint debug_program = m_debug_program->getGpuProgram();
+	glUseProgram(debug_program);
+	glm::mat4 model = glm::mat4(1.0);
+	glm::mat4 view = m_context->getCamera()->getViewMatrix();
+	glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);
+	glUniformMatrix4fv(glGetUniformLocation(debug_program, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(debug_program, "view"), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(debug_program, "projection"), 1, GL_FALSE, &proj[0][0]);
+	m_debug_lines->draw();
 }
 
 EFFECTS_NAMESPACE_END

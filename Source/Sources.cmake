@@ -7,6 +7,7 @@ set(CORE_SRC
 	Source/Core/Scene/RenderScene.cpp
 	Source/Core/Utility/FileUtility.cpp
 	Source/Core/Gfx/GpuProgram.cpp
+	Source/Core/Gfx/GfxDebug.cpp
 )
 
 set(EFFECTS_SRC
