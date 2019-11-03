@@ -3,6 +3,8 @@
 #include "../Core/Gfx/GpuProgram.h"
 #include "../Core/Scene/RenderScene.h"
 #include "../UI/LightWidget.h"
+#include <gearmath/Vector3.h>
+#include <gearmath/Vector2.h>
 
 EFFECTS_NAMESPACE_BEGIN
 

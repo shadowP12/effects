@@ -7,6 +7,10 @@ set(DependentLibs ${DependentLibs} ${FFTW_LIBS})
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/STBConfig.cmake)
 include_directories(${STB_INCLUDE_DIR})
 
+# gear math
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/GEARMATHConfig.cmake)
+include_directories(${GEARMATH_INCLUDE_DIR})
+
 # glm
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/GLMConfig.cmake)
 include_directories(${GLM_INCLUDE_DIR})
