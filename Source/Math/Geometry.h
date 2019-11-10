@@ -26,7 +26,9 @@ struct Plane
 	glm::vec3 center;
 };
 
-Ray pickRay(const glm::vec4& viewport, const glm::vec2& point, const glm::mat4& viewProjectionMatrix);
+void printRayInfo(const Ray& ray);
+
+Ray pickRay(const glm::vec4& viewport, const glm::vec2& point, const glm::mat4& view_matrix, const glm::mat4& projection_matrix);
 
 float intersect(const Ray& ray, const Plane& plane);
 

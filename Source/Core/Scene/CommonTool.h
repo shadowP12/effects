@@ -13,6 +13,7 @@ public:
 	void Rotate(glm::vec2 offset);
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix(int width, int height, float fov = 45, float near = 0.1, float far = 1000.0);
+	glm::vec3 getPosition() { return m_position; }
 private:
 	void updateVectors();
 private:

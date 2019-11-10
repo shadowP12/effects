@@ -57,7 +57,18 @@ void DebugEffect::update(float t)
 	{
 		input->m_mouse_previou_position = input->m_mouse_position;
 		glm::vec2 mouse_pos = input->m_mouse_position;
-		
+		Ray ray = pickRay(glm::vec4(0,0,m_width,m_height), mouse_pos, camera->getViewMatrix(), camera->getProjectionMatrix(m_width, m_height));
+		printRayInfo(ray);
+		Plane plane;
+		plane.center = glm::vec3(0.0f, 0.0f, 0.0f);
+		plane.normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		float dis = intersect(ray, plane);
+		glm::vec3 hit_point = ray.pointAt(dis);
+		printf("%f  %f  %f\n",camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+		//m_hit_points.push_back(hit_point);
+		m_debug_lines->addLine(&hit_point[0], &(hit_point + glm::vec3(1.0, 0.0, 0.0))[0], &glm::vec4(1.0, 0.0, 0.0, 0.0)[0]);
+		m_debug_lines->addLine(&hit_point[0], &(hit_point + glm::vec3(0.0, 1.0, 0.0))[0], &glm::vec4(0.0, 1.0, 0.0, 0.0)[0]);
+		m_debug_lines->addLine(&hit_point[0], &(hit_point + glm::vec3(0.0, 0.0, 1.0))[0], &glm::vec4(0.0, 0.0, 1.0, 0.0)[0]);
 	}
 }
 
@@ -77,6 +88,10 @@ void DebugEffect::render()
 	glUniformMatrix4fv(glGetUniformLocation(debug_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 	m_debug_lines->draw();
 
+	// 
+	
+
+	//
 	drawMesh(m_plane_mesh);
 }
 
