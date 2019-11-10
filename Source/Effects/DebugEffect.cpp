@@ -57,16 +57,7 @@ void DebugEffect::update(float t)
 	{
 		input->m_mouse_previou_position = input->m_mouse_position;
 		glm::vec2 mouse_pos = input->m_mouse_position;
-		// screen to ndc
-		glm::vec4 screen = glm::vec4((mouse_pos.x) / m_width, ((m_height - mouse_pos.y)) / m_height, 0.0f, 1.0f);
-
-		// to [-1 , 1]
-		screen.x = screen.x * 2.0f - 1.0f;
-		screen.y = screen.y * 2.0f - 1.0f;
-		screen.z = screen.z * 2.0f - 1.0f;
-
-		printf("%f   %f\n", screen.x, screen.y);
-
+		
 	}
 }
 
