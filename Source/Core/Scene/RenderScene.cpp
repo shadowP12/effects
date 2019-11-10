@@ -36,6 +36,14 @@ void drawMesh(Mesh* mesh)
 	glBindVertexArray(0);
 }
 
+void releaseMesh(Mesh* mesh)
+{
+	glDeleteVertexArrays(1, &mesh->vao);
+	glDeleteBuffers(1, &mesh->vbo);
+	glDeleteBuffers(1, &mesh->ibo);
+	delete mesh;
+}
+
 Scene::Scene()
 {
 }

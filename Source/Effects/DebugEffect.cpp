@@ -2,6 +2,7 @@
 #include "../Core/Utility/FileUtility.h"
 #include "../Core/Gfx/GpuProgram.h"
 #include "../Core/Gfx/GfxDebug.h"
+#include "../Core/Scene/RenderScene.h"
 EFFECTS_NAMESPACE_BEGIN
 
 DebugEffect::DebugEffect(int width, int height)
@@ -12,6 +13,7 @@ DebugEffect::~DebugEffect()
 {
 	delete m_debug_program;
 	delete m_debug_lines;
+	releaseMesh(m_plane_mesh);
 }
 
 void DebugEffect::prepare()
@@ -28,6 +30,10 @@ void DebugEffect::prepare()
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(10.0, 0.0, 0.0)[0], &glm::vec4(1.0, 0.0, 0.0, 0.0)[0]);
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 10.0, 0.0)[0], &glm::vec4(0.0, 1.0, 0.0, 0.0)[0]);
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 0.0, 10.0)[0], &glm::vec4(0.0, 0.0, 1.0, 0.0)[0]);
+
+	m_plane_mesh = new Mesh();
+	preparePlaneMesh();
+	initMesh(m_plane_mesh);
 }
 
 void DebugEffect::update(float t)
@@ -61,6 +67,39 @@ void DebugEffect::render()
 	glUniformMatrix4fv(glGetUniformLocation(debug_program, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(debug_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 	m_debug_lines->draw();
+
+	drawMesh(m_plane_mesh);
+}
+
+void DebugEffect::preparePlaneMesh()
+{
+	Mesh::Vertex v0;
+	Mesh::Vertex v1;
+	Mesh::Vertex v2;
+	Mesh::Vertex v3;
+	v0.position = glm::vec3(-1.0f, 1.0f, 0.0f);
+	v0.normal = glm::vec3(1.0f, 1.0f, 1.0f);
+	v0.uv = glm::vec2(0.0f, 0.0f);
+	v1.position = glm::vec3(-1.0f, -1.0f, 0.0f);
+	v1.normal = glm::vec3(1.0f, 1.0f, 1.0f);
+	v1.uv = glm::vec2(0.0f, 0.0f);
+	v2.position = glm::vec3(1.0f, 1.0f, 0.0f);
+	v2.normal = glm::vec3(1.0f, 1.0f, 1.0f);
+	v2.uv = glm::vec2(0.0f, 0.0f);
+	v3.position = glm::vec3(1.0f, -1.0f, 0.0f);
+	v3.normal = glm::vec3(1.0f, 1.0f, 1.0f);
+	v3.uv = glm::vec2(0.0f, 0.0f);
+	m_plane_mesh->vertices.push_back(v0);
+	m_plane_mesh->vertices.push_back(v1);
+	m_plane_mesh->vertices.push_back(v2);
+	m_plane_mesh->vertices.push_back(v3);
+
+	m_plane_mesh->indices.push_back(0);
+	m_plane_mesh->indices.push_back(1);
+	m_plane_mesh->indices.push_back(3);
+	m_plane_mesh->indices.push_back(0);
+	m_plane_mesh->indices.push_back(3);
+	m_plane_mesh->indices.push_back(2);
 }
 
 EFFECTS_NAMESPACE_END

@@ -47,6 +47,8 @@ void initMesh(Mesh* mesh);
 
 void drawMesh(Mesh* mesh);
 
+void releaseMesh(Mesh* mesh);
+
 class Scene
 {
 public:

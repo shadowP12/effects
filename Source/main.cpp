@@ -24,7 +24,7 @@ void window_size_callback(GLFWwindow* window, int width, int height);
 
 void init()
 {
-	g_camera = new et::Camera(glm::vec3(0.0, 5.0, 0.0));
+	g_camera = new et::Camera(glm::vec3(0.0, 0.0, 5.0));
 	g_input = new et::Input();
 	g_ui_system = new et::UISystem(g_window);
 	g_context = new et::Context();

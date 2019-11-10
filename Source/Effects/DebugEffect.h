@@ -6,7 +6,7 @@ EFFECTS_NAMESPACE_BEGIN
 
 class GpuProgram;
 class DebugLines;
-
+class Mesh;
 class DebugEffect : public BaseEffect
 {
 public:
@@ -16,8 +16,11 @@ public:
 	virtual void update(float t);
 	virtual void render();
 private:
+	void preparePlaneMesh();
+private:
 	GpuProgram* m_debug_program;
 	DebugLines* m_debug_lines;
+	Mesh* m_plane_mesh;
 };
 
 EFFECTS_NAMESPACE_END
