@@ -25,9 +25,14 @@ set(UI_SRC
 	Source/UI/LightWidget.cpp
 )
 
+set(MATH_SRC
+	Source/Math/Geometry.cpp
+)
+
 set(EFFECTS_SRC
 	${MAIN_SRC}
 	${CORE_SRC}
 	${EFFECTS_SRC}
 	${UI_SRC}
+	${MATH_SRC}
 )

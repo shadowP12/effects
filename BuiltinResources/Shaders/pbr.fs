@@ -3,6 +3,9 @@ in vec3 v_normal;
 out vec4 FragColor;
 uniform vec3 u_light_dir;
 uniform vec3 u_light_color;
+
+#define saturate(a) clamp( a, 0.0, 1.0 )
+
 void main()
 {   
 	// ambient

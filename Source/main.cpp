@@ -3,7 +3,7 @@
 #include "Core/Gfx/Gfx.h"
 #include "Core/Scene/CommonTool.h"
 #include "UI/UISystem.h"
-#include "Effects/PBREffect.h"
+#include "Effects/DebugEffect.h"
 
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
@@ -13,7 +13,7 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::PBREffect* g_effect = nullptr;
+et::DebugEffect* g_effect = nullptr;
 GLFWwindow* g_window = nullptr;
 
 //窗口回调函数
@@ -33,7 +33,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::DebugEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 }
