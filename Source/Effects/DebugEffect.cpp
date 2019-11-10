@@ -4,6 +4,7 @@
 #include "../Core/Gfx/GfxDebug.h"
 #include "../Core/Scene/RenderScene.h"
 #include "../Math/Geometry.h"
+
 EFFECTS_NAMESPACE_BEGIN
 
 DebugEffect::DebugEffect(int width, int height)
