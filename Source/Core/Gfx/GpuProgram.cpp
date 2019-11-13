@@ -115,4 +115,14 @@ GLuint GpuProgram::createVariation(const GpuProgramDefines& defines)
 	return createGpuProgram(vertex_source, frament_source);
 }
 
+ComputeProgram::ComputeProgram(std::string compute_source)
+	:m_compute_source(compute_source)
+{
+}
+
+ComputeProgram::~ComputeProgram()
+{
+	glDeleteProgram(m_program_id);
+}
+
 EFFECTS_NAMESPACE_END

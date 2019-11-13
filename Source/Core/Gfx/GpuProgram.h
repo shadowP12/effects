@@ -27,5 +27,18 @@ private:
 	std::map<GpuProgramDefines, GLuint> m_variations;
 };
 
+class ComputeProgram
+{
+public:
+	ComputeProgram(std::string compute_source);
+	~ComputeProgram();
+	GLuint getComputeProgram()
+	{
+		return m_program_id;
+	}
+private:
+	std::string m_compute_source;
+	GLuint m_program_id;
+};
 
 EFFECTS_NAMESPACE_END
