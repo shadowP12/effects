@@ -27,4 +27,5 @@ private:
 	std::map<GpuProgramDefines, GLuint> m_variations;
 };
 
+
 EFFECTS_NAMESPACE_END
