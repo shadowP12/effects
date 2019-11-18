@@ -4,7 +4,7 @@
 #include "Core/Scene/CommonTool.h"
 #include "UI/UISystem.h"
 #include "Effects/DebugEffect.h"
-
+#include "Effects/PBREffect.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 

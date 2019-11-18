@@ -34,4 +34,15 @@ float intersect(const Ray& ray, const Plane& plane)
 	return -1;
 }
 
+glm::vec2 calculationUV(const Triangle& triangle, glm::vec3 point)
+{
+	return glm::vec2(0.0, 0.0);
+}
+
+float intersect(const Ray& ray, const Triangle& triangle)
+{
+	
+	return -1;
+}
+
 EFFECTS_NAMESPACE_END

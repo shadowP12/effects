@@ -26,10 +26,17 @@ struct Plane
 	glm::vec3 center;
 };
 
+struct Triangle
+{
+	glm::vec3 v0, v1, v2;
+};
+
 void printRayInfo(const Ray& ray);
 
 Ray pickRay(const glm::vec4& viewport, const glm::vec2& point, const glm::mat4& view_matrix, const glm::mat4& projection_matrix);
 
 float intersect(const Ray& ray, const Plane& plane);
+
+float intersect(const Ray& ray, const Triangle& triangle);
 
 EFFECTS_NAMESPACE_END
