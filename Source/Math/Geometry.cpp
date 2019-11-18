@@ -34,15 +34,36 @@ float intersect(const Ray& ray, const Plane& plane)
 	return -1;
 }
 
-glm::vec2 calculationUV(const Triangle& triangle, glm::vec3 point)
+bool intersect(const Ray& ray, const Triangle& triangle, float& t, glm::vec2 uv)
 {
-	return glm::vec2(0.0, 0.0);
-}
+	// note:必须保证u,v>=0同时u+v<=1
+	const glm::vec3& v0 = triangle.v0;
+	const glm::vec3& v1 = triangle.v1;
+	const glm::vec3& v2 = triangle.v2;
+	glm::vec3 e1 = v1 - v0;
+	glm::vec3 e2 = v2 - v0;
+	glm::vec3 p = glm::cross(ray.dir, e2);
+	float a = glm::dot(e1, p);
+	if(std::fabs(a) < 1e-5f)
+		return false;
 
-float intersect(const Ray& ray, const Triangle& triangle)
-{
-	
-	return -1;
+	float f = 1.0f / a;
+	glm::vec3 s = ray.orig - v0;
+	float u = f * glm::dot(s, p);
+
+	if (u < 0.0f || u > 1.0f)
+		return false;
+
+	glm::vec3 q = cross(s, e1);
+	float v = f * glm::dot(ray.dir, q);
+
+	if (v < 0.0f || (u + v) > 1.0f)
+		return false;
+
+	t = f * dot(e2, q);
+	uv.x = u;
+	uv.y = v;
+	return true;
 }
 
 EFFECTS_NAMESPACE_END

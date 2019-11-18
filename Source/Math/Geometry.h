@@ -37,6 +37,7 @@ Ray pickRay(const glm::vec4& viewport, const glm::vec2& point, const glm::mat4& 
 
 float intersect(const Ray& ray, const Plane& plane);
 
-float intersect(const Ray& ray, const Triangle& triangle);
+bool intersect(const Ray& ray, const Triangle& triangle, float& t, glm::vec2 uv);
+
 
 EFFECTS_NAMESPACE_END

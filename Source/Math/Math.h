@@ -4,6 +4,7 @@
 #include <gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/quaternion.hpp>
+#include <math.h>
 
 inline glm::vec3 getAxisX(const glm::mat4& mat)
 {
