@@ -3,6 +3,8 @@
 )
 
 set(CORE_SRC
+	Source/Core/Data/MeshData.cpp
+	Source/Core/Data/PixelData.cpp
 	Source/Core/Scene/CommonTool.cpp
 	Source/Core/Scene/RenderScene.cpp
 	Source/Core/Utility/FileUtility.cpp
