@@ -1,5 +1,6 @@
 #include "MeshData.h"
 #include <algorithm>
+#include <assert.h>
 EFFECTS_NAMESPACE_BEGIN
 
 bool MeshAttribute::operator== (const MeshAttribute& rhs) const
@@ -113,6 +114,32 @@ MeshDescription::MeshDescription()
 {
 }
 
+MeshDescription::MeshDescription(const MeshAttributeLayout& layout)
+{
+	int32_t intLayout = (int32_t)layout;
+
+	if ((intLayout & (int32_t)MAL_POSITION) != 0)
+		addMeshAttribute(MAT_FLOAT3, MAS_POSITION);
+
+	if ((intLayout & (int32_t)MAL_NORMAL) != 0)
+		addMeshAttribute(MAT_FLOAT3, MAS_NORMAL);
+
+	if ((intLayout & (int32_t)MAL_TANGENT) != 0)
+		addMeshAttribute(MAT_FLOAT3, MAS_TANGENT);
+
+	if ((intLayout & (int32_t)MAL_TEXCOORD0) != 0)
+		addMeshAttribute(MAT_FLOAT2, MAS_TEXCOORD);
+
+	if ((intLayout & (int32_t)MAL_COLOR) != 0)
+		addMeshAttribute(MAT_COLOR, MAS_COLOR);
+
+	if ((intLayout & (int32_t)MAL_BLEND_WEIGHTS) != 0)
+	{
+		addMeshAttribute(MAT_INT4, MAS_BLEND_INDICES);
+		addMeshAttribute(MAT_FLOAT4, MAS_BLEND_WEIGHTS);
+	}
+}
+
 MeshDescription::~MeshDescription()
 {
 }
@@ -193,8 +220,8 @@ uint32_t MeshDescription::getMeshAttributeStride()
 	return stride;
 }
 
-MeshData::MeshData(uint32_t numVertices, uint32_t numIndexes, MeshDescription* desc)
-	:mNumVertices(numVertices), mNumIndexes(numIndexes), mDesc(desc)
+MeshData::MeshData(uint32_t numVertices, uint32_t numIndices, MeshDescription* desc)
+	:mNumVertices(numVertices), mNumIndices(numIndices), mDesc(desc)
 {
 	// ·ÖÅäÄÚ´æ¿Õ¼ä
 	uint32_t totalSize = getStreamSize() + getIndexBufferSize();
@@ -216,15 +243,31 @@ void MeshData::setIndexes(void* data, uint32_t size)
 
 void MeshData::setAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size)
 {
+	assert(data != nullptr);
+
 	if (!mDesc->hasMeshAttribute(semantic))
 		return;
-	uint32_t offset = mNumVertices * mDesc->getMeshAttributeOffset(semantic);
+
+	uint32_t attributeSize = mDesc->getMeshAttributeSize(semantic);
+	uint32_t totalSize = attributeSize * mNumVertices;
+
+	if (totalSize != size)
+		return;
+
+	uint32_t offset = mDesc->getMeshAttributeOffset(semantic);
+	uint32_t stride = mDesc->getMeshAttributeStride();
+
 	uint8_t* dst = mData + offset;
 	uint8_t* src = (uint8_t*)data;
-	memcpy(dst, src, size);
+	for (uint32_t i = 0; i < mNumVertices; i++)
+	{
+		memcpy(dst, src, attributeSize);
+		dst += stride;
+		src += attributeSize;
+	}
 }
 
-uint8_t* MeshData::getIndexes()
+uint8_t* MeshData::getIndices()
 {
 	return mData;
 }
@@ -234,18 +277,33 @@ uint8_t* MeshData::getVertices()
 	return mData + getIndexBufferSize();
 }
 
-uint8_t* MeshData::getAttribute(MeshAttributeSemantic semantic)
+void MeshData::getAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size)
 {
 	if (!mDesc->hasMeshAttribute(semantic))
-		return nullptr;
-	uint32_t offset = mNumVertices * mDesc->getMeshAttributeOffset(semantic);
-	return mData + offset;
-	
+		return ;
+
+	uint32_t attributeSize = mDesc->getMeshAttributeSize(semantic);
+	uint32_t totalSize = attributeSize * mNumVertices;
+
+	if (totalSize != size)
+		return ;
+
+	uint32_t offset = mDesc->getMeshAttributeOffset(semantic);
+	uint32_t stride = mDesc->getMeshAttributeStride();
+
+	uint8_t* src = mData + offset;
+	uint8_t* dst = (uint8_t*)data;
+	for (uint32_t i = 0; i < mNumVertices; i++)
+	{
+		memcpy(dst, src, attributeSize);
+		dst += attributeSize;
+		src += stride;
+	}
 }
 
 uint32_t MeshData::getIndexBufferSize() const
 {
-	return mNumIndexes * sizeof(uint32_t);
+	return mNumIndices * sizeof(uint32_t);
 }
 
 uint32_t MeshData::getStreamSize() const

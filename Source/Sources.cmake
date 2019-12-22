@@ -7,6 +7,9 @@ set(CORE_SRC
 	Source/Core/Data/PixelData.cpp
 	Source/Core/Scene/CommonTool.cpp
 	Source/Core/Scene/RenderScene.cpp
+	Source/Core/Scene/Mesh.cpp
+	Source/Core/Scene/Scene.cpp
+	Source/Core/Scene/SceneImporter.cpp
 	Source/Core/Utility/FileUtility.cpp
 	Source/Core/Gfx/GpuProgram.cpp
 	Source/Core/Gfx/GfxDebug.cpp

@@ -93,6 +93,7 @@ class MeshDescription
 {
 public:
 	MeshDescription();
+	MeshDescription(const MeshAttributeLayout& layout);
 	~MeshDescription();
 	void addMeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic);
 
@@ -114,23 +115,23 @@ private:
 class MeshData
 {
 public:
-	MeshData(uint32_t numVertices, uint32_t numIndexes, MeshDescription* desc);
+	MeshData(uint32_t numVertices, uint32_t numIndices, MeshDescription* desc);
 	~MeshData();
+	MeshDescription* getMeshDesc() { return mDesc; }
 	void setIndexes(void* data, uint32_t size);
 	void setAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size);
-	uint8_t* getIndexes();
+	uint8_t* getIndices();
 	uint8_t* getVertices();
-	uint8_t* getAttribute(MeshAttributeSemantic semantic);
+	void getAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size);
 	uint32_t getNumVertices() { return mNumVertices; }
-	uint32_t getNumIndexes() { return mNumIndexes; }
-private:
+	uint32_t getNumIndices() { return mNumIndices; }
 	uint32_t getIndexBufferSize() const;
 	uint32_t getStreamSize() const;
 private:
 	uint8_t* mData;
 	MeshDescription* mDesc;
 	uint32_t mNumVertices;
-	uint32_t mNumIndexes;
+	uint32_t mNumIndices;
 };
 
 EFFECTS_NAMESPACE_END
