@@ -53,3 +53,37 @@ inline void printMatrixInfo(const glm::mat4& mat)
 	printf("%f   %f   %f   %f\n", mat[2][0], mat[2][1], mat[2][2], mat[2][3]);
 	printf("%f   %f   %f   %f\n", mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
 }
+
+inline glm::mat4 createPerspective(float fov, float aspect, float near, float far)
+{
+	float thetaY = (fov)*3.1415926f/180.0f*0.5f;
+	float tanThetaY = std::tan(thetaY);
+
+	glm::mat4 ret = glm::mat4(0.0f);
+	ret[0][0] = 1.0f / (aspect * tanThetaY);
+	ret[1][1] = 1.0f / (tanThetaY);
+	ret[2][2] = -(far + near)/(far - near);
+	ret[2][3] = -2.0f*far*near/(far - near);
+	ret[3][2] = -1.0f;
+	ret = glm::transpose(ret);
+	return ret;
+}
+
+inline glm::mat4 createOrthographic(float left, float right, float bottom, float top, float near, float far)
+{
+	glm::mat4 ret(1);
+	ret[0][0] = 2.0f / (right - left);
+	ret[1][1] = 2.0f / (top - bottom);
+	ret[2][2] = -2.0f / (far - near);
+	ret[3][0] = -(right + left) / (right - left);
+	ret[3][1] = -(top + bottom) / (top - bottom);
+	ret[3][2] = -(far + near) / (far - near);
+	return ret;
+}
+
+inline glm::mat4 createOrthographic(float width, float height, float near, float far)
+{
+	float halfWidth = width / 2.0f;
+	float halfHeight = height / 2.0f;
+	return createOrthographic(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
+}
