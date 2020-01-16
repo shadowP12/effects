@@ -109,6 +109,7 @@ void PBREffect::render()
 			glUniform3fv(glGetUniformLocation(program, "u_lightPos"), 1, &m_light->position[0]);
 			glUniform3fv(glGetUniformLocation(program, "u_lightColor"), 1, &lightColor[0]);
             glUniform1fv(glGetUniformLocation(program, "u_lightRadius"), 1, &m_light->radius);
+            glUniform1fv(glGetUniformLocation(program, "u_lightIntensity"), 1, &m_light->intensity);
 			// ²ÄÖÊ²ÎÊı
 			glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
             glUniform3fv(glGetUniformLocation(program, "u_albedo"), 1, &albedo[0]);

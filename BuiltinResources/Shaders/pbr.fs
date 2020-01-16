@@ -6,6 +6,7 @@ uniform vec3 u_albedo;
 uniform vec3 u_lightPos;
 uniform vec3 u_lightColor;
 uniform float u_lightRadius;
+uniform float u_lightIntensity;
 #define PI 3.1415926
 #define saturate(a) clamp( a, 0.0, 1.0 )
 
@@ -45,8 +46,11 @@ void main()
     // diffuse
     vec3 N = normalize(v_normal);
     vec3 L = normalize(u_lightPos - v_worldPos);
+    vec3 unnormalizedLightVector = u_lightPos - v_worldPos;
+    float lightInvSqrAttRadius = 1.0 / (u_lightRadius * u_lightRadius);
     float att = 1.0;
-    vec3 Lo = (u_albedo / PI) * saturate(dot(N, L)) * att * u_lightColor;
+    att *= getDistanceAtt(unnormalizedLightVector, lightInvSqrAttRadius);
+    vec3 Lo = (u_albedo / PI) * saturate(dot(N, L)) * att * u_lightColor * u_lightIntensity / (4 * PI);
 
 	vec3 result = ambient + Lo;
 	FragColor = vec4(result, 1.0);

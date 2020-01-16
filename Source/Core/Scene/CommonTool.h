@@ -47,6 +47,7 @@ struct Light
 	glm::vec3 direction = glm::vec3(0.0f);
 	glm::vec3 position = glm::vec3(0.0f);
 	float radius = 1.0f;
+	float intensity = 1000.0f;
 };
 
 class UISystem;
