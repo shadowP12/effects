@@ -87,3 +87,25 @@ inline glm::mat4 createOrthographic(float width, float height, float near, float
 	float halfHeight = height / 2.0f;
 	return createOrthographic(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
 }
+
+inline glm::mat4 lookAt(const glm::vec3& eye, const glm::vec3& center, const glm::vec3& up)
+{
+	glm::vec3 f(glm::normalize(center - eye));
+	glm::vec3 s(normalize(cross(f, up)));
+	glm::vec3 u(cross(s, f));
+
+	glm::mat4 ret(1);
+	ret[0][0] = s.x;
+	ret[1][0] = s.y;
+	ret[2][0] = s.z;
+	ret[0][1] = u.x;
+	ret[1][1] = u.y;
+	ret[2][1] = u.z;
+	ret[0][2] = -f.x;
+	ret[1][2] = -f.y;
+	ret[2][2] = -f.z;
+	ret[3][0] = -dot(s, eye);
+	ret[3][1] = -dot(u, eye);
+	ret[3][2] = dot(f, eye);
+	return ret;
+}

@@ -9,6 +9,38 @@
 
 EFFECTS_NAMESPACE_BEGIN
 
+GLuint depthFB = 0;
+GLuint depthMap = 0;
+GLuint quadVAO = 0;
+GLuint quadVBO = 0;
+void renderQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+GpuProgram* mTextureProgram = nullptr;
+GpuProgram* mDepthProgram = nullptr;
+
 ShadowEffect::ShadowEffect(int width, int height)
 	:BaseEffect(width, height)
 {
@@ -19,6 +51,10 @@ ShadowEffect::~ShadowEffect()
 	delete m_scene;
 	delete m_program;
 	delete m_light;
+	if (mTextureProgram)
+		delete mTextureProgram;
+	if (mDepthProgram)
+		delete mDepthProgram;
 }
 
 void ShadowEffect::prepare()
@@ -30,12 +66,16 @@ void ShadowEffect::prepare()
 	std::string vs;
 	std::string vs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\pbr.vs";
 	readFileData(vs_path, vs);
-
 	std::string fs;
 	std::string fs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\pbr.fs";
 	readFileData(fs_path, fs);
-
 	m_program = new GpuProgram(vs, fs);
+
+	vs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\texture.vs";
+	readFileData(vs_path, vs);
+	fs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\texture.fs";
+	readFileData(fs_path, fs);
+	mTextureProgram = new GpuProgram(vs, fs);
 
 	for (int i = 0; i < m_scene->m_meshs.size(); i++)
 	{
@@ -45,6 +85,23 @@ void ShadowEffect::prepare()
 	m_light = new Light();
 	m_light->direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glGenFramebuffers(1, &depthFB);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthFB);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	// ½ûÖ¹ÑÕÉ«äÖÈ¾
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 }
 
 void ShadowEffect::update(float t)
@@ -70,6 +127,15 @@ void ShadowEffect::render()
 	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program);
+
+	glm::mat4 lightSpaceMatrix = glm::lookAt(glm::vec3(0.0,10.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightProjMatrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 1000.0f);
+	
+	glViewport(0, 0, m_width/4, m_height/4);
+	
+	renderQuad();
+
+	glViewport(0, 0, m_width, m_height);
 	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
 		Node& node = m_scene->m_nodes[i];

@@ -14,7 +14,7 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::ShadowEffect* g_effect = nullptr;
+et::PBREffect* g_effect = nullptr;
 GLFWwindow* g_window = nullptr;
 
 //窗口回调函数
@@ -34,7 +34,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::ShadowEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 }

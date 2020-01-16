@@ -105,13 +105,13 @@ void PBREffect::render()
 			glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, &view[0][0]);
 			glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, &proj[0][0]);
 			// 灯光参数
-			glm::vec3 light_dir = glm::vec3(0.5, 0.5, 1.0);
-			glm::vec3 light_color = glm::vec3(1.0, 1.0, 1.0);
-			glUniform3fv(glGetUniformLocation(program, "u_light_dir"), 1, &m_light->direction[0]);
-			glUniform3fv(glGetUniformLocation(program, "u_light_color"), 1
-				, &light_color[0]);
+			glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
+			glUniform3fv(glGetUniformLocation(program, "u_lightPos"), 1, &m_light->position[0]);
+			glUniform3fv(glGetUniformLocation(program, "u_lightColor"), 1, &lightColor[0]);
+            glUniform1fv(glGetUniformLocation(program, "u_lightRadius"), 1, &m_light->radius);
 			// 材质参数
-
+			glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
+            glUniform3fv(glGetUniformLocation(program, "u_albedo"), 1, &albedo[0]);
 			drawMesh(m_scene->m_meshs[node.mesh]);
 		}
 	}

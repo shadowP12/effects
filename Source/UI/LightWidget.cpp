@@ -14,9 +14,10 @@ LightWidget::~LightWidget()
 void LightWidget::draw()
 {
 	ImGui::Begin("light");
-	ImGui::SliderFloat("dir_x", &m_light->direction.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("dir_y", &m_light->direction.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("dir_z", &m_light->direction.z, -1.0f, 1.0f);
+	ImGui::SliderFloat("pos_x", &m_light->position.x, -100.0f, 100.0f);
+	ImGui::SliderFloat("pos_y", &m_light->position.y, -100.0f, 100.0f);
+	ImGui::SliderFloat("pos_z", &m_light->position.z, -100.0f, 100.0f);
+    ImGui::SliderFloat("radius", &m_light->radius, -100.0f, 100.0f);
 	ImGui::End();
 }
 
