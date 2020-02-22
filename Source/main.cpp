@@ -6,6 +6,7 @@
 #include "Effects/DebugEffect.h"
 #include "Effects/PBREffect.h"
 #include "Effects/ShadowEffect.h"
+#include "Core/Utility/Flags.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -14,7 +15,7 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::PBREffect* g_effect = nullptr;
+et::DebugEffect* g_effect = nullptr;
 GLFWwindow* g_window = nullptr;
 
 //窗口回调函数
@@ -22,6 +23,7 @@ void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods);
 void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y);
 void window_size_callback(GLFWwindow* window, int width, int height);
+
 
 void init()
 {
@@ -34,7 +36,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::DebugEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 }

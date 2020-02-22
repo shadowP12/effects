@@ -26,7 +26,7 @@ PBREffect::~PBREffect()
 
 void PBREffect::prepare()
 {
-	std::string scene_file = getCurrentPath() + "\\BuiltinResources\\Scenes\\test.gltf";
+	std::string scene_file = getCurrentPath() + "\\BuiltinResources\\Scenes\\CornellBox.gltf";
 	m_scene = new Scene();
 	m_scene->load(scene_file);
 

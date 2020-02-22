@@ -6,6 +6,11 @@
 #include <gtx/quaternion.hpp>
 #include <math.h>
 
+#define PI 3.14159265359f
+#define TWO_PI 6.28318530718f
+#define INV_PI 0.31830988618f
+#define INV_TWO_PI 0.15915494309f
+
 inline glm::vec3 getAxisX(const glm::mat4& mat)
 {
 	return glm::vec3(mat[0][0], mat[0][1], mat[0][2]);
@@ -108,4 +113,20 @@ inline glm::mat4 lookAt(const glm::vec3& eye, const glm::vec3& center, const glm
 	ret[3][1] = -dot(u, eye);
 	ret[3][2] = dot(f, eye);
 	return ret;
+}
+
+inline float getRandom(unsigned int *seed0, unsigned int *seed1)
+{
+    *seed0 = 36969 * ((*seed0) & 65535) + ((*seed0) >> 16);
+    *seed1 = 18000 * ((*seed1) & 65535) + ((*seed1) >> 16);
+
+    unsigned int ires = ((*seed0) << 16) + (*seed1);
+
+    union {
+        float f;
+        unsigned int ui;
+    } res;
+
+    res.ui = (ires & 0x007fffff) | 0x40000000;
+    return (res.f - 2.0f) / 2.0f;
 }

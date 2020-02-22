@@ -38,6 +38,47 @@ void DebugEffect::prepare()
 	initMesh(m_plane_mesh);
 }
 
+glm::vec3 randomInUnitSphere(unsigned int* seed0, unsigned int* seed1)
+{
+    glm::vec3 p;
+    do
+    {
+        p = 2.0f * glm::vec3(getRandom(seed0, seed1), getRandom(seed0, seed1), getRandom(seed0, seed1)) - (glm::vec3)(1,1,1);
+    } while (glm::dot(p,p) >= 1.0);
+    return p;
+}
+
+glm::vec3 uniformSampleHemisphere(unsigned int* seed0, unsigned int* seed1)
+{
+    float ux = getRandom(seed0, seed1);
+    float uy = getRandom(seed0, seed1);
+    float z = ux;
+    float r = sqrt(1.0f - z*z);
+    float phi = 2*3.1415926*uy;
+    float x = r * cos(phi);
+    float y = r * sin(phi);
+    return glm::vec3(x, y, z);
+}
+
+glm::vec3 sampleHemisphereCosine(glm::vec3 n, unsigned int* seed0, unsigned int* seed1)
+{
+    float phi = TWO_PI * getRandom(seed0, seed1);
+    float sinThetaSqr = getRandom(seed0, seed1);
+    float sinTheta = sqrt(sinThetaSqr);
+
+    glm::vec3 axis = fabs(n.x) > 0.001f ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 t = glm::normalize(glm::cross(axis, n));
+    glm::vec3 s = glm::cross(n, t);
+    return glm::normalize(s*cos(phi)*sinTheta + t*sin(phi)*sinTheta + n*sqrt(1.0f - sinThetaSqr));
+}
+
+unsigned int hashUInt32(unsigned int x)
+{
+    return 1103515245 * x + 12345;
+}
+
+int gFrameCount = 0;
+
 void DebugEffect::update(float t)
 {
 	Input* input = m_context->getInput();
@@ -66,6 +107,14 @@ void DebugEffect::update(float t)
 		glm::vec3 hit_point = ray.pointAt(dis);
 		printf("%f  %f  %f\n",camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 		//m_hit_points.push_back(hit_point);
+        unsigned int seed0 = 0, seed1 = 0;
+        seed0 = input->m_mouse_position.x + hashUInt32(gFrameCount);
+        seed1 = input->m_mouse_position.y + hashUInt32(gFrameCount);;
+
+        glm::vec3 target = hit_point + plane.normal + randomInUnitSphere(&seed0, &seed1);
+        //glm::vec3 wi = target- hit_point;
+        glm::vec3 wi = sampleHemisphereCosine(plane.normal, &seed0, &seed1);//uniformSampleHemisphere(&seed0, &seed1);
+        m_debug_lines->addLine(&hit_point[0], &(hit_point + wi)[0], &glm::vec4(1.0, 1.0, 0.0, 0.0)[0]);
 		m_debug_lines->addLine(&hit_point[0], &(hit_point + glm::vec3(1.0, 0.0, 0.0))[0], &glm::vec4(1.0, 0.0, 0.0, 0.0)[0]);
 		m_debug_lines->addLine(&hit_point[0], &(hit_point + glm::vec3(0.0, 1.0, 0.0))[0], &glm::vec4(0.0, 1.0, 0.0, 0.0)[0]);
 		m_debug_lines->addLine(&hit_point[0], &(hit_point + glm::vec3(0.0, 0.0, 1.0))[0], &glm::vec4(0.0, 0.0, 1.0, 0.0)[0]);
@@ -93,6 +142,8 @@ void DebugEffect::render()
 
 	//
 	drawMesh(m_plane_mesh);
+
+    gFrameCount++;
 }
 
 void DebugEffect::preparePlaneMesh()
