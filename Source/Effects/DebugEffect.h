@@ -4,10 +4,13 @@
 #include <vector>
 
 EFFECTS_NAMESPACE_BEGIN
-
+namespace temp
+{
+    class Mesh;
+};
 class GpuProgram;
 class DebugLines;
-class Mesh;
+
 class DebugEffect : public BaseEffect
 {
 public:
@@ -21,7 +24,7 @@ private:
 private:
 	GpuProgram* m_debug_program;
 	DebugLines* m_debug_lines;
-	Mesh* m_plane_mesh;
+	temp::Mesh* m_plane_mesh;
 	std::vector<glm::vec3> m_hit_points;
 };
 

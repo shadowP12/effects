@@ -3,10 +3,13 @@
 )
 
 set(CORE_SRC
-	Source/Core/Data/MeshData.cpp
-	Source/Core/Data/PixelData.cpp
+	Source/Core/Datas/MeshData.cpp
+	Source/Core/Datas/PixelData.cpp
 	Source/Core/Scene/CommonTool.cpp
 	Source/Core/Scene/RenderScene.cpp
+	Source/Core/Scene/Node.cpp
+	Source/Core/Scene/Scene.cpp
+	Source/Core/Scene/Component.cpp
 	Source/Core/Utility/FileUtility.cpp
 	Source/Core/Gfx/GpuProgram.cpp
 	Source/Core/Gfx/GfxDebug.cpp
@@ -32,10 +35,15 @@ set(MATH_SRC
 	Source/Math/Geometry.cpp
 )
 
+set(IMPORTERS_SRC
+	Source/Importers/GltfImporter.cpp
+)
+
 set(EFFECTS_SRC
 	${MAIN_SRC}
 	${CORE_SRC}
 	${EFFECTS_SRC}
 	${UI_SRC}
 	${MATH_SRC}
+	${IMPORTERS_SRC}
 )

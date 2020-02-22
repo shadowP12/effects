@@ -127,7 +127,7 @@
 #define IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET   1
 #endif
 
-// OpenGL Data
+// OpenGL Datas
 static GLuint       g_GlVersion = 0;                // Extracted at runtime using GL_MAJOR_VERSION, GL_MINOR_VERSION queries.
 static char         g_GlslVersionString[32] = "";   // Specified by user or detected based on compile time GL settings.
 static GLuint       g_FontTexture = 0;

@@ -22,7 +22,7 @@ namespace glm
 		typedef vec<3, T, Q> type;
 		typedef vec<3, bool, Q> bool_type;
 
-		// -- Data --
+		// -- Datas --
 
 #		if GLM_SILENT_WARNINGS == GLM_ENABLE
 #			if GLM_COMPILER & GLM_COMPILER_GCC

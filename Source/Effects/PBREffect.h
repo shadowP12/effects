@@ -3,8 +3,11 @@
 #include "BaseEffect.h"
 
 EFFECTS_NAMESPACE_BEGIN
+namespace temp
+{
+    class Scene;
+};
 
-class Scene;
 class GpuProgram;
 class LightWidget;
 class DebugLines;
@@ -21,7 +24,7 @@ public:
 private:
 	
 private:
-	Scene* m_scene;
+	temp::Scene* m_scene;
 	GpuProgram* m_program;
 	GpuProgram* m_debug_program;
 	Light* m_light;

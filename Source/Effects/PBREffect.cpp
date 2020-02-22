@@ -27,7 +27,7 @@ PBREffect::~PBREffect()
 void PBREffect::prepare()
 {
 	std::string scene_file = getCurrentPath() + "\\BuiltinResources\\Scenes\\CornellBox.gltf";
-	m_scene = new Scene();
+	m_scene = new temp::Scene();
 	m_scene->load(scene_file);
 
 	std::string vs;
@@ -54,7 +54,7 @@ void PBREffect::prepare()
 
 	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
-		Node& node = m_scene->m_nodes[i];
+		temp::Node& node = m_scene->m_nodes[i];
 		m_scene->printNodeInfo(node.node_id);
 	}
 
@@ -95,7 +95,7 @@ void PBREffect::render()
 	glUseProgram(program);
 	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
-		Node& node = m_scene->m_nodes[i];
+		temp::Node& node = m_scene->m_nodes[i];
 		if (node.mesh > -1)
 		{
 			glm::mat4 model = m_scene->getWorldMatrix(node.node_id);

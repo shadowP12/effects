@@ -207,7 +207,7 @@
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2429.htm
 
 //
-// Data-dependency ordering: atomics and memory model	N2664	GCC 4.4
+// Datas-dependency ordering: atomics and memory model	N2664	GCC 4.4
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2664.htm
 
 //

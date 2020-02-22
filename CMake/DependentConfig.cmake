@@ -23,3 +23,7 @@ include_directories(${GLAD_INCLUDE_DIR})
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/GLFWConfig.cmake)
 include_directories(${GLFW_INCLUDE_DIR})
 set(DependentLibs ${DependentLibs} ${GLFW_LIBS})
+
+# cgltf
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/CGLTFConfig.cmake)
+include_directories(${CGLTF_INCLUDE_DIR})

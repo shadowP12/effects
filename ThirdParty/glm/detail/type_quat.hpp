@@ -36,7 +36,7 @@ namespace glm
 		typedef qua<T, Q> type;
 		typedef T value_type;
 
-		// -- Data --
+		// -- Datas --
 
 #		if GLM_SILENT_WARNINGS == GLM_ENABLE
 #			if GLM_COMPILER & GLM_COMPILER_GCC

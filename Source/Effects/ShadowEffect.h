@@ -4,7 +4,11 @@
 
 EFFECTS_NAMESPACE_BEGIN
 
-class Scene;
+namespace temp
+{
+    class Scene;
+};
+
 class GpuProgram;
 class LightWidget;
 class DebugLines;
@@ -21,7 +25,7 @@ public:
 private:
 	
 private:
-	Scene* m_scene;
+	temp::Scene* m_scene;
 	GpuProgram* m_program;
 	Light* m_light;
 };

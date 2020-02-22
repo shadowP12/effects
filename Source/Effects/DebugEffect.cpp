@@ -15,7 +15,7 @@ DebugEffect::~DebugEffect()
 {
 	delete m_debug_program;
 	delete m_debug_lines;
-	releaseMesh(m_plane_mesh);
+	temp::releaseMesh(m_plane_mesh);
 }
 
 void DebugEffect::prepare()
@@ -33,9 +33,9 @@ void DebugEffect::prepare()
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 10.0, 0.0)[0], &glm::vec4(0.0, 1.0, 0.0, 0.0)[0]);
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 0.0, 10.0)[0], &glm::vec4(0.0, 0.0, 1.0, 0.0)[0]);
 
-	m_plane_mesh = new Mesh();
+	m_plane_mesh = new temp::Mesh();
 	preparePlaneMesh();
-	initMesh(m_plane_mesh);
+	temp::initMesh(m_plane_mesh);
 }
 
 glm::vec3 randomInUnitSphere(unsigned int* seed0, unsigned int* seed1)
@@ -141,17 +141,17 @@ void DebugEffect::render()
 	
 
 	//
-	drawMesh(m_plane_mesh);
+	temp::drawMesh(m_plane_mesh);
 
     gFrameCount++;
 }
 
 void DebugEffect::preparePlaneMesh()
 {
-	Mesh::Vertex v0;
-	Mesh::Vertex v1;
-	Mesh::Vertex v2;
-	Mesh::Vertex v3;
+	temp::Mesh::Vertex v0;
+    temp::Mesh::Vertex v1;
+    temp::Mesh::Vertex v2;
+    temp::Mesh::Vertex v3;
 	v0.position = glm::vec3(-1.0f, 1.0f, 0.0f);
 	v0.normal = glm::vec3(1.0f, 1.0f, 1.0f);
 	v0.uv = glm::vec2(0.0f, 0.0f);

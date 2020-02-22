@@ -10,7 +10,7 @@ Index of this file:
 // [SECTION] Widgets: Main (Button, Image, Checkbox, RadioButton, ProgressBar, Bullet, etc.)
 // [SECTION] Widgets: Low-level Layout helpers (Spacing, Dummy, NewLine, Separator, etc.)
 // [SECTION] Widgets: ComboBox
-// [SECTION] Data Type and Data Formatting Helpers
+// [SECTION] Datas Type and Datas Formatting Helpers
 // [SECTION] Widgets: DragScalar, DragFloat, DragInt, etc.
 // [SECTION] Widgets: SliderScalar, SliderFloat, SliderInt, etc.
 // [SECTION] Widgets: InputScalar, InputFloat, InputInt, etc.
@@ -70,7 +70,7 @@ Index of this file:
 #endif
 
 //-------------------------------------------------------------------------
-// Data
+// Datas
 //-------------------------------------------------------------------------
 
 // Those MIN/MAX values are not define because we need to point to them
@@ -1620,7 +1620,7 @@ bool ImGui::Combo(const char* label, int* current_item, const char* items_separa
 }
 
 //-------------------------------------------------------------------------
-// [SECTION] Data Type and Data Formatting Helpers [Internal]
+// [SECTION] Datas Type and Datas Formatting Helpers [Internal]
 //-------------------------------------------------------------------------
 // - PatchFormatStringFloatToInt()
 // - DataTypeGetInfo()
@@ -2056,7 +2056,7 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.
-// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Datas Types' to understand how to use this function directly.
 bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed, const void* p_min, const void* p_max, const char* format, float power)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -2510,7 +2510,7 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a slider, they are all required.
-// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Datas Types' to understand how to use this function directly.
 bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format, float power)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -2873,7 +2873,7 @@ bool ImGui::TempInputTextScalar(const ImRect& bb, ImGuiID id, const char* label,
 }
 
 // Note: p_data, p_step, p_step_fast are _pointers_ to a memory address holding the data. For an Input widget, p_step and p_step_fast are optional.
-// Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->Datas Types' to understand how to use this function directly.
 bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step, const void* p_step_fast, const char* format, ImGuiInputTextFlags flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -3481,12 +3481,12 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         // Take a copy of the initial buffer value (both in original UTF-8 format and converted to wchar)
         // From the moment we focused we are ignoring the content of 'buf' (unless we are in read-only mode)
         const int buf_len = (int)strlen(buf);
-        state->InitialTextA.resize(buf_len + 1);    // UTF-8. we use +1 to make sure that .Data is always pointing to at least an empty string.
+        state->InitialTextA.resize(buf_len + 1);    // UTF-8. we use +1 to make sure that .Datas is always pointing to at least an empty string.
         memcpy(state->InitialTextA.Data, buf, buf_len + 1);
 
         // Start edition
         const char* buf_end = NULL;
-        state->TextW.resize(buf_size + 1);          // wchar count <= UTF-8 count. we use +1 to make sure that .Data is always pointing to at least an empty string.
+        state->TextW.resize(buf_size + 1);          // wchar count <= UTF-8 count. we use +1 to make sure that .Datas is always pointing to at least an empty string.
         state->TextA.resize(0);
         state->TextAIsValid = false;                // TextA is not valid yet (we will display buf until then)
         state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, buf_size, buf, NULL, &buf_end);

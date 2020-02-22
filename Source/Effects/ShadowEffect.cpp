@@ -60,7 +60,7 @@ ShadowEffect::~ShadowEffect()
 void ShadowEffect::prepare()
 {
 	std::string scene_file = getCurrentPath() + "\\BuiltinResources\\Scenes\\test.gltf";
-	m_scene = new Scene();
+	m_scene = new temp::Scene();
 	m_scene->load(scene_file);
 
 	std::string vs;
@@ -138,7 +138,7 @@ void ShadowEffect::render()
 	glViewport(0, 0, m_width, m_height);
 	for (int i = 0; i < m_scene->m_nodes.size(); i++)
 	{
-		Node& node = m_scene->m_nodes[i];
+		temp::Node& node = m_scene->m_nodes[i];
 		if (node.mesh > -1)
 		{
 			glm::mat4 model = m_scene->getWorldMatrix(node.node_id);

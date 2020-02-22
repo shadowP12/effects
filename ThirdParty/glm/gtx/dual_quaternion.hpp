@@ -41,7 +41,7 @@ namespace glm
 		typedef T value_type;
 		typedef qua<T, Q> part_type;
 
-		// -- Data --
+		// -- Datas --
 
 		qua<T, Q> real, dual;
 
