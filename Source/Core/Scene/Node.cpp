@@ -76,6 +76,13 @@ void Node::removeChildren(std::shared_ptr<Node> Children)
 	}
 }
 
+void Node::setTransform(const glm::vec3 &pos, const glm::vec3 &scale, const glm::quat &rot)
+{
+    mLPos = pos;
+    mLScale = scale;
+    mLRot = rot;
+}
+
 glm::mat4 Node::getLocalMatrix()
 {
 	//RTS

@@ -7,6 +7,9 @@
 #include "Effects/PBREffect.h"
 #include "Effects/ShadowEffect.h"
 #include "Core/Utility/Flags.h"
+#include "Core/Renderer/Renderer.h"
+#include "Importers/GltfImporter.h"
+#include "Core/Utility/FileUtility.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -39,6 +42,9 @@ void init()
 	g_effect = new et::DebugEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
+
+	// module
+	et::Renderer::startUp();
 }
 
 void release()
@@ -47,6 +53,13 @@ void release()
 	delete g_input;
 	delete g_camera;
 	delete g_ui_system;
+	et::Renderer::shutDown();
+}
+
+void loadResource()
+{
+    et::GltfImporter importer;
+    importer.load(et::getCurrentPath() + "\\BuiltinResources\\Scenes\\CornellBox.gltf", nullptr);
 }
 
 void update(float t)
@@ -89,6 +102,7 @@ int main()
 		return -1;
 	}
 	init();
+    loadResource();
 	while (!glfwWindowShouldClose(g_window))
 	{
 		update(0.001);

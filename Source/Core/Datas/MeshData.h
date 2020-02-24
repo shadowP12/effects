@@ -89,12 +89,12 @@ protected:
 	MeshAttributeSemantic mSemantic;
 };
 
-class MeshDescription
+class MeshDataDescription
 {
 public:
-	MeshDescription();
-	MeshDescription(const MeshAttributeLayout& layout);
-	~MeshDescription();
+    MeshDataDescription();
+    MeshDataDescription(const MeshAttributeLayout& layout);
+	~MeshDataDescription();
 	void addMeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic);
 
 	bool hasMeshAttribute(MeshAttributeSemantic semantic);
@@ -115,9 +115,9 @@ private:
 class MeshData
 {
 public:
-	MeshData(uint32_t numVertices, uint32_t numIndices, MeshDescription* desc);
+	MeshData(uint32_t numVertices, uint32_t numIndices, MeshDataDescription* desc);
 	~MeshData();
-	MeshDescription* getMeshDesc() { return mDesc; }
+	MeshDataDescription* getMeshDesc() { return mDesc; }
 	void setIndexes(void* data, uint32_t size);
 	void setAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size);
 	uint8_t* getIndices();
@@ -129,7 +129,7 @@ public:
 	uint32_t getStreamSize() const;
 private:
 	uint8_t* mData;
-	MeshDescription* mDesc;
+	MeshDataDescription* mDesc;
 	uint32_t mNumVertices;
 	uint32_t mNumIndices;
 };

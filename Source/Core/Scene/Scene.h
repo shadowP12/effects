@@ -20,10 +20,11 @@ class Scene
 public:
     Scene();
     ~Scene();
-
+    void addSceneObject(std::shared_ptr<SceneObject> obj);
 private:
     // meshs
     // materials
+    std::vector<std::shared_ptr<SceneObject>> mSceneObjects;
     std::shared_ptr<SceneObject> mRoot;
 };
 

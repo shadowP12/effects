@@ -110,11 +110,11 @@ uint16_t MeshAttribute::getTypeCount(MeshAttributeType type)
 	return 0;
 }
 
-MeshDescription::MeshDescription()
+MeshDataDescription::MeshDataDescription()
 {
 }
 
-MeshDescription::MeshDescription(const MeshAttributeLayout& layout)
+MeshDataDescription::MeshDataDescription(const MeshAttributeLayout& layout)
 {
 	int32_t intLayout = (int32_t)layout;
 
@@ -140,11 +140,11 @@ MeshDescription::MeshDescription(const MeshAttributeLayout& layout)
 	}
 }
 
-MeshDescription::~MeshDescription()
+MeshDataDescription::~MeshDataDescription()
 {
 }
 
-void MeshDescription::addMeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic)
+void MeshDataDescription::addMeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic)
 {
 	clearIfItExists(type, semantic);
 
@@ -155,7 +155,7 @@ void MeshDescription::addMeshAttribute(MeshAttributeType type, MeshAttributeSema
 	mAttributes.insert(mAttributes.begin() + insertToIndex, newAttribute);
 }
 
-bool MeshDescription::hasMeshAttribute(MeshAttributeSemantic semantic)
+bool MeshDataDescription::hasMeshAttribute(MeshAttributeSemantic semantic)
 {
 	auto findIter = std::find_if(mAttributes.begin(), mAttributes.end(),
 		[semantic](const MeshAttribute& x)
@@ -170,7 +170,7 @@ bool MeshDescription::hasMeshAttribute(MeshAttributeSemantic semantic)
 	return false;
 }
 
-void MeshDescription::clearIfItExists(MeshAttributeType type, MeshAttributeSemantic semantic)
+void MeshDataDescription::clearIfItExists(MeshAttributeType type, MeshAttributeSemantic semantic)
 {
 	auto findIter = std::find_if(mAttributes.begin(), mAttributes.end(),
 		[semantic](const MeshAttribute& x)
@@ -184,7 +184,7 @@ void MeshDescription::clearIfItExists(MeshAttributeType type, MeshAttributeSeman
 	}
 }
 
-uint32_t MeshDescription::getMeshAttributeSize(MeshAttributeSemantic semantic)
+uint32_t MeshDataDescription::getMeshAttributeSize(MeshAttributeSemantic semantic)
 {
 	for (auto& attribute : mAttributes)
 	{
@@ -195,7 +195,7 @@ uint32_t MeshDescription::getMeshAttributeSize(MeshAttributeSemantic semantic)
 	return -1;
 }
 
-uint32_t MeshDescription::getMeshAttributeOffset(MeshAttributeSemantic semantic)
+uint32_t MeshDataDescription::getMeshAttributeOffset(MeshAttributeSemantic semantic)
 {
 	uint32_t offset = 0;
 	for (auto& attribute : mAttributes)
@@ -209,7 +209,7 @@ uint32_t MeshDescription::getMeshAttributeOffset(MeshAttributeSemantic semantic)
 	return offset;
 }
 
-uint32_t MeshDescription::getMeshAttributeStride()
+uint32_t MeshDataDescription::getMeshAttributeStride()
 {
 	uint32_t stride = 0;
 	for (uint32_t i = 0; i < mAttributes.size(); i++)
@@ -220,7 +220,7 @@ uint32_t MeshDescription::getMeshAttributeStride()
 	return stride;
 }
 
-MeshData::MeshData(uint32_t numVertices, uint32_t numIndices, MeshDescription* desc)
+MeshData::MeshData(uint32_t numVertices, uint32_t numIndices, MeshDataDescription* desc)
 	:mNumVertices(numVertices), mNumIndices(numIndices), mDesc(desc)
 {
 	// ·ÖÅäÄÚ´æ¿Õ¼ä
@@ -232,6 +232,8 @@ MeshData::~MeshData()
 {
 	if (mData)
 		delete[] mData;
+	if(mDesc)
+	    delete mDesc;
 }
 
 void MeshData::setIndexes(void* data, uint32_t size)

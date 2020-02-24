@@ -30,9 +30,10 @@ public:
 	void setParent(std::shared_ptr<Node> newParent);
 	void appendChildren(std::shared_ptr<Node> newChildren);
 	void removeChildren(std::shared_ptr<Node> Children);
+	void setTransform(const glm::vec3& pos, const glm::vec3& scale, const glm::quat& rot);
 	glm::mat4 getLocalMatrix();
 	glm::mat4 getWorldMatrix();
-public:
+protected:
 	std::shared_ptr<Node> mParent;
 	std::vector<std::shared_ptr<Node>> mChildren;
 	glm::vec3 mLPos;
