@@ -114,26 +114,24 @@ MeshDataDescription::MeshDataDescription()
 {
 }
 
-MeshDataDescription::MeshDataDescription(const MeshAttributeLayout& layout)
+MeshDataDescription::MeshDataDescription(const uint32_t& layout)
 {
-	int32_t intLayout = (int32_t)layout;
-
-	if ((intLayout & (int32_t)MAL_POSITION) != 0)
+	if ((layout & (uint32_t)MAL_POSITION) != 0)
 		addMeshAttribute(MAT_FLOAT3, MAS_POSITION);
 
-	if ((intLayout & (int32_t)MAL_NORMAL) != 0)
+	if ((layout & (uint32_t)MAL_NORMAL) != 0)
 		addMeshAttribute(MAT_FLOAT3, MAS_NORMAL);
 
-	if ((intLayout & (int32_t)MAL_TANGENT) != 0)
+	if ((layout & (uint32_t)MAL_TANGENT) != 0)
 		addMeshAttribute(MAT_FLOAT3, MAS_TANGENT);
 
-	if ((intLayout & (int32_t)MAL_TEXCOORD0) != 0)
+	if ((layout & (uint32_t)MAL_TEXCOORD0) != 0)
 		addMeshAttribute(MAT_FLOAT2, MAS_TEXCOORD);
 
-	if ((intLayout & (int32_t)MAL_COLOR) != 0)
+	if ((layout & (uint32_t)MAL_COLOR) != 0)
 		addMeshAttribute(MAT_COLOR, MAS_COLOR);
 
-	if ((intLayout & (int32_t)MAL_BLEND_WEIGHTS) != 0)
+	if ((layout & (uint32_t)MAL_BLEND_WEIGHTS) != 0)
 	{
 		addMeshAttribute(MAT_INT4, MAS_BLEND_INDICES);
 		addMeshAttribute(MAT_FLOAT4, MAS_BLEND_WEIGHTS);

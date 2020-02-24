@@ -5,13 +5,13 @@ EFFECTS_NAMESPACE_BEGIN
 
 enum MeshAttributeLayout
 {
-	MAL_POSITION = 0x01,
-	MAL_COLOR = 0x02,
-	MAL_NORMAL = 0x04,
-	MAL_TANGENT = 0x08,
-	MAL_BLEND_WEIGHTS = 0x10,
-	MAL_TEXCOORD0 = 0x20,
-	MAL_TEXCOORD1 = 0x40,
+	MAL_POSITION = 1 << 0,
+	MAL_COLOR = 1 << 1,
+	MAL_NORMAL = 1 << 2,
+	MAL_TANGENT = 1 << 3,
+	MAL_BLEND_WEIGHTS = 1 << 4,
+	MAL_TEXCOORD0 = 1 << 5,
+	MAL_TEXCOORD1 = 1 << 6,
 };
 
 enum MeshAttributeSemantic
@@ -55,6 +55,19 @@ enum MeshAttributeType
 	VET_UNKNOWN = 0xffff
 };
 
+struct BoneWeight
+{
+    int index0;
+    int index1;
+    int index2;
+    int index3;
+
+    float weight0;
+    float weight1;
+    float weight2;
+    float weight3;
+};
+
 class MeshAttribute
 {
 public:
@@ -93,7 +106,7 @@ class MeshDataDescription
 {
 public:
     MeshDataDescription();
-    MeshDataDescription(const MeshAttributeLayout& layout);
+    MeshDataDescription(const uint32_t& layout);
 	~MeshDataDescription();
 	void addMeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic);
 
