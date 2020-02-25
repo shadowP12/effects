@@ -12,7 +12,9 @@ set(CORE_SRC
 	Source/Core/Scene/Component.cpp
 	Source/Core/Utility/FileUtility.cpp
 	Source/Core/Gfx/GpuProgram.cpp
+	Source/Core/Gfx/GfxProgram.cpp
 	Source/Core/Gfx/GfxDebug.cpp
+	Source/Core/Gfx/GfxResources.cpp
 	Source/Core/RenderResources/Mesh.cpp
 	Source/Core/RenderResources/Material.cpp
 	Source/Core/Renderer/Renderable.cpp

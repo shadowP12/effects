@@ -138,7 +138,9 @@ public:
 	void getAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size);
 	uint32_t getNumVertices() { return mNumVertices; }
 	uint32_t getNumIndices() { return mNumIndices; }
+    uint32_t getVertexBufferSize() const;
 	uint32_t getIndexBufferSize() const;
+	uint32_t getVertexStrideSize() const;
 	uint32_t getStreamSize() const;
 private:
 	uint8_t* mData;

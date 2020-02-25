@@ -12,6 +12,7 @@ enum MaterialType
 class Material
 {
 public:
+
     Material();
     ~Material();
     void setType(const MaterialType type);

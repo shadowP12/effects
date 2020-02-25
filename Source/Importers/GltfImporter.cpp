@@ -280,7 +280,21 @@ void GltfImporter::load(std::string filePath, Scene* scene)
         meshData->setAttribute(MAS_POSITION, positionBuffer.data(), positionBuffer.size() * sizeof(float));
         meshData->setAttribute(MAS_TEXCOORD, texcoordBuffer.data(), texcoordBuffer.size() * sizeof(float));
         meshData->setAttribute(MAS_NORMAL, normalBuffer.data(), normalBuffer.size() * sizeof(float));
-        delete meshData;
+        if ((meshAttLayout & (uint32_t)MAL_TANGENT) != 0)
+        {
+            meshData->setAttribute(MAS_TANGENT, tangentBuffer.data(), tangentBuffer.size() * sizeof(float));
+        }
+
+        if((meshAttLayout & (uint32_t)MAL_BLEND_WEIGHTS) != 0)
+        {
+            meshData->setAttribute(MAS_BLEND_INDICES, jointsBuffer.data(), jointsBuffer.size() * sizeof(int));
+            meshData->setAttribute(MAS_BLEND_WEIGHTS, weightsBuffer.data(), weightsBuffer.size() * sizeof(float));
+        }
+
+        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meshData);
+        mesh->initialize();
+
+
     }
 
     cgltf_free(data);

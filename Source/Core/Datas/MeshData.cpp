@@ -301,9 +301,19 @@ void MeshData::getAttribute(MeshAttributeSemantic semantic, void* data, uint32_t
 	}
 }
 
+uint32_t MeshData::getVertexBufferSize() const
+{
+    return mNumVertices * mDesc->getMeshAttributeStride();
+}
+
 uint32_t MeshData::getIndexBufferSize() const
 {
 	return mNumIndices * sizeof(uint32_t);
+}
+
+uint32_t MeshData::getVertexStrideSize() const
+{
+    return mDesc->getMeshAttributeStride();
 }
 
 uint32_t MeshData::getStreamSize() const
