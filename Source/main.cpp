@@ -7,9 +7,11 @@
 #include "Effects/PBREffect.h"
 #include "Effects/ShadowEffect.h"
 #include "Core/Utility/Flags.h"
+#include "Core/Gfx/GpuProgram.h"
 #include "Core/Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"
 #include "Core/Utility/FileUtility.h"
+#include "Core/Utility/Hash.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -26,7 +28,6 @@ void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods);
 void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y);
 void window_size_callback(GLFWwindow* window, int width, int height);
-
 
 void init()
 {
@@ -45,6 +46,7 @@ void init()
 
 	// module
 	et::Renderer::startUp();
+	et::GpuProgramPool::startUp();
 }
 
 void release()
@@ -54,6 +56,7 @@ void release()
 	delete g_camera;
 	delete g_ui_system;
 	et::Renderer::shutDown();
+	et::GpuProgramPool::shutDown();
 }
 
 void loadResource()

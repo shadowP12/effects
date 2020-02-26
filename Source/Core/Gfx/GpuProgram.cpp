@@ -1,5 +1,6 @@
 #include "GpuProgram.h"
 #include "../Utility/Log.h"
+#include "../Utility/FileUtility.h"
 #include <sstream>
 #include <fstream>
 EFFECTS_NAMESPACE_BEGIN
@@ -74,7 +75,7 @@ GpuProgram::~GpuProgram()
 GLuint GpuProgram::getGpuProgram()
 {
 	GpuProgramDefines defines;
-	auto& it = m_variations.find(defines);
+	auto it = m_variations.find(defines);
 	if (it == m_variations.end())
 	{
 		GLuint res = createVariation(defines);
@@ -90,7 +91,7 @@ GLuint GpuProgram::getGpuProgram()
 
 GLuint GpuProgram::getGpuProgram(const GpuProgramDefines& defines)
 {
-	auto& it = m_variations.find(defines);
+    auto it = m_variations.find(defines);
 	if (it == m_variations.end())
 	{
 		return createVariation(defines);
@@ -115,14 +116,35 @@ GLuint GpuProgram::createVariation(const GpuProgramDefines& defines)
 	return createGpuProgram(vertex_source, frament_source);
 }
 
-ComputeProgram::ComputeProgram(std::string compute_source)
-	:m_compute_source(compute_source)
+GpuProgramPool::GpuProgramPool()
 {
+    std::string vs;
+    std::string vs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\pbr.vs";
+    readFileData(vs_path, vs);
+
+    std::string fs;
+    std::string fs_path = getCurrentPath() + "\\BuiltinResources\\Shaders\\pbr.fs";
+    readFileData(fs_path, fs);
+
+    GpuProgram* pbrProgram = new GpuProgram(vs, fs);
+    mProgramCache["PBR"] = pbrProgram;
 }
 
-ComputeProgram::~ComputeProgram()
+GpuProgramPool::~GpuProgramPool()
 {
-	glDeleteProgram(m_program_id);
+    for (auto& program : mProgramCache)
+    {
+        delete program.second;
+    }
+    mProgramCache.clear();
+}
+
+GpuProgram * GpuProgramPool::getProgram(const BuiltinProgramType &type)
+{
+    if(type == BuiltinProgramType::PBR)
+    {
+        return mProgramCache["PBR"];
+    }
 }
 
 EFFECTS_NAMESPACE_END

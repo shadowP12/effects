@@ -1,6 +1,7 @@
 #pragma once
 #include "../Base.h"
 #include "Gfx.h"
+#include "../Utility/Module.h"
 #include <map>
 #include <string>
 EFFECTS_NAMESPACE_BEGIN
@@ -27,18 +28,19 @@ private:
 	std::map<GpuProgramDefines, GLuint> m_variations;
 };
 
-class ComputeProgram
+enum class BuiltinProgramType
 {
-public:
-	ComputeProgram(std::string compute_source);
-	~ComputeProgram();
-	GLuint getComputeProgram()
-	{
-		return m_program_id;
-	}
-private:
-	std::string m_compute_source;
-	GLuint m_program_id;
+    PBR = 0,
 };
 
+class GpuProgramPool : public Module<GpuProgramPool>
+{
+public:
+    GpuProgramPool();
+    ~GpuProgramPool();
+    GpuProgram* getProgram(const BuiltinProgramType& type);
+private:
+    std::map<std::string, GpuProgram*> mProgramCache;
+
+};
 EFFECTS_NAMESPACE_END
