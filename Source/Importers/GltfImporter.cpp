@@ -2,6 +2,10 @@
 #include "../Core/Scene/Scene.h"
 #include "../Core/Datas/MeshData.h"
 #include "../Core/RenderResources/Mesh.h"
+#include "../Core/RenderResources/PBRMaterial.h"
+#include "../Core/Renderer/Renderable.h"
+#include "../Core/Gfx/GpuProgram.h"
+
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
 EFFECTS_NAMESPACE_BEGIN
@@ -294,7 +298,14 @@ void GltfImporter::load(std::string filePath, Scene* scene)
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meshData);
         mesh->initialize();
 
+        std::shared_ptr<PBRMaterial> material = std::make_shared<PBRMaterial>();
+        material->setType(MaterialType::PBR);
+        material->setProgram(GpuProgramPool::instance().getProgram(BuiltinProgramType::PBR));
 
+        std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
+        renderable->initialize();
+        renderable->setMesh(mesh);
+        renderable->setMaterial(material);
     }
 
     cgltf_free(data);

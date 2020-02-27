@@ -17,7 +17,9 @@ set(CORE_SRC
 	Source/Core/Gfx/GfxResources.cpp
 	Source/Core/RenderResources/Mesh.cpp
 	Source/Core/RenderResources/Material.cpp
+	Source/Core/RenderResources/PBRMaterial.cpp
 	Source/Core/Renderer/Renderable.cpp
+	Source/Core/Renderer/RenderView.cpp
 	Source/Core/Renderer/Renderer.cpp
 )
 

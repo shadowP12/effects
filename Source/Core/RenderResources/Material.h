@@ -7,9 +7,9 @@
 
 EFFECTS_NAMESPACE_BEGIN
 
-enum MaterialType
+enum class MaterialType
 {
-    MT_PBR = 0,
+    PBR = 0,
 };
 
 class GpuProgramDefines;
@@ -23,6 +23,10 @@ public:
     void setType(const MaterialType& type);
     void setProgram(GpuProgram* program);
     GpuProgram* getProgram();
+    std::unordered_map<std::string, int>& getIntParams(){return mIntParams;}
+    std::unordered_map<std::string, float>& getFloatParams(){return mFloatParams;}
+    std::unordered_map<std::string, glm::vec3>& getFloat3Params(){return mFloat3Params;}
+    std::unordered_map<std::string, glm::vec4>& getFloat4Params(){return mFloat4Params;}
     virtual void setProgramDefines(GpuProgramDefines& defines);
 protected:
     MaterialType mType;
