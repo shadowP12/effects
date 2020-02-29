@@ -8,10 +8,13 @@
 #include "Effects/ShadowEffect.h"
 #include "Core/Utility/Flags.h"
 #include "Core/Gfx/GpuProgram.h"
+#include "Core/Renderer/RenderView.h"
 #include "Core/Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"
 #include "Core/Utility/FileUtility.h"
 #include "Core/Utility/Hash.h"
+#include "Core/Scene/Scene.h"
+#include "Core/Scene/Component.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -46,7 +49,12 @@ void init()
 
 	// module
 	et::Renderer::startUp();
+	et::SceneManager::startUp();
 	et::GpuProgramPool::startUp();
+
+	std::shared_ptr<et::SceneObject> obj = std::make_shared<et::SceneObject>();
+	obj->addComponent<et::Component>();
+
 }
 
 void release()
@@ -56,6 +64,7 @@ void release()
 	delete g_camera;
 	delete g_ui_system;
 	et::Renderer::shutDown();
+	et::SceneManager::shutDown();
 	et::GpuProgramPool::shutDown();
 }
 

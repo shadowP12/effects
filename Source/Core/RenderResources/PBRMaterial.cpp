@@ -11,7 +11,6 @@ PBRMaterial::~PBRMaterial()
 
 void PBRMaterial::setProgramDefines(GpuProgramDefines& defines)
 {
-    defines.add();
 }
 
 EFFECTS_NAMESPACE_END

@@ -21,6 +21,8 @@ set(CORE_SRC
 	Source/Core/Renderer/Renderable.cpp
 	Source/Core/Renderer/RenderView.cpp
 	Source/Core/Renderer/Renderer.cpp
+	Source/Core/Components/CRenderable.cpp
+	Source/Core/Components/CCamera.cpp
 )
 
 set(EFFECTS_SRC

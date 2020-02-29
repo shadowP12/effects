@@ -24,7 +24,6 @@ void Renderer::notifyRenderableAdded(std::shared_ptr<Renderable> renderable)
 void Renderer::render()
 {
     // seting global defines
-
     for (int i = 0; i < mRenderables.size(); ++i)
     {
         std::shared_ptr<Mesh> mesh = mRenderables[i]->getMesh();
@@ -32,6 +31,24 @@ void Renderer::render()
         material->setProgramDefines(mGlobalDefines);
         GpuProgram* program = material->getProgram();
         GLuint programID = program->getGpuProgram(mGlobalDefines);
+        glm::mat4 modelMatrix = mRenderables[i]->getTransform();
+        glm::mat4 viewMatrix = mMainView->getViewMatrix();
+        glm::mat4 projMatrix = mMainView->getProjMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &modelMatrix[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, &viewMatrix[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(programID, "projection"), 1, GL_FALSE, &projMatrix[0][0]);
+        // 灯光参数
+        glm::vec3 lightPosition = glm::vec3(0.0, 0.0, 0.0);
+        glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
+        float lightRadius = 0.5f;
+        float lightIntensity = 10.0f;
+        glUniform3fv(glGetUniformLocation(programID, "u_lightPos"), 1, &lightPosition[0]);
+        glUniform3fv(glGetUniformLocation(programID, "u_lightColor"), 1, &lightColor[0]);
+        glUniform1fv(glGetUniformLocation(programID, "u_lightRadius"), 1, &lightRadius);
+        glUniform1fv(glGetUniformLocation(programID, "u_lightIntensity"), 1, &lightIntensity);
+        // 材质参数
+        glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
+        glUniform3fv(glGetUniformLocation(programID, "u_albedo"), 1, &albedo[0]);
     }
 }
 

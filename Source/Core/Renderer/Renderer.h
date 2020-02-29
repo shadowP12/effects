@@ -19,7 +19,7 @@ public:
     void notifyRenderableAdded(std::shared_ptr<Renderable> renderable);
 private:
     std::vector<std::shared_ptr<Renderable>> mRenderables;
-    std::shared_ptr<RenderView*> mMainView;
+    std::shared_ptr<RenderView> mMainView;
     GpuProgramDefines mGlobalDefines;
 };
 

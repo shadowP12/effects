@@ -13,6 +13,8 @@ EFFECTS_NAMESPACE_BEGIN
 int getCNodeInxFromCScene(const cgltf_node* node, const cgltf_scene* scene);
 bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute_type type);
 bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute** inAtt, cgltf_attribute_type type);
+glm::mat4 getLocalMatrix(cgltf_node* node);
+glm::mat4 getWorldMatrix(cgltf_node* node);
 
 GltfImporter::GltfImporter()
 {
@@ -306,6 +308,8 @@ void GltfImporter::load(std::string filePath, Scene* scene)
         renderable->initialize();
         renderable->setMesh(mesh);
         renderable->setMaterial(material);
+
+        renderable->setTransform(getWorldMatrix(cNode));
     }
 
     cgltf_free(data);
@@ -348,6 +352,53 @@ bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute** inAtt, cgl
         }
     }
     return false;
+}
+
+glm::mat4 getLocalMatrix(cgltf_node* node)
+{
+    glm::vec3 translation = glm::vec3(0.0f);
+    if (node->has_translation)
+    {
+        translation.x = node->translation[0];
+        translation.y = node->translation[1];
+        translation.z = node->translation[2];
+    }
+
+    glm::quat rotation = glm::quat(1, 0, 0, 0);
+    if (node->has_rotation)
+    {
+        rotation.x = node->rotation[0];
+        rotation.y = node->rotation[1];
+        rotation.z = node->rotation[2];
+        rotation.w = node->rotation[3];
+    }
+
+    glm::vec3 scale = glm::vec3(1.0f);
+    if (node->has_scale)
+    {
+        scale.x = node->scale[0];
+        scale.y = node->scale[1];
+        scale.z = node->scale[2];
+    }
+
+    glm::mat4 r, t, s;
+    r = glm::toMat4(rotation);
+    t = glm::translate(glm::mat4(1.0), translation);
+    s = glm::scale(glm::mat4(1.0), scale);
+    return t * r * s;
+}
+
+glm::mat4 getWorldMatrix(cgltf_node* node)
+{
+    cgltf_node* curNode = node;
+    glm::mat4 out = getLocalMatrix(curNode);
+
+    while (curNode->parent != nullptr)
+    {
+        curNode = node->parent;
+        out = getLocalMatrix(curNode) * out;
+    }
+    return out;
 }
 
 EFFECTS_NAMESPACE_END
