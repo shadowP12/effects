@@ -33,6 +33,11 @@ public:
 	void setTransform(const glm::vec3& pos, const glm::vec3& scale, const glm::quat& rot);
 	glm::mat4 getLocalMatrix();
 	glm::mat4 getWorldMatrix();
+	void setPosition(const glm::vec3& pos){mLPos = pos;}
+	glm::vec3 getPosition(){return mLPos;}
+    glm::vec3 getRightVector();
+    glm::vec3 getUpVector();
+    glm::vec3 getFrontVector();
 protected:
 	std::shared_ptr<Node> mParent;
 	std::vector<std::shared_ptr<Node>> mChildren;

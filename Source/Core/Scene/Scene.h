@@ -34,6 +34,7 @@ public:
 
         return nullptr;
     }
+    void initialized();
     void update();
 protected:
     std::vector<std::shared_ptr<Component>> mComponents;

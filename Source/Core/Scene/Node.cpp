@@ -104,4 +104,19 @@ glm::mat4 Node::getWorldMatrix()
 	return out;
 }
 
+glm::vec3 Node::getRightVector()
+{
+    return getAxisX(getWorldMatrix());
+}
+
+glm::vec3 Node::getUpVector()
+{
+    return getAxisY(getWorldMatrix());
+}
+
+glm::vec3 Node::getFrontVector()
+{
+    return getAxisZ(getWorldMatrix());
+}
+
 EFFECTS_NAMESPACE_END

@@ -11,16 +11,15 @@ public:
     RenderView();
     ~RenderView();
     void initialize();
-    void setFov(float fov);
-    void setNear(float near);
-    void setFar(float far);
-    void setViewPort(float x, float y, float w, float h);
-    void getFov(float fov);
-    void getNear(float near);
-    void getFar(float far);
-    void getViewPort(float x, float y, float w, float h);
+    void setFov(const float& fov);
+    void setNear(const float& near);
+    void setFar(const float& far);
+    void setViewPort(const float& x, const float& y, const float& w, const float& h);
+    float getFov();
+    float getNear();
+    float getFar();
+    glm::vec4 getViewPort();
     void setTransform(const glm::mat4& mat);
-    void setParams();
     glm::mat4 getTransform();
     glm::mat4 getViewMatrix();
     glm::mat4 getProjMatrix();
@@ -32,6 +31,7 @@ private:
     glm::mat4 mWorldMatrix;
     glm::mat4 mViewMatrix;
     glm::mat4 mProjMatrix;
+    bool mProjDirtyFlag;
 };
 
 

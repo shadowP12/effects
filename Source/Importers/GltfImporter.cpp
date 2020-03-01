@@ -279,10 +279,10 @@ void GltfImporter::load(std::string filePath, Scene* scene)
             }
         }
 
-        positionBuffer;
         MeshDataDescription* meshDataDesc = new MeshDataDescription(meshAttLayout);
         MeshData* meshData = new MeshData(positionBuffer.size() / 3, indexBuffer.size(), meshDataDesc);
         meshData->setIndexes(indexBuffer.data(), indexBuffer.size() * sizeof(uint32_t));
+
         meshData->setAttribute(MAS_POSITION, positionBuffer.data(), positionBuffer.size() * sizeof(float));
         meshData->setAttribute(MAS_TEXCOORD, texcoordBuffer.data(), texcoordBuffer.size() * sizeof(float));
         meshData->setAttribute(MAS_NORMAL, normalBuffer.data(), normalBuffer.size() * sizeof(float));

@@ -4,11 +4,15 @@ EFFECTS_NAMESPACE_BEGIN
 
 SceneObject::SceneObject()
 {
-    SceneManager::instance().addSceneObject(std::dynamic_pointer_cast<SceneObject>(shared_from_this()));
 }
 
 SceneObject::~SceneObject()
 {
+}
+
+void SceneObject::initialized()
+{
+    SceneManager::instance().addSceneObject(std::dynamic_pointer_cast<SceneObject>(shared_from_this()));
 }
 
 void SceneObject::update()

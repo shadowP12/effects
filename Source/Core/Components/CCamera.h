@@ -13,14 +13,14 @@ public:
     virtual void update();
     static ComponentType getClassType(){return ComponentType::Camera;}
     virtual ComponentType getType(){return mType;}
-    void setFov(float fov);
-    void setNear(float near);
-    void setFar(float far);
-    void setViewPort(float x, float y, float w, float h);
-    void getFov(float fov);
-    void getNear(float near);
-    void getFar(float far);
-    void getViewPort(float x, float y, float w, float h);
+    void setFov(const float& fov);
+    void setNear(const float& near);
+    void setFar(const float& far);
+    void setViewPort(const float& x, const float& y, const float& w, const float& h);
+    float getFov();
+    float getNear();
+    float getFar();
+    glm::vec4 getViewPort();
 protected:
     std::shared_ptr<RenderView> mInternal;
 };

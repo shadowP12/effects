@@ -1,3 +1,4 @@
+#pragma once
 #include "../Base.h"
 #include <memory>
 EFFECTS_NAMESPACE_BEGIN

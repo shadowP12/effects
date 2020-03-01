@@ -4,6 +4,10 @@
 #include "../Core/Gfx/GfxDebug.h"
 #include "../Core/Scene/RenderScene.h"
 #include "../Math/Geometry.h"
+#include "../Core/Renderer/Renderer.h"
+#include "../Core/Renderer/Renderable.h"
+#include "../Core/RenderResources/Mesh.h"
+#include "../Core/RenderResources/Material.h"
 
 EFFECTS_NAMESPACE_BEGIN
 
@@ -105,7 +109,6 @@ void DebugEffect::update(float t)
 		plane.normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		float dis = intersect(ray, plane);
 		glm::vec3 hit_point = ray.pointAt(dis);
-		printf("%f  %f  %f\n",camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 		//m_hit_points.push_back(hit_point);
         unsigned int seed0 = 0, seed1 = 0;
         seed0 = input->m_mouse_position.x + hashUInt32(gFrameCount);
@@ -138,10 +141,18 @@ void DebugEffect::render()
 	m_debug_lines->draw();
 
 	// 
-	
+    for (int i = 0; i < Renderer::instance().getRenderables().size(); ++i)
+    {
+        std::shared_ptr<Mesh> mesh = Renderer::instance().getRenderables()[i]->getMesh();
+        std::shared_ptr<Material> material = Renderer::instance().getRenderables()[i]->getMaterial();
 
+        // drawing
+        glBindVertexArray(mesh->getVertexBufferArray());
+        glDrawElements(GL_TRIANGLES, 100, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
 	//
-	temp::drawMesh(m_plane_mesh);
+	//temp::drawMesh(m_plane_mesh);
 
     gFrameCount++;
 }

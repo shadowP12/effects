@@ -238,6 +238,7 @@ void MeshData::setIndexes(void* data, uint32_t size)
 {
 	uint8_t* dst = mData;
 	uint8_t* src = (uint8_t*)data;
+
 	memcpy(dst, src, size);
 }
 
@@ -257,7 +258,7 @@ void MeshData::setAttribute(MeshAttributeSemantic semantic, void* data, uint32_t
 	uint32_t offset = mDesc->getMeshAttributeOffset(semantic);
 	uint32_t stride = mDesc->getMeshAttributeStride();
 
-	uint8_t* dst = mData + offset;
+	uint8_t* dst = mData + mNumIndices * sizeof(uint32_t) + offset;
 	uint8_t* src = (uint8_t*)data;
 	for (uint32_t i = 0; i < mNumVertices; i++)
 	{

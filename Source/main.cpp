@@ -14,7 +14,7 @@
 #include "Core/Utility/FileUtility.h"
 #include "Core/Utility/Hash.h"
 #include "Core/Scene/Scene.h"
-#include "Core/Scene/Component.h"
+#include "Core/Components/CCamera.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -24,6 +24,7 @@ et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
 et::DebugEffect* g_effect = nullptr;
+std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
 
 //窗口回调函数
@@ -52,9 +53,9 @@ void init()
 	et::SceneManager::startUp();
 	et::GpuProgramPool::startUp();
 
-	std::shared_ptr<et::SceneObject> obj = std::make_shared<et::SceneObject>();
-	obj->addComponent<et::Component>();
-
+    gMainCamera = std::make_shared<et::SceneObject>();
+    gMainCamera->initialized();
+    gMainCamera->addComponent<et::CCamera>();
 }
 
 void release()
@@ -76,13 +77,31 @@ void loadResource()
 
 void update(float t)
 {
-	g_effect->update(t);
-	g_context->update(t);
+//	g_effect->update(t);
+//	g_context->update(t);
+    et::Input* input = g_input;
+    et::Camera* camera = g_camera;
+    if (input->m_mouse_button_down[1])
+    {
+        input->m_mouse_previou_position = input->m_mouse_position;
+    }
+    if (input->m_mouse_button_held[1])
+    {
+        camera->Rotate(input->m_mouse_position - input->m_mouse_previou_position);
+        input->m_mouse_previou_position = input->m_mouse_position;
+    }
+    glm::vec3 cameraPos = gMainCamera->getPosition();
+    glm::vec3 cameraFront = gMainCamera->getFrontVector();
+    cameraPos += cameraFront * input->m_mouse_scroll_wheel * 5.0f * 0.1f;
+    gMainCamera->setPosition(cameraPos);
+	et::SceneManager::instance().update();
+    g_input->update();
 }
 
 void render()
 {
-	g_effect->render();
+    et::Renderer::instance().render(g_camera);
+	//g_effect->render();
 }
 
 int main()
@@ -119,7 +138,7 @@ int main()
 	{
 		update(0.001);
 		render();
-		g_context->drawUI();
+		//g_context->drawUI();
 		glfwSwapBuffers(g_window);
 		glfwPollEvents();
 	}
