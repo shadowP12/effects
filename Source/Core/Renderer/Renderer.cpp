@@ -36,7 +36,7 @@ void Renderer::render(Camera* cam)
         GpuProgram* program = material->getProgram();
         GLuint programID = program->getGpuProgram(mGlobalDefines);
         glUseProgram(programID);
-        glm::mat4 modelMatrix = mRenderables[i]->getTransform();
+        glm::mat4 modelMatrix = glm::mat4(1.0f);//mRenderables[i]->getTransform();
         glm::mat4 viewMatrix = mMainView->getViewMatrix();//cam->getViewMatrix();
         glm::mat4 projMatrix = cam->getProjectionMatrix(800, 600);//mMainView->getProjMatrix();
         glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &modelMatrix[0][0]);

@@ -1,4 +1,5 @@
 #include "RenderScene.h"
+#define TINYGLTF_NO_STB_IMAGE
 #include <tiny_gltf.h>
 #include <iostream>
 #include "../Utility/Log.h"

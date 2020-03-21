@@ -1,0 +1,5 @@
+#include "RenderHelper.h"
+
+EFFECTS_NAMESPACE_BEGIN
+
+EFFECTS_NAMESPACE_END

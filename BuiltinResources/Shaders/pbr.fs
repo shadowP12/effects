@@ -53,5 +53,5 @@ void main()
     vec3 Lo = (u_albedo / PI) * saturate(dot(N, L)) * att * u_lightColor * u_lightIntensity / (4 * PI);
 
 	vec3 result = ambient + Lo;
-	FragColor = vec4(result, 1.0);
+	FragColor = vec4(v_worldPos, 1.0f);//vec4(result, 1.0);
 }

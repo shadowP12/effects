@@ -21,6 +21,7 @@ set(CORE_SRC
 	Source/Core/Renderer/Renderable.cpp
 	Source/Core/Renderer/RenderView.cpp
 	Source/Core/Renderer/Renderer.cpp
+	Source/Core/Renderer/RenderHelper.cpp
 	Source/Core/Components/CRenderable.cpp
 	Source/Core/Components/CCamera.cpp
 )
@@ -29,10 +30,13 @@ set(EFFECTS_SRC
 	Source/Effects/PBREffect.cpp
 	Source/Effects/DebugEffect.cpp
 	Source/Effects/ShadowEffect.cpp
+	Source/Effects/VolumeEffect.cpp
+	Source/Effects/TerrainEffect.cpp
 )
 
 set(UI_SRC
 	Source/UI/IMGUI/imgui.cpp
+	Source/UI/IMGUI/imgui_demo.cpp
 	Source/UI/IMGUI/imgui_draw.cpp
 	Source/UI/IMGUI/imgui_widgets.cpp
 	Source/UI/IMGUI/imgui_impl_glfw.cpp

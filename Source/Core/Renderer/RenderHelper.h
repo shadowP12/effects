@@ -1,4 +1,6 @@
-#include "GfxProgram.h"
+#pragma once
+
+#include "../Base.h"
 
 EFFECTS_NAMESPACE_BEGIN
 

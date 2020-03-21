@@ -21,7 +21,7 @@ CCamera::~CCamera()
 
 void CCamera::update()
 {
-    mInternal->setTransform(mSceneObject->getWorldMatrix());
+    mInternal->setTransform(mSceneObject->getLocalMatrix());
 }
 
 void CCamera::setFov(const float& fov)

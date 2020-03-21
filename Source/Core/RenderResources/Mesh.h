@@ -16,6 +16,7 @@ public:
     GLuint getVertexBufferArray();
     GLuint getIndexBuffer();
     uint32_t getIndexCount();
+    void draw();
 private:
     MeshData* mData;
     GLuint mVertexBufferArray;

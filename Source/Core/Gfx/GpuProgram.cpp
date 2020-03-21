@@ -5,7 +5,7 @@
 #include <fstream>
 EFFECTS_NAMESPACE_BEGIN
 
-void checkShaderCompileErrors(GLuint id)
+static void checkShaderCompileErrors(GLuint id)
 {
 	GLint success;
 	GLchar info_log[1024];
@@ -17,7 +17,7 @@ void checkShaderCompileErrors(GLuint id)
 	}
 }
 
-void checkProgramCompileErrors(GLuint id)
+static void checkProgramCompileErrors(GLuint id)
 {
 	GLint success;
 	GLchar info_log[1024];
@@ -29,7 +29,7 @@ void checkProgramCompileErrors(GLuint id)
 	}
 }
 
-GLuint createGpuProgram(std::string vertex_source, std::string fragment_source)
+static GLuint createGpuProgram(std::string vertex_source, std::string fragment_source)
 {
 	const char* vertex_source_c = vertex_source.c_str();
 	const char* fragment_source_c = fragment_source.c_str();

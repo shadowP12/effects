@@ -6,6 +6,7 @@
 #include "Effects/DebugEffect.h"
 #include "Effects/PBREffect.h"
 #include "Effects/ShadowEffect.h"
+#include "Effects/TerrainEffect.h"
 #include "Core/Utility/Flags.h"
 #include "Core/Gfx/GpuProgram.h"
 #include "Core/Renderer/RenderView.h"
@@ -23,10 +24,11 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::DebugEffect* g_effect = nullptr;
+et::TerrainEffect* g_effect = nullptr;
 std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
-
+static float gPitch = 0.0f;
+static float gYaw = 0.0f;
 //窗口回调函数
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods);
@@ -44,7 +46,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::DebugEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::TerrainEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 
@@ -56,6 +58,14 @@ void init()
     gMainCamera = std::make_shared<et::SceneObject>();
     gMainCamera->initialized();
     gMainCamera->addComponent<et::CCamera>();
+    //gMainCamera->rotate(glm::vec3(0.0f, 1.0f, 0.0f), 180.0f);
+    //glm::quat rot = fromAxisAngle(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(gYaw));
+    //rot = glm::normalize(rot);
+    //gMainCamera->setRotation(rot);
+    glm::vec3 cameraPos = gMainCamera->getPosition();
+    glm::vec3 cameraFront = gMainCamera->getFrontVector();
+    cameraPos += cameraFront * 10.0f;
+    gMainCamera->setPosition(cameraPos);
 }
 
 void release()
@@ -77,31 +87,47 @@ void loadResource()
 
 void update(float t)
 {
-//	g_effect->update(t);
-//	g_context->update(t);
-    et::Input* input = g_input;
-    et::Camera* camera = g_camera;
-    if (input->m_mouse_button_down[1])
-    {
-        input->m_mouse_previou_position = input->m_mouse_position;
-    }
-    if (input->m_mouse_button_held[1])
-    {
-        camera->Rotate(input->m_mouse_position - input->m_mouse_previou_position);
-        input->m_mouse_previou_position = input->m_mouse_position;
-    }
-    glm::vec3 cameraPos = gMainCamera->getPosition();
-    glm::vec3 cameraFront = gMainCamera->getFrontVector();
-    cameraPos += cameraFront * input->m_mouse_scroll_wheel * 5.0f * 0.1f;
-    gMainCamera->setPosition(cameraPos);
-	et::SceneManager::instance().update();
-    g_input->update();
+	g_effect->update(t);
+	g_context->update(t);
+//    et::Input* input = g_input;
+//    et::Camera* camera = g_camera;
+//    if (input->m_mouse_button_down[1])
+//    {
+//        input->m_mouse_previou_position = input->m_mouse_position;
+//    }
+//    if (input->m_mouse_button_held[1])
+//    {
+//        glm::vec2 offset = input->m_mouse_position - input->m_mouse_previou_position;
+//        //float yaw = gMainCamera->getYaw();
+//        //float pitch = gMainCamera->getPitch();
+//        gYaw += offset.x * 0.1f;
+//        gPitch -= offset.y * 0.1f;
+//        glm::vec3 cameraFront = gMainCamera->getFrontVector();
+//        glm::vec3 cameraUp = gMainCamera->getUpVector();
+//        glm::vec3 cameraRight = gMainCamera->getRightVector();
+//        glm::quat yRot = fromAxisAngle(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(gYaw));
+//        glm::quat xRot = fromAxisAngle(glm::normalize(cameraRight), glm::radians(gPitch));
+//        glm::vec3 front = glm::normalize(getAxisZ(gMainCamera->getWorldMatrix()));
+//        printf("new front :  %f  %f  %f\n",front.x,front.y,front.z);
+//        glm::quat camRot =  glm::normalize(xRot*yRot);
+//        gMainCamera->setRotation(camRot);
+//        //gMainCamera->setPitch(gPitch);
+//        //gMainCamera->setYaw(gYaw);
+//        camera->Rotate(input->m_mouse_position - input->m_mouse_previou_position);
+//        input->m_mouse_previou_position = input->m_mouse_position;
+//    }
+//    glm::vec3 cameraPos = gMainCamera->getPosition();
+//    glm::vec3 cameraFront = gMainCamera->getFrontVector();
+//    cameraPos += cameraFront * input->m_mouse_scroll_wheel * 5.0f * 0.1f;
+//    gMainCamera->setPosition(cameraPos);
+//	et::SceneManager::instance().update();
+//    g_input->update();
 }
 
 void render()
 {
-    et::Renderer::instance().render(g_camera);
-	//g_effect->render();
+    //et::Renderer::instance().render(g_camera);
+	g_effect->render();
 }
 
 int main()
@@ -138,7 +164,28 @@ int main()
 	{
 		update(0.001);
 		render();
-		//g_context->drawUI();
+//        ImGuiIO& io = ImGui::GetIO();
+//        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+//		g_ui_system->update();
+//        bool isWin = true;
+//        bool isWin1 = true;
+//
+//        ImGuiViewport* viewport = ImGui::GetMainViewport();
+//        ImGui::SetNextWindowPos(viewport->GetWorkPos());
+//        ImGui::SetNextWindowSize(viewport->GetWorkSize());
+//        ImGui::SetNextWindowViewport(viewport->ID);
+//        ImGui::Begin("Another Window" , &isWin);
+//        ImGui::Text("Hello from another window!");
+//        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+//        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+//        ImGui::End();
+//        ImGui::ShowDemoWindow(&isWin);
+//        ImGui::Render();
+//        // 将收集完的ui数据绘制到屏幕上
+//        glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
+//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		g_ui_system->draw();
 		glfwSwapBuffers(g_window);
 		glfwPollEvents();
 	}

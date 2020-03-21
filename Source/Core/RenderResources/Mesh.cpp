@@ -80,4 +80,12 @@ uint32_t Mesh::getIndexCount()
 {
     return mData->getNumIndices();
 }
+
+void Mesh::draw()
+{
+    glBindVertexArray(mVertexBufferArray);
+    glDrawElements(GL_TRIANGLES, mData->getNumIndices(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
 EFFECTS_NAMESPACE_END

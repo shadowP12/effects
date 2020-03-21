@@ -31,6 +31,42 @@ inline glm::vec3 getTranslate(const glm::mat4& mat)
 	return glm::vec3(mat[3][0], mat[3][1], mat[3][2]);
 }
 
+inline glm::quat fromEulerAngles(const float& xAngle, const float& yAngle, const float& zAngle)
+{
+    float halfXAngle = xAngle * 0.5f;
+    float halfYAngle = yAngle * 0.5f;
+    float halfZAngle = zAngle * 0.5f;
+
+    float cx = std::cos(halfXAngle);
+    float sx = std::sin(halfXAngle);
+
+    float cy = std::cos(halfYAngle);
+    float sy = std::sin(halfYAngle);
+
+    float cz = std::cos(halfZAngle);
+    float sz = std::sin(halfZAngle);
+
+    glm::quat quatX(cx, sx, 0.0f, 0.0f);
+    glm::quat quatY(cy, 0.0f, sy, 0.0f);
+    glm::quat quatZ(cz, 0.0f, 0.0f, sz);
+
+    glm::quat r = quatX * quatZ * quatY;
+    return  r;
+}
+
+inline glm::quat fromAxisAngle(const glm::vec3& axis, const float& angle)
+{
+    float halfSin = std::sin(0.5f * angle);
+    float halfCos = std::cos(0.5f * angle);
+
+    glm::quat r;
+    r.w = halfCos;
+    r.x = halfSin * axis.x;
+    r.y = halfSin * axis.y;
+    r.z = halfSin * axis.z;
+    return r;
+}
+
 // screen to world space
 inline glm::vec3 unProject(const glm::vec4& viewPort, const glm::vec2& point, float depth, const glm::mat4& viewProjectionMatrix)
 {
