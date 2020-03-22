@@ -146,6 +146,7 @@ GfxTexture::GfxTexture(const GfxTextureDesc& desc)
 :mWidth(desc.width), mHeight(desc.height), mFormat(desc.format), mComponentType(desc.componentType)
 {
     glGenTextures(1, &mHandle);
+    writeData(nullptr);
     setFiltering(GfxFilterType::MIN, GfxFilterOption::LINEAR);
     setFiltering(GfxFilterType::MAG, GfxFilterOption::LINEAR);
     setAddressingMode();

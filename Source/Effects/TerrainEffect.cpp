@@ -2,28 +2,23 @@
 #include "../Core/Utility/FileUtility.h"
 #include "../Core/Gfx/GpuProgram.h"
 #include "../Core/Gfx/GfxDebug.h"
-#include "../Core/Scene/RenderScene.h"
 #include "../Math/Geometry.h"
-#include "../Core/Renderer/Renderer.h"
-#include "../Core/Renderer/Renderable.h"
 #include "../Core/RenderResources/Mesh.h"
-#include "../Core/RenderResources/Material.h"
-#define STB_IMAGE_IMPLEMENTATIO
-#include <stb_image.h>
-
+#include "../Importers/TextureImporter.h"
+#include "../Core/Renderer/RenderHelper.h"
 EFFECTS_NAMESPACE_BEGIN
 
 static GLuint quadVAO = 0;
 static GLuint quadVBO = 0;
-static GLuint canvasFB = 0;
-static GLuint canvasMap = 0;
-static GLuint brushMap = 0;
-static GpuProgram* textureProgram = nullptr;
-static GpuProgram* brushProgram = nullptr;
-static GpuProgram* terrainProgram = nullptr;
+static GfxTexture* brushTex = nullptr;
+static GfxTexture* canvasTex = nullptr;
+static GfxFramebuffer* canvasFb = nullptr;
+static GfxProgram* textureProgram = nullptr;
+static GfxProgram* brushProgram = nullptr;
+static GfxProgram* terrainProgram = nullptr;
+
 static void renderQuad();
 static std::vector<glm::vec3> points;
-static GLuint loadTexture(std::string file);
 static glm::vec3 getNDCCoord(const float& x, const float& y, const int& width, const int& height);
 TerrainEffect::TerrainEffect(int width, int height)
 	:BaseEffect(width, height)
@@ -32,6 +27,9 @@ TerrainEffect::TerrainEffect(int width, int height)
 
 TerrainEffect::~TerrainEffect()
 {
+    delete brushTex;
+    delete canvasTex;
+    delete canvasFb;
 	delete textureProgram;
     delete brushProgram;
     delete terrainProgram;
@@ -39,45 +37,27 @@ TerrainEffect::~TerrainEffect()
 
 void TerrainEffect::prepare()
 {
-	std::string vs_path = getCurrentPath() + R"(\BuiltinResources\Shaders\texture.vs)";
-	std::string vs;
-	readFileData(vs_path, vs);
-	std::string fs_path = getCurrentPath() + R"(\BuiltinResources\Shaders\texture.fs)";
-	std::string fs;
-	readFileData(fs_path, fs);
-    textureProgram = new GpuProgram(vs, fs);
+    textureProgram = loadProgram(getCurrentPath() + R"(\BuiltinResources\Shaders\texture.vs)",
+                                 getCurrentPath() + R"(\BuiltinResources\Shaders\texture.fs)");
 
-    vs_path = getCurrentPath() + R"(\BuiltinResources\Shaders\brush.vs)";
-    readFileData(vs_path, vs);
-    fs_path = getCurrentPath() + R"(\BuiltinResources\Shaders\brush.fs)";
-    readFileData(fs_path, fs);
-    brushProgram = new GpuProgram(vs, fs);
+    brushProgram = loadProgram(getCurrentPath() + R"(\BuiltinResources\Shaders\brush.vs)",
+                               getCurrentPath() + R"(\BuiltinResources\Shaders\brush.fs)");
 
-    vs_path = getCurrentPath() + R"(\BuiltinResources\Shaders\terrain.vs)";
-    readFileData(vs_path, vs);
-    fs_path = getCurrentPath() + R"(\BuiltinResources\Shaders\terrain.fs)";
-    readFileData(fs_path, fs);
-    terrainProgram = new GpuProgram(vs, fs);
+    terrainProgram = loadProgram(getCurrentPath() + R"(\BuiltinResources\Shaders\terrain.vs)",
+                               getCurrentPath() + R"(\BuiltinResources\Shaders\terrain.fs)");
 
-    glGenTextures(1, &canvasMap);
-    glBindTexture(GL_TEXTURE_2D, canvasMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    GfxTextureDesc texDesc;
+    texDesc.width = m_width;
+    texDesc.height = m_height;
+    texDesc.componentType = GfxPixelComponentType::BYTE;
+    texDesc.format = GfxPixelFormat::RGBA8;
+    canvasTex = new GfxTexture(texDesc);
 
-    glGenFramebuffers(1, &canvasFB);
-    glBindFramebuffer(GL_FRAMEBUFFER, canvasFB);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, canvasMap, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    brushTex = loadTexture(getCurrentPath() + R"(\BuiltinResources\Textures\brush.png)");
 
-    brushMap = loadTexture(getCurrentPath() + R"(\BuiltinResources\Textures\brush.png)");
-    glBindTexture(GL_TEXTURE_2D, brushMap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    GfxFramebufferDesc fbDesc;
+    fbDesc.targets[0] = canvasTex;
+    canvasFb = new GfxFramebuffer(fbDesc);
 }
 
 void TerrainEffect::update(float t)
@@ -114,7 +94,7 @@ void TerrainEffect::update(float t)
 void TerrainEffect::render()
 {
     glViewport(0, 0, m_width, m_height);
-    glBindFramebuffer(GL_FRAMEBUFFER, canvasFB);
+    canvasFb->bind();
     glClearColor(0.8f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -123,11 +103,9 @@ void TerrainEffect::render()
         glm::mat4 model = glm::mat4(1.0);
         model = glm::translate(glm::mat4(1.0), points[i]);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 1.0f));
-        glUseProgram(brushProgram->getGpuProgram());
-        glUniformMatrix4fv(glGetUniformLocation(brushProgram->getGpuProgram(), "u_model"), 1, GL_FALSE, &model[0][0]);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, brushMap);
-        glUniform1i(glGetUniformLocation(brushProgram->getGpuProgram(), "u_texture"), 0);
+        brushProgram->setMat4("u_model", &model[0][0]);
+        brushProgram->setSampler("u_texture", brushTex);
+        brushProgram->bind();
         renderQuad();
     }
 
@@ -137,15 +115,9 @@ void TerrainEffect::render()
 	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(textureProgram->getGpuProgram());
-    glBindTexture(GL_TEXTURE_2D, canvasMap);
+    textureProgram->setSampler("u_texture", canvasTex);
+    textureProgram->bind();
     renderQuad();
-//	glm::mat4 model = glm::mat4(1.0);
-//	glm::mat4 view = m_context->getCamera()->getViewMatrix();
-//	glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);
-//	glUniformMatrix4fv(glGetUniformLocation(debug_program, "model"), 1, GL_FALSE, &model[0][0]);
-//	glUniformMatrix4fv(glGetUniformLocation(debug_program, "view"), 1, GL_FALSE, &view[0][0]);
-//	glUniformMatrix4fv(glGetUniformLocation(debug_program, "projection"), 1, GL_FALSE, &proj[0][0]);
 }
 
 static void renderQuad()
@@ -171,35 +143,6 @@ static void renderQuad()
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
-}
-
-static GLuint loadTexture(std::string file)
-{
-    int width, height, channels;
-    unsigned char * pixels = stbi_load(file.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-    if (!pixels)
-    {
-        return 0;
-    }
-    GLuint texture_id = 0;
-    if (channels == 4)
-    {
-        glGenTextures(1, &texture_id);
-        glBindTexture(GL_TEXTURE_2D, texture_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    }
-    else if (channels == 3)
-    {
-        glGenTextures(1, &texture_id);
-        glBindTexture(GL_TEXTURE_2D, texture_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-    }
-    else
-    {
-        printf("invalid texture's channel\n");
-    }
-    stbi_image_free(pixels);
-    return texture_id;
 }
 
 static glm::vec3 getNDCCoord(const float& x, const float& y, const int& width, const int& height)

@@ -12,7 +12,6 @@ set(CORE_SRC
 	Source/Core/Scene/Component.cpp
 	Source/Core/Utility/FileUtility.cpp
 	Source/Core/Gfx/GpuProgram.cpp
-	Source/Core/Gfx/GfxProgram.cpp
 	Source/Core/Gfx/GfxDebug.cpp
 	Source/Core/Gfx/GfxResources.cpp
 	Source/Core/RenderResources/Mesh.cpp
@@ -51,6 +50,7 @@ set(MATH_SRC
 
 set(IMPORTERS_SRC
 	Source/Importers/GltfImporter.cpp
+	Source/Importers/TextureImporter.cpp
 )
 
 set(EFFECTS_SRC
