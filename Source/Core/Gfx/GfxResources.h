@@ -20,6 +20,7 @@ struct GfxBufferDesc
 
 class GfxBuffer
 {
+    friend class GfxCommandBuffer;
 public:
     GfxBuffer(const GfxBufferDesc& desc);
     ~GfxBuffer();
@@ -43,6 +44,7 @@ struct GfxTextureDesc
 
 class GfxTexture
 {
+    friend class GfxCommandBuffer;
 public:
     GfxTexture(const GfxTextureDesc& desc);
     ~GfxTexture();
@@ -69,6 +71,7 @@ struct GfxFramebufferDesc
 
 class GfxFramebuffer
 {
+    friend class GfxCommandBuffer;
 public:
     GfxFramebuffer(const GfxFramebufferDesc& desc);
     ~GfxFramebuffer();
@@ -81,6 +84,7 @@ protected:
 
 class GfxProgram
 {
+    friend class GfxCommandBuffer;
 public:
     GfxProgram(const char* vs, const char* fs);
     ~GfxProgram();

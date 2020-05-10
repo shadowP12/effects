@@ -120,4 +120,14 @@ enum class GfxBufferAccessBit
     WRITE = 0x2
 };
 
+enum class GfxPrimitiveMode {
+    POINT_LIST,
+    LINE_LIST,
+    LINE_STRIP,
+    LINE_LOOP,
+    TRIANGLE_LIST,
+    TRIANGLE_STRIP,
+    TRIANGLE_FAN
+};
+
 EFFECTS_NAMESPACE_END
