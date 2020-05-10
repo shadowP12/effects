@@ -38,20 +38,22 @@ float getAngleAtt(vec3 normalizedLightVector, vec3 lightDir, float lightAngleSca
 } 
 
 void main()
-{   
+{
+    //
+    vec3 lightPos = vec3(0.0, 0.1, 0.0);
 	// ambient
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * u_lightColor;
   	
     // diffuse
     vec3 N = normalize(v_normal);
-    vec3 L = normalize(u_lightPos - v_worldPos);
-    vec3 unnormalizedLightVector = u_lightPos - v_worldPos;
+    vec3 L = normalize(lightPos - v_worldPos);
+    vec3 unnormalizedLightVector = lightPos - v_worldPos;
     float lightInvSqrAttRadius = 1.0 / (u_lightRadius * u_lightRadius);
     float att = 1.0;
     att *= getDistanceAtt(unnormalizedLightVector, lightInvSqrAttRadius);
-    vec3 Lo = (u_albedo / PI) * saturate(dot(N, L)) * att * u_lightColor * u_lightIntensity / (4 * PI);
+    vec3 Lo = (u_albedo / PI) * saturate(dot(N, L));// * att * u_lightColor * u_lightIntensity / (4 * PI);
 
 	vec3 result = ambient + Lo;
-	FragColor = vec4(v_worldPos, 1.0f);//vec4(result, 1.0);
+	FragColor = vec4(result, 1.0);
 }

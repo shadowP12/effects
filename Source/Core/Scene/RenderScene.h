@@ -2,6 +2,7 @@
 #include "../Base.h"
 #include "../Gfx/Gfx.h"
 #include "../../Math/Math.h"
+#include "../../Math/Geometry.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -34,6 +35,7 @@ namespace temp {
         };
         std::vector<Vertex> vertices;
         std::vector<int> indices;
+        std::vector<Triangle> tris;
         int material_id;
         GLuint vao;
         GLuint vbo;
@@ -43,6 +45,8 @@ namespace temp {
     void initMesh(Mesh *mesh);
 
     void drawMesh(Mesh *mesh);
+
+    void genMeshTriangles(Mesh *mesh, const glm::mat4& world);
 
     void releaseMesh(Mesh *mesh);
 

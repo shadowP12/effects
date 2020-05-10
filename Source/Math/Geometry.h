@@ -29,6 +29,18 @@ struct Plane
 struct Triangle
 {
 	glm::vec3 v0, v1, v2;
+	glm::vec2 t0, t1, t2;
+    glm::vec3 n0, n1, n2;
+};
+
+struct IntersectData
+{
+    bool hit = false;
+    float t = 100000.0f;
+    Ray ray;
+    glm::vec3 pos;
+    glm::vec2 texcoord;
+    glm::vec3 normal;
 };
 
 void printRayInfo(const Ray& ray);
@@ -38,6 +50,8 @@ Ray pickRay(const glm::vec4& viewport, const glm::vec2& point, const glm::mat4& 
 float intersect(const Ray& ray, const Plane& plane);
 
 bool intersect(const Ray& ray, const Triangle& triangle, float& t, glm::vec2 uv);
+
+bool intersect(const Ray& ray, const Triangle& triangle, IntersectData* isect);
 
 
 EFFECTS_NAMESPACE_END

@@ -94,4 +94,30 @@ enum class GfxAddressingMode
     BORDER
 };
 
+enum class GfxBufferUsageBit
+{
+    NONE = 0,
+    TRANSFER_SRC = 0x1,
+    TRANSFER_DST = 0x2,
+    INDEX = 0x4,
+    VERTEX = 0x8,
+    UNIFORM = 0x10,
+    STORAGE = 0x20,
+    INDIRECT = 0x40
+};
+
+enum class GfxMemoryUsageBit
+{
+    NONE = 0,
+    DEVICE = 0x1,
+    HOST = 0x2
+};
+
+enum class GfxBufferAccessBit
+{
+    NONE = 0,
+    READ = 0x1,
+    WRITE = 0x2
+};
+
 EFFECTS_NAMESPACE_END

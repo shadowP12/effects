@@ -166,3 +166,57 @@ inline float getRandom(unsigned int *seed0, unsigned int *seed1)
     res.ui = (ires & 0x007fffff) | 0x40000000;
     return (res.f - 2.0f) / 2.0f;
 }
+
+inline glm::vec3 TransformPoint(const glm::vec3& point, const glm::mat4& inMat)
+{
+//    glm::vec4 p = glm::vec4(point.x, point.y, point.z, 1.0f);
+//    glm::vec4 r = inMat * p;
+//    return glm::vec3(r.x, r.y, r.z);
+    glm::mat4 mat = glm::transpose(inMat);
+    float x = point.x, y = point.y, z = point.z;
+    float xp = mat[0][0] * x + mat[0][1] * y + mat[0][2] * z + mat[0][3];
+    float yp = mat[1][0] * x + mat[1][1] * y + mat[1][2] * z + mat[1][3];
+    float zp = mat[2][0] * x + mat[2][1] * y + mat[2][2] * z + mat[2][3];
+    float wp = mat[3][0] * x + mat[3][1] * y + mat[3][2] * z + mat[3][3];
+    assert(wp != 0);
+
+    if (wp == 1.0f)
+        return glm::vec3(xp, yp, zp);
+    else
+        return glm::vec3(xp, yp, zp) / wp;
+}
+
+inline glm::vec4 TransformPoint(const glm::vec4& point, const glm::mat4& inMat)
+{
+    glm::mat4 mat = glm::transpose(inMat);
+    float x = point.x, y = point.y, z = point.z, w = point.w;
+    float xp = mat[0][0] * x + mat[0][1] * y + mat[0][2] * z + mat[0][3] * w;
+    float yp = mat[1][0] * x + mat[1][1] * y + mat[1][2] * z + mat[1][3] * w;
+    float zp = mat[2][0] * x + mat[2][1] * y + mat[2][2] * z + mat[2][3] * w;
+    float wp = mat[3][0] * x + mat[3][1] * y + mat[3][2] * z + mat[3][3] * w;
+
+    return glm::vec4(xp, yp, zp, wp);
+}
+
+inline glm::vec3 TransformVector(const glm::vec3& vec, const glm::mat4& inMat)
+{
+    glm::mat4 mat = glm::transpose(inMat);
+    float x = vec.x, y = vec.y, z = vec.z;
+
+    return glm::vec3(mat[0][0] * x + mat[0][1] * y + mat[0][2] * z,
+                     mat[1][0] * x + mat[1][1] * y + mat[1][2] * z,
+                     mat[2][0] * x + mat[2][1] * y + mat[2][2] * z);
+}
+
+inline glm::vec3 TransformNormal(const glm::vec3& norm, const glm::mat4& inMat)
+{
+    return glm::mat3(glm::transpose(glm::inverse(inMat))) * norm;
+    glm::mat4 mat = glm::transpose(inMat);
+    mat = glm::inverse(mat);
+
+    float x = norm.x, y = norm.y, z = norm.z;
+
+    return glm::vec3(mat[0][0] * x + mat[1][0] * y + mat[2][0] * z,
+                     mat[0][1] * x + mat[1][1] * y + mat[2][1] * z,
+                     mat[0][2] * x + mat[1][2] * y + mat[2][2] * z);
+}

@@ -56,6 +56,11 @@ void PBREffect::prepare()
 	{
 		temp::Node& node = m_scene->m_nodes[i];
 		m_scene->printNodeInfo(node.node_id);
+        if (node.mesh > -1)
+        {
+            glm::mat4 world = m_scene->getWorldMatrix(node.node_id);
+            temp::genMeshTriangles(m_scene->m_meshs[node.mesh], world);
+        }
 	}
 
 	m_light = new Light();
@@ -68,6 +73,30 @@ void PBREffect::prepare()
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 10.0, 0.0)[0], &glm::vec4(0.0, 1.0, 0.0, 0.0)[0]);
 	m_debug_lines->addLine(&glm::vec3(0.0, 0.0, 0.0)[0], &glm::vec3(0.0, 0.0, 10.0)[0], &glm::vec4(0.0, 0.0, 1.0, 0.0)[0]);
 
+}
+
+Ray CreateRay(int width, int height, int coordX, int coordY, Camera* cam)
+{
+    glm::vec3 cameraPos = cam->m_position;
+    glm::vec3 cameraFront = cam->m_front;
+    glm::vec3 cameraUp = cam->m_up;
+
+    float invWidth = 1.0f / (float)(width), invHeight = 1.0f / (float)(height);
+    float aspectratio = (float)(width) / (float)(height);
+    float fov = 45.0f * 3.1415f / 180.0f;
+    float angle = tan(0.5f * fov);
+
+    float x = coordX - 0.5f;
+    float y = coordY - 0.5f;
+
+    x = (2.0f * ((x + 0.5f) * invWidth) - 1) * angle * aspectratio;
+    y = -(1.0f - 2.0f * ((y + 0.5f) * invHeight)) * angle;
+
+    glm::vec3 dir = normalize(x * cross(cameraFront, cameraUp) + y * cameraUp + cameraFront);
+    Ray ray;
+    ray.orig = cameraPos;
+    ray.dir = dir;
+    return ray;
 }
 
 void PBREffect::update(float t)
@@ -84,6 +113,41 @@ void PBREffect::update(float t)
 		input->m_mouse_previou_position = input->m_mouse_position;
 	}
 	camera->Move(input->m_mouse_scroll_wheel * 5.0);
+
+    if (input->m_mouse_button_down[0])
+    {
+        input->m_mouse_previou_position = input->m_mouse_position;
+        glm::vec2 mouse_pos = input->m_mouse_position;
+        //Ray ray = CreateRay(m_width, m_height, mouse_pos.x, mouse_pos.y, camera);
+        Ray ray = pickRay(glm::vec4(0,0,m_width,m_height), mouse_pos, camera->getViewMatrix(), camera->getProjectionMatrix(m_width, m_height));
+
+        for (int k = 0; k < 3; ++k)
+        {
+            IntersectData isect;
+            isect.hit = false;
+            isect.ray = ray;
+            isect.t = 100000.0f;
+            float closestT = 100000000.0f;
+            for (int i = 0; i < m_scene->m_meshs.size(); i++)
+            {
+                for (int j = 0; j < m_scene->m_meshs[i]->tris.size(); ++j)
+                {
+                    intersect(ray, m_scene->m_meshs[i]->tris[j], &isect);
+                }
+            }
+            if(isect.hit)
+            {
+                glm::vec3 hit_point = ray.pointAt(isect.t);
+                m_debug_lines->addLine(&hit_point[0], &(hit_point + isect.normal)[0],
+                                       &glm::vec4(1.0, k, 0.0, 0.0)[0]);
+                ray.dir = isect.normal;
+                ray.orig = hit_point;
+            } else
+            {
+                break;
+            }
+        }
+    }
 }
 
 void PBREffect::render()

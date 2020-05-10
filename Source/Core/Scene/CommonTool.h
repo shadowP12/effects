@@ -16,7 +16,7 @@ public:
 	glm::vec3 getPosition() { return m_position; }
 private:
 	void updateVectors();
-private:
+public:
 	glm::vec3 m_position;
 	glm::vec3 m_front;
 	glm::vec3 m_up;

@@ -24,7 +24,7 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::TerrainEffect* g_effect = nullptr;
+et::PBREffect* g_effect = nullptr;
 std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
 static float gPitch = 0.0f;
@@ -46,7 +46,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::TerrainEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 

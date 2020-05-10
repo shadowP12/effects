@@ -5,10 +5,33 @@
 #include <string>
 EFFECTS_NAMESPACE_BEGIN
 
+class GfxBuffer;
 class GfxTexture;
 class GfxFramebuffer;
 class GfxProgram;
 
+struct GfxBufferDesc
+{
+    int size;
+    GfxBufferUsageBit bufferUsage;
+    GfxMemoryUsageBit memUsage;
+    GfxBufferAccessBit bufferAccess;
+};
+
+class GfxBuffer
+{
+public:
+    GfxBuffer(const GfxBufferDesc& desc);
+    ~GfxBuffer();
+    void writeData(const void* data, const int& offset, const int& size);
+    void resize(int size);
+protected:
+    GLuint mHandle;
+    int mSize;
+    GfxBufferUsageBit mBufferUsage;
+    GfxMemoryUsageBit mMemUsage;
+    GfxBufferAccessBit mBufferAccess;
+};
 
 struct GfxTextureDesc
 {

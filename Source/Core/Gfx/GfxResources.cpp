@@ -142,6 +142,48 @@ static unsigned int gfxAddressingModeToGLAddressingMode(const GfxAddressingMode&
     }
 }
 
+GfxBuffer::GfxBuffer(const GfxBufferDesc& desc)
+:mSize(desc.size), mBufferUsage(desc.bufferUsage), mMemUsage(desc.memUsage), mBufferAccess(desc.bufferAccess)
+{
+    glGenBuffers(1, &mHandle);
+    resize(mSize);
+}
+
+GfxBuffer::~GfxBuffer()
+{
+    glDeleteBuffers(1, &mHandle);
+}
+
+void GfxBuffer::writeData(const void* data, const int& offset, const int& size)
+{
+    if(mBufferUsage == GfxBufferUsageBit::VERTEX)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, mHandle);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+    }
+    else if(mBufferUsage == GfxBufferUsageBit::INDEX)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHandle);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
+    }
+}
+
+void GfxBuffer::resize(int size)
+{
+    if(mBufferUsage == GfxBufferUsageBit::VERTEX)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, mHandle);
+        GLenum memUsage = mMemUsage == GfxMemoryUsageBit::DEVICE ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+        glBufferData(GL_ARRAY_BUFFER, size, nullptr, memUsage);
+    }
+    else if(mBufferUsage == GfxBufferUsageBit::INDEX)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHandle);
+        GLenum memUsage = mMemUsage == GfxMemoryUsageBit::DEVICE ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, memUsage);
+    }
+}
+
 GfxTexture::GfxTexture(const GfxTextureDesc& desc)
 :mWidth(desc.width), mHeight(desc.height), mFormat(desc.format), mComponentType(desc.componentType)
 {

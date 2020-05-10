@@ -42,6 +42,23 @@ namespace temp {
         delete mesh;
     }
 
+    void genMeshTriangles(Mesh *mesh, const glm::mat4& world)
+    {
+        for (int i = 0; i < mesh->indices.size() / 3; ++i)
+        {
+            int idx0 = mesh->indices[i*3], idx1 = mesh->indices[i*3+1], idx2 = mesh->indices[i*3+2];
+            Triangle tri;
+            tri.v0 = TransformPoint(mesh->vertices[idx0].position, world);
+            tri.v1 = TransformPoint(mesh->vertices[idx1].position, world);
+            tri.v2 = TransformPoint(mesh->vertices[idx2].position, world);
+            tri.t0 = mesh->vertices[idx0].uv; tri.t1 = mesh->vertices[idx1].uv; tri.t2 = mesh->vertices[idx2].uv;
+            tri.n0 = TransformNormal(mesh->vertices[idx0].normal, world);
+            tri.n1 = TransformNormal(mesh->vertices[idx1].normal, world);
+            tri.n2 = TransformNormal(mesh->vertices[idx2].normal, world);
+            mesh->tris.push_back(tri);
+        }
+    }
+
     Scene::Scene() {
     }
 

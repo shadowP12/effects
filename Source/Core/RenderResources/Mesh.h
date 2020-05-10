@@ -15,6 +15,7 @@ public:
     void initialize();
     GLuint getVertexBufferArray();
     GLuint getIndexBuffer();
+
     uint32_t getIndexCount();
     void draw();
 private:

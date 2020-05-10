@@ -66,4 +66,40 @@ bool intersect(const Ray& ray, const Triangle& triangle, float& t, glm::vec2 uv)
 	return true;
 }
 
+bool intersect(const Ray& ray, const Triangle& triangle, IntersectData* isect)
+{
+    glm::vec3 e1 = triangle.v1 - triangle.v0;
+    glm::vec3 e2 = triangle.v2 - triangle.v0;
+    glm::vec3 p = glm::cross(ray.dir, e2);
+
+    float a = dot(e1, p);
+
+    if(fabs(a) < 0.0001)
+        return false;
+    float f = 1.0f / a;
+    glm::vec3 s = ray.orig - triangle.v0;
+    float u = f*dot(s, p);
+
+    if(u < 0.0f || u > 1.0f)
+        return false;
+    glm::vec3 q = cross(s, e1);
+    float v = f*dot(ray.dir, q);
+    if(v < 0.0f || (u + v) > 1.0f)
+        return false;
+
+    float t = dot(e2, q) * f;
+
+    //printf("%f\n",t);
+    if(t > 0.0 &&  t < isect->t)
+    {
+        isect->hit = true;
+        isect->t = t;
+        isect->pos = isect->ray.orig + isect->ray.dir * t;
+        isect->normal = normalize(u * triangle.n1 + v * triangle.n2 + (1.0f - u - v) * triangle.n0);
+        isect->texcoord = u * triangle.t1 + v * triangle.t2 + (1.0f - u - v) * triangle.t0;
+        return true;
+    }
+    return false;
+}
+
 EFFECTS_NAMESPACE_END
