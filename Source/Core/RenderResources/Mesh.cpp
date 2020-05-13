@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "../Datas/MeshData.h"
+#include "../Gfx/GfxResources.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Mesh::Mesh(MeshData* data)
@@ -11,69 +12,49 @@ Mesh::~Mesh()
 {
     if(mData)
         delete mData;
-    glDeleteBuffers(1, &mVertexBuffer);
-    glDeleteBuffers(1, &mIndexBuffer);
-    glDeleteVertexArrays(1, &mVertexBufferArray);
+    if(mVertexBuffer)
+        delete mVertexBuffer;
+    if(mIndexBuffer)
+        delete mIndexBuffer;
 }
 
-void Mesh::initialize()
+void Mesh::prepareGfxData()
 {
-    glGenVertexArrays(1, &mVertexBufferArray);
-    glGenBuffers(1, &mVertexBuffer);
-    glGenBuffers(1, &mIndexBuffer);
+    GfxBufferDesc vertexBufferDesc;
+    vertexBufferDesc.size = mData->getVertexBufferSize();
+    vertexBufferDesc.memUsage = GfxMemoryUsageBit::DEVICE;
+    vertexBufferDesc.bufferUsage = GfxBufferUsageBit::VERTEX;
+    vertexBufferDesc.bufferAccess = GfxBufferAccessBit::WRITE;
+    mVertexBuffer = new GfxBuffer(vertexBufferDesc);
+    mVertexBuffer->writeData(mData->getVertices(), 0, mData->getVertexBufferSize());
 
-    glBindVertexArray(mVertexBufferArray);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mData->getIndexBufferSize(), mData->getIndices(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mData->getVertexBufferSize(), mData->getVertices(), GL_STATIC_DRAW);
-
-    if (mData->getMeshDesc()->hasMeshAttribute(MAS_POSITION))
-    {
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 32, (GLvoid*)0);
-    }
-
-    if (mData->getMeshDesc()->hasMeshAttribute(MAS_TEXCOORD))
-    {
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, mData->getVertexStrideSize(), (GLvoid*)mData->getMeshDesc()->getMeshAttributeOffset(MAS_TEXCOORD));
-    }
-
-    if (mData->getMeshDesc()->hasMeshAttribute(MAS_NORMAL))
-    {
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, mData->getVertexStrideSize(), (GLvoid*)mData->getMeshDesc()->getMeshAttributeOffset(MAS_NORMAL));
-    }
-
-    if (mData->getMeshDesc()->hasMeshAttribute(MAS_TANGENT))
-    {
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, mData->getVertexStrideSize(), (GLvoid*)mData->getMeshDesc()->getMeshAttributeOffset(MAS_TANGENT));
-    }
-
-    if (mData->getMeshDesc()->hasMeshAttribute(MAS_BLEND_INDICES))
-    {
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_INT, GL_FALSE, mData->getVertexStrideSize(), (GLvoid*)mData->getMeshDesc()->getMeshAttributeOffset(MAS_BLEND_INDICES));
-
-        glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, mData->getVertexStrideSize(), (GLvoid*)mData->getMeshDesc()->getMeshAttributeOffset(MAS_BLEND_WEIGHTS));
-    }
-
-    glBindVertexArray(0);
+    GfxBufferDesc indexBufferDesc;
+    indexBufferDesc.size = mData->getVertexBufferSize();
+    indexBufferDesc.memUsage = GfxMemoryUsageBit::DEVICE;
+    indexBufferDesc.bufferUsage = GfxBufferUsageBit::INDEX;
+    indexBufferDesc.bufferAccess = GfxBufferAccessBit::WRITE;
+    mIndexBuffer = new GfxBuffer(indexBufferDesc);
+    mIndexBuffer->writeData(mData->getIndices(), 0, mData->getIndexBufferSize());
 }
 
-GLuint Mesh::getVertexBufferArray()
+MeshDataDescription* Mesh::getVertexLayout()
 {
-    return mVertexBufferArray;
+    return mData->getMeshDesc();
 }
 
-GLuint Mesh::getIndexBuffer()
+GfxBuffer* Mesh::getVertexBuffer()
+{
+    return mVertexBuffer;
+}
+
+GfxBuffer* Mesh::getIndexBuffer()
 {
     return mIndexBuffer;
+}
+
+uint32_t Mesh::getVertexCount()
+{
+    return mData->getNumVertices();
 }
 
 uint32_t Mesh::getIndexCount()
@@ -81,11 +62,40 @@ uint32_t Mesh::getIndexCount()
     return mData->getNumIndices();
 }
 
-void Mesh::draw()
+Mesh* genCubeMesh()
 {
-    glBindVertexArray(mVertexBufferArray);
-    glDrawElements(GL_TRIANGLES, mData->getNumIndices(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    return nullptr;
+}
+
+Mesh* genQuadMesh()
+{
+    uint32_t meshAttLayout = (uint32_t)MAL_POSITION;
+    meshAttLayout |= (uint32_t)MAL_TEXCOORD0;
+    meshAttLayout |= (uint32_t)MAL_NORMAL;
+    MeshDataDescription* meshDataDesc = new MeshDataDescription(meshAttLayout);
+    MeshData* meshData = new MeshData(4, 0, meshDataDesc);
+    float positionData[12] = {
+            -1.0f,  1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+            1.0f,  1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f};
+    float texcoordData[8] = {
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f};
+    float normalData[12] = {
+            0.0f,  0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f,  0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f};
+
+    meshData->setAttribute(MAS_POSITION, positionData, 12 * sizeof(float));
+    meshData->setAttribute(MAS_TEXCOORD, texcoordData, 8 * sizeof(float));
+    meshData->setAttribute(MAS_NORMAL, normalData, 12 * sizeof(float));
+    Mesh* mesh = new Mesh(meshData);
+    mesh->prepareGfxData();
+    return mesh;
 }
 
 EFFECTS_NAMESPACE_END

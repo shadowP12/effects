@@ -298,7 +298,7 @@ void GltfImporter::load(std::string filePath, Scene* scene)
         }
 
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meshData);
-        mesh->initialize();
+        mesh->prepareGfxData();
 
         std::shared_ptr<PBRMaterial> material = std::make_shared<PBRMaterial>();
         material->setType(MaterialType::PBR);

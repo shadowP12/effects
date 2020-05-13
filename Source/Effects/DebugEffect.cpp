@@ -141,16 +141,11 @@ void DebugEffect::render()
 	m_debug_lines->draw();
 
 	// 
-    for (int i = 0; i < Renderer::instance().getRenderables().size(); ++i)
-    {
-        std::shared_ptr<Mesh> mesh = Renderer::instance().getRenderables()[i]->getMesh();
-        std::shared_ptr<Material> material = Renderer::instance().getRenderables()[i]->getMaterial();
-
-        // drawing
-        glBindVertexArray(mesh->getVertexBufferArray());
-        glDrawElements(GL_TRIANGLES, 100, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
+//    for (int i = 0; i < Renderer::instance().getRenderables().size(); ++i)
+//    {
+//        std::shared_ptr<Mesh> mesh = Renderer::instance().getRenderables()[i]->getMesh();
+//        std::shared_ptr<Material> material = Renderer::instance().getRenderables()[i]->getMaterial();
+//    }
 	//
 	//temp::drawMesh(m_plane_mesh);
 

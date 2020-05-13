@@ -1,6 +1,8 @@
 #pragma once
 #include "../Base.h"
 #include "GfxCommonTypes.h"
+#include <vector>
+#include <functional>
 EFFECTS_NAMESPACE_BEGIN
 
 class GfxBuffer;
@@ -9,11 +11,11 @@ class GfxFramebuffer;
 class GfxProgram;
 class MeshDataDescription;
 
-class GfxCommandBuffer
+class GfxRenderer
 {
 public:
-    GfxCommandBuffer();
-    ~GfxCommandBuffer();
+    GfxRenderer();
+    ~GfxRenderer();
     void setViewport(const int& x, const int& y, const int& w, const int& h);
     void setClearValue(const float& r, const float& g, const float& b, const float& a);
     void setProgram(GfxProgram* program);
@@ -25,10 +27,10 @@ public:
     void drawIndexed(const GfxPrimitiveMode& primitiveMode, const int& indexCount);
     void reset();
 protected:
-    GfxProgram* mProgram;
-    GfxBuffer* mVertexBuffer;
-    GfxBuffer* mIndexBuffer;
-    MeshDataDescription* mVertexLayout;
+    GfxProgram* mCurProgram;
+    GfxBuffer* mCurVertexBuffer;
+    GfxBuffer* mCurIndexBuffer;
+    MeshDataDescription* mCurVertexLayout;
 };
 
 EFFECTS_NAMESPACE_END
