@@ -1,10 +1,7 @@
 #include "GltfImporter.h"
-#include "../Core/Scene/Scene.h"
+#include "../Core/Scene/Node.h"
 #include "../Core/Datas/MeshData.h"
 #include "../Core/RenderResources/Mesh.h"
-#include "../Core/RenderResources/PBRMaterial.h"
-#include "../Core/Renderer/Renderable.h"
-#include "../Core/Gfx/GpuProgram.h"
 
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
@@ -24,7 +21,7 @@ GltfImporter::~GltfImporter()
 {
 }
 
-void GltfImporter::load(std::string filePath, Scene* scene)
+void GltfImporter::load(std::string filePath, GltfScene* scene)
 {
     cgltf_options options = {static_cast<cgltf_file_type>(0)};
     cgltf_data* data = NULL;
@@ -35,12 +32,11 @@ void GltfImporter::load(std::string filePath, Scene* scene)
     if (result == cgltf_result_success)
         result = cgltf_validate(data);
 
-    std::vector<std::shared_ptr<SceneObject>> objs;
     cgltf_scene* cScene = data->scene;
     for (size_t i = 0; i < cScene->nodes_count; ++i)
     {
         cgltf_node* cNode = cScene->nodes[i];
-        std::shared_ptr<SceneObject> obj = std::make_shared<SceneObject>();
+        std::shared_ptr<Node> obj = std::make_shared<Node>();
 
         glm::vec3 translation = glm::vec3(0.0f);
         if (cNode->has_translation)
@@ -67,19 +63,19 @@ void GltfImporter::load(std::string filePath, Scene* scene)
             scale.z = cNode->scale[2];
         }
         obj->setTransform(translation, scale, rotation);
-        objs.push_back(obj);
+        scene->nodes.push_back(obj);
     }
 
     for (size_t i = 0; i < cScene->nodes_count; ++i)
     {
         cgltf_node* cNode = cScene->nodes[i];
-        std::shared_ptr<SceneObject> obj = objs[i];
+        std::shared_ptr<Node> obj = scene->nodes[i];
         if(cNode->parent != nullptr)
         {
             int parentInx = getCNodeInxFromCScene(cNode, cScene);
             if(parentInx != -1)
             {
-                std::shared_ptr<SceneObject> parentObj = objs[parentInx];
+                std::shared_ptr<Node> parentObj = scene->nodes[parentInx];
                 obj->setParent(parentObj);
             }
         }
@@ -89,6 +85,7 @@ void GltfImporter::load(std::string filePath, Scene* scene)
     {
         cgltf_node* cNode = cScene->nodes[i];
         cgltf_mesh* cMesh = cNode->mesh;
+        std::shared_ptr<Node> node = scene->nodes[i];
 
         if(cMesh->primitives_count <= 0)
         {
@@ -299,17 +296,8 @@ void GltfImporter::load(std::string filePath, Scene* scene)
 
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meshData);
         mesh->prepareGfxData();
-
-        std::shared_ptr<PBRMaterial> material = std::make_shared<PBRMaterial>();
-        material->setType(MaterialType::PBR);
-        material->setProgram(GpuProgramPool::instance().getProgram(BuiltinProgramType::PBR));
-
-        std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
-        renderable->initialize();
-        renderable->setMesh(mesh);
-        renderable->setMaterial(material);
-
-        renderable->setTransform(getWorldMatrix(cNode));
+        scene->meshs.push_back(mesh);
+        scene->meshHelper[node] = mesh;
     }
 
     cgltf_free(data);

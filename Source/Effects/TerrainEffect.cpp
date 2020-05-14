@@ -19,7 +19,6 @@ static GfxProgram* brushProgram = nullptr;
 static GfxProgram* terrainProgram = nullptr;
 static Mesh* gQuadMesh = nullptr;
 static GfxRenderer* gRenderer = nullptr;
-static void renderQuad();
 static std::vector<glm::vec3> points;
 static glm::vec3 getNDCCoord(const float& x, const float& y, const int& width, const int& height);
 TerrainEffect::TerrainEffect(int width, int height)
@@ -90,30 +89,27 @@ void TerrainEffect::update(float t)
             points.push_back(pp);
             printf("%f   %f  %f\n", pp.x, pp.y, pp.z);
         }
-
 	}
 }
 
 void TerrainEffect::render()
 {
-    glViewport(0, 0, m_width, m_height);
-    canvasFb->bind();
-    glClearColor(0.8f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    gRenderer->bindFramebuffer(canvasFb);
+    gRenderer->setViewport(0, 0, m_width, m_height);
+    gRenderer->setClearValue(0.8f, 0.1f, 0.1f, 1.0f);
+    gRenderer->setProgram(brushProgram);
     for (int i = 0; i < points.size(); ++i)
     {
-        glm::mat4 model = glm::mat4(1.0);
-        model = glm::translate(glm::mat4(1.0), points[i]);
+        glm::mat4 model = glm::translate(glm::mat4(1.0), points[i]);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 1.0f));
         brushProgram->setMat4("u_model", &model[0][0]);
         brushProgram->setSampler("u_texture", brushTex);
-        brushProgram->bind();
-        renderQuad();
+        gRenderer->setVertexBuffer(gQuadMesh->getVertexBuffer());
+        gRenderer->setVertexLayout(gQuadMesh->getVertexLayout());
+        gRenderer->draw(GfxPrimitiveMode::TRIANGLE_STRIP, 0, gQuadMesh->getVertexCount());
     }
 
     textureProgram->setSampler("u_texture", canvasTex);
-
     gRenderer->bindFramebuffer();
     gRenderer->setViewport(0, 0, m_width / 3, m_height / 3);
     gRenderer->setClearValue(0.3f, 0.3f, 0.8f, 1.0f);
@@ -121,15 +117,6 @@ void TerrainEffect::render()
     gRenderer->setVertexBuffer(gQuadMesh->getVertexBuffer());
     gRenderer->setVertexLayout(gQuadMesh->getVertexLayout());
     gRenderer->draw(GfxPrimitiveMode::TRIANGLE_STRIP, 0, gQuadMesh->getVertexCount());
-//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//
-//    glViewport(0, 0, m_width / 3, m_height / 3);
-//	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//    textureProgram->setSampler("u_texture", canvasTex);
-//    textureProgram->bind();
-//    renderQuad();
 }
 
 static glm::vec3 getNDCCoord(const float& x, const float& y, const int& width, const int& height)

@@ -81,8 +81,6 @@ void release()
 
 void loadResource()
 {
-    et::GltfImporter importer;
-    importer.load(et::getCurrentPath() + "\\BuiltinResources\\Scenes\\CornellBox.gltf", nullptr);
 }
 
 void update(float t)
