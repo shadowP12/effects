@@ -11,18 +11,15 @@ class GfxFramebuffer;
 class GfxProgram;
 class MeshDataDescription;
 
-class GfxRenderer
+class GfxRenderObj
 {
 public:
-    GfxRenderer();
-    ~GfxRenderer();
-    void setViewport(const int& x, const int& y, const int& w, const int& h);
-    void setClearValue(const float& r, const float& g, const float& b, const float& a);
+    GfxRenderObj();
+    ~GfxRenderObj();
     void setProgram(GfxProgram* program);
     void setVertexBuffer(GfxBuffer* buffer);
     void setIndexBuffer(GfxBuffer* buffer);
     void setVertexLayout(MeshDataDescription* vertexLayout);
-    void bindFramebuffer(GfxFramebuffer* fb = nullptr);
     void draw(const GfxPrimitiveMode& primitiveMode, const int& first, const int& count);
     void drawIndexed(const GfxPrimitiveMode& primitiveMode, const int& indexCount);
     void reset();

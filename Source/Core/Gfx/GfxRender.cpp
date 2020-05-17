@@ -1,4 +1,4 @@
-#include "GfxRenderer.h"
+#include "GfxRender.h"
 #include "GfxResources.h"
 #include "../Datas/MeshData.h"
 EFFECTS_NAMESPACE_BEGIN
@@ -26,57 +26,37 @@ static unsigned int gfxPrimitiveModeToGLPrimitiveMode(const GfxPrimitiveMode& gf
     }
 }
 
-GfxRenderer::GfxRenderer()
+GfxRenderObj::GfxRenderObj()
 {
     reset();
 }
 
-GfxRenderer::~GfxRenderer()
+GfxRenderObj::~GfxRenderObj()
 {
 }
 
-void GfxRenderer::setViewport(const int& x, const int& y, const int& w, const int& h)
-{
-    glViewport(x, y, w, h);
-}
 
-void GfxRenderer::setClearValue(const float& r, const float& g, const float& b, const float& a)
-{
-    glClearColor(r, g, b, a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void GfxRenderer::setProgram(GfxProgram* program)
+void GfxRenderObj::setProgram(GfxProgram* program)
 {
     mCurProgram = program;
 }
 
-void GfxRenderer::setVertexBuffer(GfxBuffer* buffer)
+void GfxRenderObj::setVertexBuffer(GfxBuffer* buffer)
 {
     mCurVertexBuffer = buffer;
 }
 
-void GfxRenderer::setIndexBuffer(GfxBuffer* buffer)
+void GfxRenderObj::setIndexBuffer(GfxBuffer* buffer)
 {
     mCurIndexBuffer = buffer;
 }
 
-void GfxRenderer::setVertexLayout(MeshDataDescription* vertexLayout)
+void GfxRenderObj::setVertexLayout(MeshDataDescription* vertexLayout)
 {
     mCurVertexLayout = vertexLayout;
 }
 
-void GfxRenderer::bindFramebuffer(GfxFramebuffer* fb)
-{
-    if(!fb)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return;
-    }
-    fb->bind();
-}
-
-void GfxRenderer::draw(const GfxPrimitiveMode& primitiveMode, const int& first, const int& count)
+void GfxRenderObj::draw(const GfxPrimitiveMode& primitiveMode, const int& first, const int& count)
 {
     mCurProgram->bind();
 
@@ -125,7 +105,7 @@ void GfxRenderer::draw(const GfxPrimitiveMode& primitiveMode, const int& first, 
     glDeleteVertexArrays(1, &vao);
 }
 
-void GfxRenderer::drawIndexed(const GfxPrimitiveMode& primitiveMode, const int& indexCount)
+void GfxRenderObj::drawIndexed(const GfxPrimitiveMode& primitiveMode, const int& indexCount)
 {
     mCurProgram->bind();
     // todo：使用缓存的方式创建vao
@@ -174,7 +154,7 @@ void GfxRenderer::drawIndexed(const GfxPrimitiveMode& primitiveMode, const int& 
     glDeleteVertexArrays(1, &vao);
 }
 
-void GfxRenderer::reset()
+void GfxRenderObj::reset()
 {
     mCurProgram = nullptr;
     mCurVertexBuffer = nullptr;

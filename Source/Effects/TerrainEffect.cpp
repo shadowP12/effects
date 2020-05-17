@@ -2,7 +2,7 @@
 #include "../Core/Utility/FileUtility.h"
 #include "../Core/Gfx/GpuProgram.h"
 #include "../Core/Gfx/GfxDebug.h"
-#include "../Core/Gfx/GfxRenderer.h"
+#include "../Core/Gfx/GfxRender.h"
 #include "../Math/Geometry.h"
 #include "../Core/RenderResources/Mesh.h"
 #include "../Importers/TextureImporter.h"
@@ -18,7 +18,7 @@ static GfxProgram* textureProgram = nullptr;
 static GfxProgram* brushProgram = nullptr;
 static GfxProgram* terrainProgram = nullptr;
 static Mesh* gQuadMesh = nullptr;
-static GfxRenderer* gRenderer = nullptr;
+static GfxRenderObj gRenderObj;
 static std::vector<glm::vec3> points;
 static glm::vec3 getNDCCoord(const float& x, const float& y, const int& width, const int& height);
 TerrainEffect::TerrainEffect(int width, int height)
@@ -34,7 +34,6 @@ TerrainEffect::~TerrainEffect()
 	delete textureProgram;
     delete brushProgram;
     delete terrainProgram;
-    delete gRenderer;
 }
 
 void TerrainEffect::prepare()
@@ -62,8 +61,6 @@ void TerrainEffect::prepare()
     canvasFb = new GfxFramebuffer(fbDesc);
 
     gQuadMesh = genQuadMesh();
-
-    gRenderer = new GfxRenderer();
 }
 
 void TerrainEffect::update(float t)
@@ -94,29 +91,31 @@ void TerrainEffect::update(float t)
 
 void TerrainEffect::render()
 {
-    gRenderer->bindFramebuffer(canvasFb);
-    gRenderer->setViewport(0, 0, m_width, m_height);
-    gRenderer->setClearValue(0.8f, 0.1f, 0.1f, 1.0f);
-    gRenderer->setProgram(brushProgram);
+    canvasFb->bind();
+    glViewport(0, 0, m_width, m_height);
+    glClearColor(0.8f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    gRenderObj.setProgram(brushProgram);
     for (int i = 0; i < points.size(); ++i)
     {
         glm::mat4 model = glm::translate(glm::mat4(1.0), points[i]);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 1.0f));
         brushProgram->setMat4("u_model", &model[0][0]);
         brushProgram->setSampler("u_texture", brushTex);
-        gRenderer->setVertexBuffer(gQuadMesh->getVertexBuffer());
-        gRenderer->setVertexLayout(gQuadMesh->getVertexLayout());
-        gRenderer->draw(GfxPrimitiveMode::TRIANGLE_STRIP, 0, gQuadMesh->getVertexCount());
+        gRenderObj.setVertexBuffer(gQuadMesh->getVertexBuffer());
+        gRenderObj.setVertexLayout(gQuadMesh->getVertexLayout());
+        gRenderObj.draw(GfxPrimitiveMode::TRIANGLE_STRIP, 0, gQuadMesh->getVertexCount());
     }
 
     textureProgram->setSampler("u_texture", canvasTex);
-    gRenderer->bindFramebuffer();
-    gRenderer->setViewport(0, 0, m_width / 3, m_height / 3);
-    gRenderer->setClearValue(0.3f, 0.3f, 0.8f, 1.0f);
-    gRenderer->setProgram(textureProgram);
-    gRenderer->setVertexBuffer(gQuadMesh->getVertexBuffer());
-    gRenderer->setVertexLayout(gQuadMesh->getVertexLayout());
-    gRenderer->draw(GfxPrimitiveMode::TRIANGLE_STRIP, 0, gQuadMesh->getVertexCount());
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_width / 3, m_height / 3);
+    glClearColor(0.8f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    gRenderObj.setProgram(textureProgram);
+    gRenderObj.setVertexBuffer(gQuadMesh->getVertexBuffer());
+    gRenderObj.setVertexLayout(gQuadMesh->getVertexLayout());
+    gRenderObj.draw(GfxPrimitiveMode::TRIANGLE_STRIP, 0, gQuadMesh->getVertexCount());
 }
 
 static glm::vec3 getNDCCoord(const float& x, const float& y, const int& width, const int& height)

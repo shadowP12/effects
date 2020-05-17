@@ -3,14 +3,8 @@
 #include "BaseEffect.h"
 
 EFFECTS_NAMESPACE_BEGIN
-namespace temp
-{
-    class Scene;
-};
 
-class GpuProgram;
 class LightWidget;
-class DebugLines;
 struct Light;
 
 class PBREffect : public BaseEffect
@@ -18,18 +12,13 @@ class PBREffect : public BaseEffect
 public:
 	PBREffect(int width, int height);
 	~PBREffect();
-	virtual void prepare();
-	virtual void update(float t);
-	virtual void render();
+	void prepare() override ;
+	void update(float t) override ;
+	void render() override;
+
 private:
-	
-private:
-	temp::Scene* m_scene;
-	GpuProgram* m_program;
-	GpuProgram* m_debug_program;
 	Light* m_light;
 	LightWidget* m_light_widget;
-	DebugLines* m_debug_lines;
 };
 
 EFFECTS_NAMESPACE_END

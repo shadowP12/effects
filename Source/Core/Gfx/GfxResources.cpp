@@ -338,7 +338,7 @@ void GfxProgram::bind()
 
     for (int i = 0; i < mMat4ParamCount; ++i)
     {
-        glUniformMatrix4fv(glGetUniformLocation(mHandle, mMat4Params[i].name.c_str()), 1, GL_FALSE, &mMat4Params->value[0]);
+        glUniformMatrix4fv(glGetUniformLocation(mHandle, mMat4Params[i].name.c_str()), 1, GL_FALSE, &mMat4Params[i].value[0]);
     }
 
     for (int i = 0; i < mSampler2DParamCount; ++i)

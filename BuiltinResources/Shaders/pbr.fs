@@ -1,3 +1,4 @@
+#version 330 core
 in vec2 v_texCoords;
 in vec3 v_normal;
 in vec3 v_worldPos;
@@ -52,7 +53,7 @@ void main()
     float lightInvSqrAttRadius = 1.0 / (u_lightRadius * u_lightRadius);
     float att = 1.0;
     att *= getDistanceAtt(unnormalizedLightVector, lightInvSqrAttRadius);
-    vec3 Lo = (u_albedo / PI) * saturate(dot(N, L));// * att * u_lightColor * u_lightIntensity / (4 * PI);
+    vec3 Lo = (u_albedo / PI) * saturate(dot(N, L)) * att * u_lightColor * u_lightIntensity / (4 * PI);
 
 	vec3 result = ambient + Lo;
 	FragColor = vec4(result, 1.0);

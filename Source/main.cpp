@@ -24,7 +24,7 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::TerrainEffect* g_effect = nullptr;
+et::PBREffect* g_effect = nullptr;
 std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
 static float gPitch = 0.0f;
@@ -46,7 +46,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::TerrainEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 
@@ -119,7 +119,7 @@ void update(float t)
 //    cameraPos += cameraFront * input->m_mouse_scroll_wheel * 5.0f * 0.1f;
 //    gMainCamera->setPosition(cameraPos);
 //	et::SceneManager::instance().update();
-//    g_input->update();
+    //g_input->update();
 }
 
 void render()
@@ -134,7 +134,7 @@ int main()
 	glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	//创建带窗口的gl环境
 	g_window = glfwCreateWindow(800, 600, "effects", NULL, NULL);
@@ -162,27 +162,6 @@ int main()
 	{
 		update(0.001);
 		render();
-//        ImGuiIO& io = ImGui::GetIO();
-//        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-//		g_ui_system->update();
-//        bool isWin = true;
-//        bool isWin1 = true;
-//
-//        ImGuiViewport* viewport = ImGui::GetMainViewport();
-//        ImGui::SetNextWindowPos(viewport->GetWorkPos());
-//        ImGui::SetNextWindowSize(viewport->GetWorkSize());
-//        ImGui::SetNextWindowViewport(viewport->ID);
-//        ImGui::Begin("Another Window" , &isWin);
-//        ImGui::Text("Hello from another window!");
-//        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-//        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-//        ImGui::End();
-//        ImGui::ShowDemoWindow(&isWin);
-//        ImGui::Render();
-//        // 将收集完的ui数据绘制到屏幕上
-//        glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
-//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		g_ui_system->draw();
 		glfwSwapBuffers(g_window);
 		glfwPollEvents();

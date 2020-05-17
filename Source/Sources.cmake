@@ -14,7 +14,7 @@ set(CORE_SRC
 	Source/Core/Gfx/GpuProgram.cpp
 	Source/Core/Gfx/GfxDebug.cpp
 	Source/Core/Gfx/GfxResources.cpp
-	Source/Core/Gfx/GfxRenderer.cpp
+	Source/Core/Gfx/GfxRender.cpp
 	Source/Core/RenderResources/Mesh.cpp
 	Source/Core/RenderResources/Material.cpp
 	Source/Core/RenderResources/PBRMaterial.cpp
