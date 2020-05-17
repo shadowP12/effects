@@ -24,6 +24,7 @@ class GfxBuffer
 public:
     GfxBuffer(const GfxBufferDesc& desc);
     ~GfxBuffer();
+    void writeData(const void* data, const int& size);
     void writeData(const void* data, const int& offset, const int& size);
     void resize(int size);
 protected:

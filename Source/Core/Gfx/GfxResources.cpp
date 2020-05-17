@@ -154,6 +154,22 @@ GfxBuffer::~GfxBuffer()
     glDeleteBuffers(1, &mHandle);
 }
 
+void GfxBuffer::writeData(const void* data, const int& size)
+{
+    if(mBufferUsage == GfxBufferUsageBit::VERTEX)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, mHandle);
+        GLenum memUsage = mMemUsage == GfxMemoryUsageBit::DEVICE ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+        glBufferData(GL_ARRAY_BUFFER, size, data, memUsage);
+    }
+    else if(mBufferUsage == GfxBufferUsageBit::INDEX)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mHandle);
+        GLenum memUsage = mMemUsage == GfxMemoryUsageBit::DEVICE ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, memUsage);
+    }
+}
+
 void GfxBuffer::writeData(const void* data, const int& offset, const int& size)
 {
     if(mBufferUsage == GfxBufferUsageBit::VERTEX)

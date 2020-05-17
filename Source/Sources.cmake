@@ -32,6 +32,7 @@ set(EFFECTS_SRC
 	Source/Effects/ShadowEffect.cpp
 	Source/Effects/VolumeEffect.cpp
 	Source/Effects/TerrainEffect.cpp
+	Source/Effects/ClothEffect.cpp
 )
 
 set(UI_SRC

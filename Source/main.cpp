@@ -5,7 +5,7 @@
 #include "UI/UISystem.h"
 #include "Effects/DebugEffect.h"
 #include "Effects/PBREffect.h"
-#include "Effects/ShadowEffect.h"
+#include "Effects/ClothEffect.h"
 #include "Effects/TerrainEffect.h"
 #include "Core/Utility/Flags.h"
 #include "Core/Gfx/GpuProgram.h"
@@ -24,7 +24,7 @@ et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
 et::Context* g_context = nullptr;
-et::PBREffect* g_effect = nullptr;
+et::ClothEffect* g_effect = nullptr;
 std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
 static float gPitch = 0.0f;
@@ -46,7 +46,7 @@ void init()
 	g_context->setUISystem(g_ui_system);
 
 	// effect
-	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_effect = new et::ClothEffect(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_effect->setContext(g_context);
 	g_effect->prepare();
 

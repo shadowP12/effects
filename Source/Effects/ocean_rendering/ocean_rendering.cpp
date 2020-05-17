@@ -131,7 +131,8 @@ void OceanRenderer::update(float t)
 	{
 		for (int m = 0; m < N; ++m)
 		{
-			m_height_data[m * N + n] = out_data[m * N + n][0];
+
+		    [m * N + n] = out_data[m * N + n][0];
 		}
 	}
 	glBindTexture(GL_TEXTURE_2D, m_hight_map);
