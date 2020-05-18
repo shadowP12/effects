@@ -7,13 +7,6 @@
 #include "../Core/RenderResources/Mesh.h"
 
 EFFECTS_NAMESPACE_BEGIN
-
-    static GfxProgram* gRopeProgram = nullptr;
-    static GfxBuffer* gRopeVertexBuffer = nullptr;
-    static MeshDataDescription* gRopeVertexLayout = nullptr;
-    static float* gRopeVertices = nullptr;
-    static GfxRenderObj gfxRenderObj;
-
     struct Mass
     {
         Mass(const glm::vec3& inPosition, const float& inMass, const bool& inPinned)
@@ -102,6 +95,14 @@ EFFECTS_NAMESPACE_BEGIN
         std::vector<Spring*> springs;
     };
 
+    static GfxProgram* gRopeProgram = nullptr;
+    static GfxBuffer* gRopeVertexBuffer = nullptr;
+    static MeshDataDescription* gRopeVertexLayout = nullptr;
+    static float* gRopeVertices = nullptr;
+    static GfxRenderObj gfxRenderObj;
+    static Rope* gRope = nullptr;
+    static int gRopeNodeCount = 6;
+
     ClothEffect::ClothEffect(int width, int height)
             :BaseEffect(width, height)
     {
@@ -117,6 +118,8 @@ EFFECTS_NAMESPACE_BEGIN
             delete gRopeVertexBuffer;
         if(gRopeVertexLayout)
             delete gRopeVertexLayout;
+        if(gRope)
+            delete gRope;
     }
 
     void ClothEffect::prepare()
@@ -134,18 +137,26 @@ EFFECTS_NAMESPACE_BEGIN
         gRopeProgram = loadProgram(getCurrentPath() + R"(\BuiltinResources\Shaders\cloth\rope.vs)",
                                   getCurrentPath() + R"(\BuiltinResources\Shaders\cloth\rope.fs)");
 
-        gRopeVertices = new float[6];
-        gRopeVertices[0] = 0.0f;
-        gRopeVertices[1] = 0.0f;
-        gRopeVertices[2] = 0.0f;
-        gRopeVertices[3] = 1.0f;
-        gRopeVertices[4] = 0.0f;
-        gRopeVertices[5] = 0.0f;
+        gRopeVertices = new float[gRopeNodeCount*3];
+
+        std::vector<bool> pinnedNodes;
+        for (int i = 0; i < gRopeNodeCount; ++i)
+        {
+            pinnedNodes.push_back(true);
+        }
+        gRope = new Rope(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
+                    gRopeNodeCount, 5.0f, 0.2f, pinnedNodes);
     }
 
     void ClothEffect::update(float t)
     {
         BaseEffect::update(t);
+        for (int i = 0; i < gRopeNodeCount; ++i)
+        {
+            gRopeVertices[i*3] = gRope->masses[i]->position.x;
+            gRopeVertices[i*3+1] = gRope->masses[i]->position.y;
+            gRopeVertices[i*3+2] = gRope->masses[i]->position.z;
+        }
     }
 
     void ClothEffect::render()
@@ -153,17 +164,22 @@ EFFECTS_NAMESPACE_BEGIN
         glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        gRopeVertexBuffer->writeData(gRopeVertices, 6 * sizeof(float));
-        glm::vec3 ropeColor = glm::vec3(1.0f, 0.0f, 0.0f);
+        gRopeVertexBuffer->writeData(gRopeVertices, gRopeNodeCount * 3 * sizeof(float));
+        glm::vec3 ropeColor1 = glm::vec3(1.0f, 0.0f, 0.0f);
+        glm::vec3 ropeColor2 = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::mat4 identityMat = glm::mat4(1.0f);
-        gRopeProgram->setFloat3("u_color", &ropeColor[0]);
+        gRopeProgram->setFloat3("u_color", &ropeColor1[0]);
         gRopeProgram->setMat4("u_model", &identityMat[0][0]);
         gRopeProgram->setMat4("u_view", &identityMat[0][0]);
         gRopeProgram->setMat4("u_proj", &identityMat[0][0]);
         gfxRenderObj.setVertexBuffer(gRopeVertexBuffer);
         gfxRenderObj.setProgram(gRopeProgram);
         gfxRenderObj.setVertexLayout(gRopeVertexLayout);
-        gfxRenderObj.draw(GfxPrimitiveMode::LINE_LIST, 0, 2);
+        gfxRenderObj.draw(GfxPrimitiveMode::LINE_STRIP, 0, gRopeNodeCount);
+        gRopeProgram->setFloat3("u_color", &ropeColor2[0]);
+        glPointSize(10.0f);
+        gfxRenderObj.draw(GfxPrimitiveMode::POINT_LIST, 0, gRopeNodeCount);
+        glPointSize(1.0f);
     }
 
 EFFECTS_NAMESPACE_END

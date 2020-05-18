@@ -33,7 +33,7 @@ void PBREffect::prepare()
     gPBRProgram = loadProgram(getCurrentPath() + R"(\BuiltinResources\Shaders\pbr.vs)",
                                  getCurrentPath() + R"(\BuiltinResources\Shaders\pbr.fs)");
     gScene = new GltfScene();
-    gImporter.load(getCurrentPath() + R"(\BuiltinResources\Scenes\CornellBox.gltf)", gScene);
+    gImporter.load(getCurrentPath() + R"(\BuiltinResources\Scenes\tf\scene.gltf)", gScene);
 
 	m_light = new Light();
 	m_light_widget = new LightWidget(m_light);
@@ -53,10 +53,11 @@ void PBREffect::render()
 
     glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
     glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
-	for (int i = 0; i < gScene->nodes.size(); i++)
+
+	for (auto& info : gScene->meshHelper)
 	{
-	    std::shared_ptr<Node> node = gScene->nodes[i];
-	    std::shared_ptr<Mesh> mesh = gScene->meshHelper[node];
+	    std::shared_ptr<Node> node = info.first;
+	    std::shared_ptr<Mesh> mesh = info.second;
         glm::mat4 model = node->getWorldMatrix();
         glm::mat4 view = m_context->getCamera()->getViewMatrix();
         glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);
@@ -72,7 +73,7 @@ void PBREffect::render()
         gfxRenderObj.setVertexBuffer(mesh->getVertexBuffer());
         gfxRenderObj.setIndexBuffer(mesh->getIndexBuffer());
         gfxRenderObj.setVertexLayout(mesh->getVertexLayout());
-        gfxRenderObj.drawIndexed(GfxPrimitiveMode::TRIANGLE_STRIP, mesh->getIndexCount());
+        gfxRenderObj.drawIndexed(GfxPrimitiveMode::TRIANGLE_LIST, mesh->getIndexCount());
 	}
     glEnable(GL_DEPTH_TEST);
 }

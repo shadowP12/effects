@@ -7,7 +7,7 @@
 #include <cgltf.h>
 EFFECTS_NAMESPACE_BEGIN
 // cgltf helper funcs
-int getCNodeInxFromCScene(const cgltf_node* node, const cgltf_scene* scene);
+int getCNodeInxFromCData(const cgltf_node* node, const cgltf_data* data);
 bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute_type type);
 bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute** inAtt, cgltf_attribute_type type);
 glm::mat4 getLocalMatrix(cgltf_node* node);
@@ -32,10 +32,9 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
     if (result == cgltf_result_success)
         result = cgltf_validate(data);
 
-    cgltf_scene* cScene = data->scene;
-    for (size_t i = 0; i < cScene->nodes_count; ++i)
+    for (size_t i = 0; i < data->nodes_count; ++i)
     {
-        cgltf_node* cNode = cScene->nodes[i];
+        cgltf_node* cNode = &data->nodes[i];
         std::shared_ptr<Node> obj = std::make_shared<Node>();
 
         glm::vec3 translation = glm::vec3(0.0f);
@@ -62,17 +61,26 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             scale.y = cNode->scale[1];
             scale.z = cNode->scale[2];
         }
+
+        if (cNode->has_matrix)
+        {
+            glm::mat4 mat = glm::make_mat4(cNode->matrix);
+            glm::vec3 skew;
+            glm::vec4 perspective;
+            glm::decompose(mat, scale, rotation, translation, skew, perspective);
+        }
+
         obj->setTransform(translation, scale, rotation);
         scene->nodes.push_back(obj);
     }
 
-    for (size_t i = 0; i < cScene->nodes_count; ++i)
+    for (size_t i = 0; i < data->nodes_count; ++i)
     {
-        cgltf_node* cNode = cScene->nodes[i];
+        cgltf_node* cNode = &data->nodes[i];
         std::shared_ptr<Node> obj = scene->nodes[i];
         if(cNode->parent != nullptr)
         {
-            int parentInx = getCNodeInxFromCScene(cNode, cScene);
+            int parentInx = getCNodeInxFromCData(cNode->parent, data);
             if(parentInx != -1)
             {
                 std::shared_ptr<Node> parentObj = scene->nodes[parentInx];
@@ -81,16 +89,17 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         }
     }
 
-    for (size_t i = 0; i < cScene->nodes_count; ++i)
+    for (size_t i = 0; i < data->nodes_count; ++i)
     {
-        cgltf_node* cNode = cScene->nodes[i];
+        cgltf_node* cNode = &data->nodes[i];
         cgltf_mesh* cMesh = cNode->mesh;
         std::shared_ptr<Node> node = scene->nodes[i];
 
-        if(cMesh->primitives_count <= 0)
+        if(!cMesh)
         {
             continue;
         }
+
         uint32_t meshAttLayout = (uint32_t)MAL_POSITION;
         meshAttLayout |= (uint32_t)MAL_TEXCOORD0;
         meshAttLayout |= (uint32_t)MAL_NORMAL;
@@ -142,6 +151,7 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
                         (uint8_t *) (normalView->buffer->data) + normalAccessor->offset + normalView->offset;
                 localNormalBuffer = (float *) normalDatas;
             }
+
 
             cgltf_attribute *texcoordAttributes = nullptr;
             if (findAttributesType(cPrimitive, &texcoordAttributes, cgltf_attribute_type_texcoord)) {
@@ -303,11 +313,11 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
     cgltf_free(data);
 }
 
-int getCNodeInxFromCScene(const cgltf_node* node, const cgltf_scene* scene)
+int getCNodeInxFromCData(const cgltf_node* node, const cgltf_data* data)
 {
-    for (size_t i = 0; i < scene->nodes_count; ++i)
+    for (size_t i = 0; i < data->nodes_count; ++i)
     {
-        if(scene->nodes[i] == node)
+        if(&data->nodes[i] == node)
         {
             return i;
         }

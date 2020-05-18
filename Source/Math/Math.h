@@ -4,6 +4,7 @@
 #include <gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/quaternion.hpp>
+#include <gtx/matrix_decompose.hpp>
 #include <math.h>
 
 #define PI 3.14159265359f

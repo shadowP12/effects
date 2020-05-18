@@ -90,32 +90,27 @@ void Node::setTransform(const glm::vec3 &pos, const glm::vec3 &scale, const glm:
 
 glm::mat4 Node::getLocalMatrix()
 {
-    if(1)
-    {
-        //RTS
-        glm::mat4 R, T, S;
-        R = glm::toMat4(mLRot);
-        T = glm::translate(glm::mat4(1.0),mLPos);
-        S = glm::scale(glm::mat4(1.0),mLScale);
-        mLocalMatrix = T * R * S;
-        mLocalDirtyFlag = false;
-    }
+    //RTS
+    glm::mat4 R, T, S;
+    R = glm::toMat4(mLRot);
+    T = glm::translate(glm::mat4(1.0),mLPos);
+    S = glm::scale(glm::mat4(1.0),mLScale);
+    mLocalMatrix = T * R * S;
+    mLocalDirtyFlag = false;
     return mLocalMatrix;
 }
 
 glm::mat4 Node::getWorldMatrix()
 {
-    if(1)
+    glm::mat4 out = getLocalMatrix();
+    std::shared_ptr<Node> cur = mParent;
+    while (cur)
     {
-        glm::mat4 out = getLocalMatrix();
-        std::shared_ptr<Node> cur = mParent;
-        while (cur)
-        {
-            out = cur->getLocalMatrix() * out;
-        }
-        mWorldMatrix = out;
-        mWorldDirtyFlag = false;
+        out = cur->getLocalMatrix() * out;
+        cur = cur->mParent;
     }
+    mWorldMatrix = out;
+    mWorldDirtyFlag = false;
     return mWorldMatrix;
 }
 
