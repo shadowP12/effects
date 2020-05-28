@@ -3,7 +3,6 @@
 #include "../UI/LightWidget.h"
 #include "../Core/Gfx/GfxDebug.h"
 #include "../Core/Gfx/GfxResources.h"
-#include "../Core/Gfx/GfxRender.h"
 #include "../Core/Renderer/RenderHelper.h"
 #include "../Importers/GltfImporter.h"
 #include "../Core/Scene/Node.h"
@@ -12,7 +11,6 @@ EFFECTS_NAMESPACE_BEGIN
 
 static GltfScene* gScene = nullptr;
 static GltfImporter gImporter;
-static GfxRenderObj gfxRenderObj;
 static GfxProgram* gPBRProgram = nullptr;
 
 PBREffect::PBREffect(int width, int height)
@@ -69,11 +67,8 @@ void PBREffect::render()
         gPBRProgram->setFloat3("u_lightPos", &m_light->position[0]);
         gPBRProgram->setFloat3("u_lightColor", &lightColor[0]);
         gPBRProgram->setFloat3("u_albedo", &albedo[0]);
-        gfxRenderObj.setProgram(gPBRProgram);
-        gfxRenderObj.setVertexBuffer(mesh->getVertexBuffer());
-        gfxRenderObj.setIndexBuffer(mesh->getIndexBuffer());
-        gfxRenderObj.setVertexLayout(mesh->getVertexLayout());
-        gfxRenderObj.drawIndexed(GfxPrimitiveMode::TRIANGLE_LIST, mesh->getIndexCount());
+        gPBRProgram->bind();
+        mesh->draw(GL_TRIANGLES);
 	}
     glEnable(GL_DEPTH_TEST);
 }

@@ -1,5 +1,4 @@
 #include "Material.h"
-#include "../Gfx/GpuProgram.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Material::Material()

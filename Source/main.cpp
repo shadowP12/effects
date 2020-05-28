@@ -3,12 +3,7 @@
 #include "Core/Gfx/Gfx.h"
 #include "Core/Scene/CommonTool.h"
 #include "UI/UISystem.h"
-#include "Effects/DebugEffect.h"
 #include "Effects/PBREffect.h"
-#include "Effects/ClothEffect.h"
-#include "Effects/TerrainEffect.h"
-#include "Core/Utility/Flags.h"
-#include "Core/Gfx/GpuProgram.h"
 #include "Core/Renderer/RenderView.h"
 #include "Core/Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"
@@ -53,7 +48,6 @@ void init()
 	// module
 	et::Renderer::startUp();
 	et::SceneManager::startUp();
-	et::GpuProgramPool::startUp();
 
     gMainCamera = std::make_shared<et::SceneObject>();
     gMainCamera->initialized();
@@ -76,7 +70,6 @@ void release()
 	delete g_ui_system;
 	et::Renderer::shutDown();
 	et::SceneManager::shutDown();
-	et::GpuProgramPool::shutDown();
 }
 
 void loadResource()

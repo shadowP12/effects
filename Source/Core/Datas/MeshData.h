@@ -1,58 +1,57 @@
 #pragma once
 #include "../Base.h"
+#include "../Utility/Flags.h"
 #include <vector>
 EFFECTS_NAMESPACE_BEGIN
 
-enum MeshAttributeLayout
+enum VertexSemantic
 {
-	MAL_POSITION = 1 << 0,
-	MAL_COLOR = 1 << 1,
-	MAL_NORMAL = 1 << 2,
-	MAL_TANGENT = 1 << 3,
-	MAL_BLEND_WEIGHTS = 1 << 4,
-	MAL_TEXCOORD0 = 1 << 5,
-	MAL_TEXCOORD1 = 1 << 6,
+    SEMANTIC_UNDEFINED  = 1 << 0,
+    SEMANTIC_POSITION   = 1 << 1,
+    SEMANTIC_NORMAL     = 1 << 2,
+    SEMANTIC_COLOR      = 1 << 3,
+    SEMANTIC_TANGENT    = 1 << 4,
+    SEMANTIC_BITANGENT  = 1 << 5,
+    SEMANTIC_JOINTS     = 1 << 6,
+    SEMANTIC_WEIGHTS    = 1 << 7,
+    SEMANTIC_TEXCOORD0  = 1 << 8,
+    SEMANTIC_TEXCOORD1  = 1 << 9,
+    SEMANTIC_TEXCOORD2  = 1 << 10,
+    SEMANTIC_TEXCOORD3  = 1 << 11,
+    SEMANTIC_TEXCOORD4  = 1 << 12,
+    SEMANTIC_TEXCOORD5  = 1 << 13,
+    SEMANTIC_TEXCOORD6  = 1 << 14,
+    SEMANTIC_TEXCOORD7  = 1 << 15,
+    SEMANTIC_TEXCOORD8  = 1 << 16,
 };
+MAKE_ENUM_FLAG(uint32_t, VertexSemantic)
 
-enum MeshAttributeSemantic
+enum VertexType
 {
-	MAS_POSITION = 1,
-	MAS_BLEND_WEIGHTS = 2,
-	MAS_BLEND_INDICES = 3,
-	MAS_NORMAL = 4,
-	MAS_COLOR = 5,
-	MAS_TEXCOORD = 6,
-	MAS_BITANGENT = 7,
-	MAS_TANGENT = 8,
-};
-
-enum MeshAttributeType
-{
-	MAT_FLOAT1 = 0,
-	MAT_FLOAT2 = 1,
-	MAT_FLOAT3 = 2,
-	MAT_FLOAT4 = 3,
-	MAT_COLOR = 4,
-	MAT_SHORT1 = 5,
-	MAT_SHORT2 = 6,
-	MAT_SHORT4 = 8,
-	MAT_UBYTE4 = 9,
-	MAT_COLOR_ARGB = 10,
-	MAT_COLOR_ABGR = 11,
-	MAT_UINT4 = 12,
-	MAT_INT4 = 13,
-	MAT_USHORT1 = 14,
-	MAT_USHORT2 = 15,
-	MAT_USHORT4 = 17,
-	MAT_INT1 = 18,
-	MAT_INT2 = 19,
-	MAT_INT3 = 20,
-	MAT_UINT1 = 21,
-	MAT_UINT2 = 22,
-	MAT_UINT3 = 23,
-	MAT_UBYTE4_NORM = 24,
-	MAT_COUNT,
-	VET_UNKNOWN = 0xffff
+    VERTEX_TYPE_FLOAT1 = 0,
+    VERTEX_TYPE_FLOAT2,
+	VERTEX_TYPE_FLOAT3,
+	VERTEX_TYPE_FLOAT4,
+	VERTEX_TYPE_COLOR,
+	VERTEX_TYPE_SHORT1,
+	VERTEX_TYPE_SHORT2,
+	VERTEX_TYPE_SHORT4,
+	VERTEX_TYPE_UBYTE4,
+	VERTEX_TYPE_COLOR_ARGB,
+	VERTEX_TYPE_COLOR_ABGR,
+	VERTEX_TYPE_UINT4,
+	VERTEX_TYPE_INT4,
+	VERTEX_TYPE_USHORT1,
+	VERTEX_TYPE_USHORT2,
+	VERTEX_TYPE_USHORT4,
+	VERTEX_TYPE_INT1,
+	VERTEX_TYPE_INT2,
+	VERTEX_TYPE_INT3,
+	VERTEX_TYPE_UINT1,
+	VERTEX_TYPE_UINT2,
+	VERTEX_TYPE_UINT3,
+	VERTEX_TYPE_UBYTE4_NORM,
+	VERTEX_TYPE_COUNT,
 };
 
 struct BoneWeight
@@ -68,74 +67,74 @@ struct BoneWeight
     float weight3;
 };
 
-class MeshAttribute
+class VertexAttribute
 {
 public:
-	MeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic)
+    VertexAttribute(VertexType type, VertexSemantic semantic)
 	{
 		mType = type;
 		mSemantic = semantic;
 		mOffset = 0;
 		mSize = getTypeSize(type);
 	}
-	~MeshAttribute()
+	~VertexAttribute()
 	{
 	}
-	bool operator== (const MeshAttribute& rhs) const;
-	bool operator!= (const MeshAttribute& rhs) const;
+	bool operator== (const VertexAttribute& rhs) const;
+	bool operator!= (const VertexAttribute& rhs) const;
 
 	uint32_t getOffset() const { return mOffset; }
 
-	MeshAttributeType getType() const { return mType; }
+    VertexType getType() const { return mType; }
 
-	MeshAttributeSemantic getSemantic() const { return mSemantic; }
+    VertexSemantic getSemantic() const { return mSemantic; }
 
 	uint32_t getSize() { return mSize; }
 	// 获取数据类型的size
-	static uint32_t getTypeSize(MeshAttributeType type);
+	static uint32_t getTypeSize(VertexType type);
 	// 获取数据类型所包含基础数据类型的个数
-	static uint16_t getTypeCount(MeshAttributeType type);
+	static uint16_t getTypeCount(VertexType type);
 protected:
 	uint32_t mOffset;
 	uint32_t mSize;
-	MeshAttributeType mType;
-	MeshAttributeSemantic mSemantic;
+    VertexType mType;
+    VertexSemantic mSemantic;
 };
 
-class MeshDataDescription
+class VertexLayout
 {
 public:
-    MeshDataDescription();
-    MeshDataDescription(const uint32_t& layout);
-	~MeshDataDescription();
-	void addMeshAttribute(MeshAttributeType type, MeshAttributeSemantic semantic);
+    VertexLayout();
+    VertexLayout(const uint32_t& layout);
+	~VertexLayout();
+	void addVertexAttribute(VertexType type, VertexSemantic semantic);
 
-	bool hasMeshAttribute(MeshAttributeSemantic semantic);
+	bool hasVertexAttribute(VertexSemantic semantic);
 
-	uint32_t getMeshAttributeSize(MeshAttributeSemantic semantic);
+	uint32_t getVertexAttributeSize(VertexSemantic semantic);
 
-	uint32_t getMeshAttributeOffset(MeshAttributeSemantic semantic);
+	uint32_t getVertexAttributeOffset(VertexSemantic semantic);
 
-	uint32_t getMeshAttributeStride();
+	uint32_t getVertexAttributeStride();
 
 private:
-	void clearIfItExists(MeshAttributeType type, MeshAttributeSemantic semantic);
+	void clearIfItExists(VertexType type, VertexSemantic semantic);
 private:
-	std::vector<MeshAttribute> mAttributes;
+	std::vector<VertexAttribute> mAttributes;
 };
 
 // data = indexbuf + vertexbuf
 class MeshData
 {
 public:
-	MeshData(uint32_t numVertices, uint32_t numIndices, MeshDataDescription* desc);
+	MeshData(uint32_t numVertices, uint32_t numIndices, VertexLayout* vertexLayout);
 	~MeshData();
-	MeshDataDescription* getMeshDesc() { return mDesc; }
+    VertexLayout* getVertexLayout() { return mVertexLayout; }
 	void setIndexes(void* data, uint32_t size);
-	void setAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size);
+	void setAttribute(VertexSemantic semantic, void* data, uint32_t size);
+    void getAttribute(VertexSemantic semantic, void* data, uint32_t size);
 	uint8_t* getIndices();
 	uint8_t* getVertices();
-	void getAttribute(MeshAttributeSemantic semantic, void* data, uint32_t size);
 	uint32_t getNumVertices() { return mNumVertices; }
 	uint32_t getNumIndices() { return mNumIndices; }
     uint32_t getVertexBufferSize() const;
@@ -144,7 +143,7 @@ public:
 	uint32_t getStreamSize() const;
 private:
 	uint8_t* mData;
-	MeshDataDescription* mDesc;
+    VertexLayout* mVertexLayout;
 	uint32_t mNumVertices;
 	uint32_t mNumIndices;
 };

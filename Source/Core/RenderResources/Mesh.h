@@ -5,7 +5,7 @@
 #include "../Gfx/Gfx.h"
 EFFECTS_NAMESPACE_BEGIN
 
-class MeshDataDescription;
+class VertexLayout;
 class MeshData;
 class GfxBuffer;
 
@@ -15,15 +15,15 @@ public:
     Mesh(MeshData* data);
     ~Mesh();
     void prepareGfxData();
-    MeshDataDescription* getVertexLayout();
-    GfxBuffer* getVertexBuffer();
-    GfxBuffer* getIndexBuffer();
+    VertexLayout* getVertexLayout();
     uint32_t getVertexCount();
     uint32_t getIndexCount();
+    void draw(unsigned int mode);
 private:
     MeshData* mData;
-    GfxBuffer* mVertexBuffer;
-    GfxBuffer* mIndexBuffer;
+    unsigned int mVertexArrayObject;
+    unsigned int mVertexBuffer;
+    unsigned int mIndexBuffer;
 };
 
 Mesh* genCubeMesh();

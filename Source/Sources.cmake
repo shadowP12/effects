@@ -11,10 +11,8 @@ set(CORE_SRC
 	Source/Core/Scene/Scene.cpp
 	Source/Core/Scene/Component.cpp
 	Source/Core/Utility/FileUtility.cpp
-	Source/Core/Gfx/GpuProgram.cpp
 	Source/Core/Gfx/GfxDebug.cpp
 	Source/Core/Gfx/GfxResources.cpp
-	Source/Core/Gfx/GfxRender.cpp
 	Source/Core/RenderResources/Mesh.cpp
 	Source/Core/RenderResources/Material.cpp
 	Source/Core/RenderResources/PBRMaterial.cpp
@@ -28,11 +26,6 @@ set(CORE_SRC
 
 set(EFFECTS_SRC
 	Source/Effects/PBREffect.cpp
-	Source/Effects/DebugEffect.cpp
-	Source/Effects/ShadowEffect.cpp
-	Source/Effects/VolumeEffect.cpp
-	Source/Effects/TerrainEffect.cpp
-	Source/Effects/ClothEffect.cpp
 )
 
 set(UI_SRC

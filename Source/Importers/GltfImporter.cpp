@@ -91,6 +91,7 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
 
     for (size_t i = 0; i < data->nodes_count; ++i)
     {
+
         cgltf_node* cNode = &data->nodes[i];
         cgltf_mesh* cMesh = cNode->mesh;
         std::shared_ptr<Node> node = scene->nodes[i];
@@ -100,17 +101,18 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             continue;
         }
 
-        uint32_t meshAttLayout = (uint32_t)MAL_POSITION;
-        meshAttLayout |= (uint32_t)MAL_TEXCOORD0;
-        meshAttLayout |= (uint32_t)MAL_NORMAL;
+        uint32_t meshAttLayout = (uint32_t)SEMANTIC_POSITION;
+        meshAttLayout |= (uint32_t)SEMANTIC_TEXCOORD0;
+        meshAttLayout |= (uint32_t)SEMANTIC_NORMAL;
         if(findAttributesType(&cMesh->primitives[0], cgltf_attribute_type_tangent))
         {
-            meshAttLayout |= (uint32_t)MAL_TANGENT;
+            meshAttLayout |= (uint32_t)SEMANTIC_TANGENT;
         }
 
         if(findAttributesType(&cMesh->primitives[0], cgltf_attribute_type_joints))
         {
-            meshAttLayout |= (uint32_t)MAL_BLEND_WEIGHTS;
+            meshAttLayout |= (uint32_t)SEMANTIC_JOINTS;
+            meshAttLayout |= (uint32_t)SEMANTIC_WEIGHTS;
         }
 
         std::vector<float> positionBuffer;
@@ -217,14 +219,14 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
                     normalBuffer.push_back(0.0f);
                 }
 
-                if ((meshAttLayout & (uint32_t)MAL_TANGENT) != 0)
+                if ((meshAttLayout & (uint32_t)SEMANTIC_TANGENT) != 0)
                 {
                     tangentBuffer.push_back(localTangentBuffer[v * 3]);
                     tangentBuffer.push_back(localTangentBuffer[v * 3 + 1]);
                     tangentBuffer.push_back(localTangentBuffer[v * 3 + 2]);
                 }
 
-                if((meshAttLayout & (uint32_t)MAL_BLEND_WEIGHTS) != 0)
+                if((meshAttLayout & (uint32_t)SEMANTIC_JOINTS) != 0)
                 {
                     jointsBuffer.push_back(localJointsBuffer[v * 4]);
                     jointsBuffer.push_back(localJointsBuffer[v * 4 + 1]);
@@ -286,22 +288,22 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             }
         }
 
-        MeshDataDescription* meshDataDesc = new MeshDataDescription(meshAttLayout);
-        MeshData* meshData = new MeshData(positionBuffer.size() / 3, indexBuffer.size(), meshDataDesc);
+        VertexLayout* vertexLayout = new VertexLayout(meshAttLayout);
+        MeshData* meshData = new MeshData(positionBuffer.size() / 3, indexBuffer.size(), vertexLayout);
         meshData->setIndexes(indexBuffer.data(), indexBuffer.size() * sizeof(uint32_t));
 
-        meshData->setAttribute(MAS_POSITION, positionBuffer.data(), positionBuffer.size() * sizeof(float));
-        meshData->setAttribute(MAS_TEXCOORD, texcoordBuffer.data(), texcoordBuffer.size() * sizeof(float));
-        meshData->setAttribute(MAS_NORMAL, normalBuffer.data(), normalBuffer.size() * sizeof(float));
-        if ((meshAttLayout & (uint32_t)MAL_TANGENT) != 0)
+        meshData->setAttribute(SEMANTIC_POSITION, positionBuffer.data(), positionBuffer.size() * sizeof(float));
+        meshData->setAttribute(SEMANTIC_TEXCOORD0, texcoordBuffer.data(), texcoordBuffer.size() * sizeof(float));
+        meshData->setAttribute(SEMANTIC_NORMAL, normalBuffer.data(), normalBuffer.size() * sizeof(float));
+        if ((meshAttLayout & (uint32_t)SEMANTIC_TANGENT) != 0)
         {
-            meshData->setAttribute(MAS_TANGENT, tangentBuffer.data(), tangentBuffer.size() * sizeof(float));
+            meshData->setAttribute(SEMANTIC_TANGENT, tangentBuffer.data(), tangentBuffer.size() * sizeof(float));
         }
 
-        if((meshAttLayout & (uint32_t)MAL_BLEND_WEIGHTS) != 0)
+        if((meshAttLayout & (uint32_t)SEMANTIC_JOINTS) != 0)
         {
-            meshData->setAttribute(MAS_BLEND_INDICES, jointsBuffer.data(), jointsBuffer.size() * sizeof(int));
-            meshData->setAttribute(MAS_BLEND_WEIGHTS, weightsBuffer.data(), weightsBuffer.size() * sizeof(float));
+            meshData->setAttribute(SEMANTIC_JOINTS, jointsBuffer.data(), jointsBuffer.size() * sizeof(int));
+            meshData->setAttribute(SEMANTIC_WEIGHTS, weightsBuffer.data(), weightsBuffer.size() * sizeof(float));
         }
 
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meshData);

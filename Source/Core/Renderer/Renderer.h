@@ -2,7 +2,6 @@
 
 #include "../Base.h"
 #include "../Utility/Module.h"
-#include "../Gfx/GpuProgram.h"
 #include <vector>
 EFFECTS_NAMESPACE_BEGIN
 
@@ -22,7 +21,6 @@ public:
 private:
     std::vector<std::shared_ptr<Renderable>> mRenderables;
     std::shared_ptr<RenderView> mMainView;
-    GpuProgramDefines mGlobalDefines;
 };
 
 EFFECTS_NAMESPACE_END
