@@ -5,22 +5,22 @@ EFFECTS_NAMESPACE_BEGIN
 
 GfxTexture* loadTexture(std::string filePath)
 {
-    int width, height, channels;
-    unsigned char* pixels = loadImage(filePath.c_str(), width, height, channels);
-    if (!pixels)
-    {
-        return nullptr;
-    }
-
-    GfxTextureDesc textureDesc;
-    textureDesc.width = width;
-    textureDesc.height = height;
-    textureDesc.componentType = GfxPixelComponentType::BYTE;
-    textureDesc.format = GfxPixelFormat::RGBA8;
-    GfxTexture* texture = new GfxTexture(textureDesc);
-    texture->writeData(pixels);
-    delete[] pixels;
-    return texture;
+//    int width, height, channels;
+//    unsigned char* pixels = loadImage(filePath.c_str(), width, height, channels);
+//    if (!pixels)
+//    {
+//        return nullptr;
+//    }
+//
+//    GfxTextureDesc textureDesc;
+//    textureDesc.width = width;
+//    textureDesc.height = height;
+//    textureDesc.componentType = GfxPixelComponentType::BYTE;
+//    textureDesc.format = GfxPixelFormat::RGBA8;
+//    GfxTexture* texture = new GfxTexture(textureDesc);
+//    texture->writeData(pixels);
+//    delete[] pixels;
+    return nullptr;
 }
 
 GfxProgram* loadProgram(std::string vsFilePath, std::string fsFilePath)

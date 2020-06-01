@@ -24,6 +24,8 @@ PBREffect::~PBREffect()
         delete gScene;
     if(gPBRProgram)
         delete gPBRProgram;
+    if(gScene)
+        delete gScene;
 }
 
 void PBREffect::prepare()
@@ -55,7 +57,7 @@ void PBREffect::render()
 	for (auto& info : gScene->meshHelper)
 	{
 	    std::shared_ptr<Node> node = info.first;
-	    std::shared_ptr<Mesh> mesh = info.second;
+	    Mesh* mesh = info.second;
         glm::mat4 model = node->getWorldMatrix();
         glm::mat4 view = m_context->getCamera()->getViewMatrix();
         glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);

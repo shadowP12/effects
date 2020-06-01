@@ -2,7 +2,7 @@
 #include "../Core/Scene/Node.h"
 #include "../Core/Datas/MeshData.h"
 #include "../Core/RenderResources/Mesh.h"
-
+#include "../Core/Gfx/GfxResources.h"
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
 EFFECTS_NAMESPACE_BEGIN
@@ -306,10 +306,24 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             meshData->setAttribute(SEMANTIC_WEIGHTS, weightsBuffer.data(), weightsBuffer.size() * sizeof(float));
         }
 
-        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meshData);
+        Mesh* mesh = new Mesh(meshData);
         mesh->prepareGfxData();
         scene->meshs.push_back(mesh);
         scene->meshHelper[node] = mesh;
+    }
+
+
+    // load images
+    std::map<cgltf_image*, GfxTexture*> imageHelper;
+    for (int i = 0; i < data->images_count; ++i)
+    {
+        cgltf_image* CImage = &data->images[i];
+        
+    }
+
+    for (int i = 0; i < data->samplers_count; ++i)
+    {
+        cgltf_material* mat = &data->materials[i];
     }
 
     cgltf_free(data);
@@ -399,6 +413,32 @@ glm::mat4 getWorldMatrix(cgltf_node* node)
         out = getLocalMatrix(curNode) * out;
     }
     return out;
+}
+
+void destroyGltfScene(GltfScene* scene)
+{
+    for (int i = 0; i < scene->meshs.size(); ++i)
+    {
+        delete scene->meshs[i];
+    }
+    scene->meshs.clear();
+    for (int i = 0; i < scene->materials.size(); ++i)
+    {
+        delete scene->materials[i];
+    }
+    scene->materials.clear();
+
+    for (int i = 0; i < scene->textures.size(); ++i)
+    {
+        delete scene->textures[i];
+    }
+    scene->textures.clear();
+
+    for (int i = 0; i < scene->samples.size(); ++i)
+    {
+        delete scene->samples[i];
+    }
+    scene->samples.clear();
 }
 
 EFFECTS_NAMESPACE_END

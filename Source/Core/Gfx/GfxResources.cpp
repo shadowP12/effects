@@ -199,43 +199,68 @@ void GfxBuffer::resize(int size)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, memUsage);
     }
 }
+    GfxSampler* createGfxSampler(const GfxSamplerDesc& desc)
+    {
+        GfxSampler* sampler = new GfxSampler();
+        sampler->magFilter = desc.magFilter;
+        sampler->minFilter = desc.minFilter;
+        sampler->wrapS = desc.wrapS;
+        sampler->wrapT = desc.wrapT;
+        return sampler;
+    }
 
-GfxTexture::GfxTexture(const GfxTextureDesc& desc)
-:mWidth(desc.width), mHeight(desc.height), mFormat(desc.format), mComponentType(desc.componentType)
-{
-    glGenTextures(1, &mHandle);
-    writeData(nullptr);
-    setFiltering(GfxFilterType::MIN, GfxFilterOption::LINEAR);
-    setFiltering(GfxFilterType::MAG, GfxFilterOption::LINEAR);
-    setAddressingMode();
-}
+    void destroyGfxSampler(GfxSampler* sampler)
+    {
+        if(sampler)
+            delete sampler;
+    }
 
-GfxTexture::~GfxTexture()
-{
-    glDeleteTextures(1, &mHandle);
-}
+    GfxTexture* createGfxTexture(const GfxTextureDesc& desc)
+    {
+        GfxTexture* tex = new GfxTexture();
+        tex->width = desc.width;
+        tex->height = desc.height;
+        tex->depth = desc.depth;
+        tex->arraySize = desc.arraySize;
+        tex->format = desc.format;
+        tex->internalFormat = desc.internalFormat;
+        tex->componentType = desc.componentType;
+        glGenTextures(1, &tex->handle);
+        return tex;
+    }
 
-void GfxTexture::writeData(void* data)
-{
-    glBindTexture(GL_TEXTURE_2D, mHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, gfxPixelFormatToGLPixelInternalFormat(mFormat),
-            mWidth, mHeight, 0, gfxPixelFormatToGLPixelFormat(mFormat),
-            gfxPixelComponentTypeToGLPixelComponentType(mComponentType), data);
-}
+    void destroyGfxTexture(GfxTexture* tex)
+    {
+        if(!tex)
+        {
+            glDeleteTextures(1, &tex->handle);
+            delete tex;
+        }
+    }
 
-void GfxTexture::setFiltering(const GfxFilterType& type, const GfxFilterOption& option)
-{
-    glBindTexture(GL_TEXTURE_2D, mHandle);
-    glTexParameteri(GL_TEXTURE_2D, gfxFilterTypeToGLFilterType(type), gfxFilterOptionToGLFilterOption(option));
-}
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize, uint32_t depth)
+    {
+        if(tex->arraySize == 1 && tex->depth == 1)
+        {
+            // 2D
+            glBindTexture(GL_TEXTURE_2D, tex->handle);
+            glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->width, tex->height, 0, tex->internalFormat, tex->componentType, data);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        } else if(tex->arraySize == 6 && tex->depth == 1)
+        {
+            // cube
+        }
+    }
 
-void GfxTexture::setAddressingMode(const GfxAddressingMode& s, const GfxAddressingMode& t, const GfxAddressingMode& r)
-{
-    glBindTexture(GL_TEXTURE_2D, mHandle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gfxAddressingModeToGLAddressingMode(s));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gfxAddressingModeToGLAddressingMode(t));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, gfxAddressingModeToGLAddressingMode(r));
-}
+    void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler)
+    {
+        glBindTexture(GL_TEXTURE_2D, tex->handle);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler->magFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler->minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler->wrapS);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler->wrapT);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
 GfxFramebuffer::GfxFramebuffer(const GfxFramebufferDesc& desc)
 {
@@ -250,7 +275,7 @@ GfxFramebuffer::GfxFramebuffer(const GfxFramebufferDesc& desc)
     {
         if(mTatgets[i] != nullptr)
         {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mTatgets[i]->mHandle, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mTatgets[i]->handle, 0);
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -360,7 +385,7 @@ void GfxProgram::bind()
     for (int i = 0; i < mSampler2DParamCount; ++i)
     {
         glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, mSampler2DParams[i].texture->mHandle);
+        glBindTexture(GL_TEXTURE_2D, mSampler2DParams[i].texture->handle);
         glUniform1i(glGetUniformLocation(mHandle, mSampler2DParams[i].name.c_str()), i);
     }
 }

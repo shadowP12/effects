@@ -35,40 +35,57 @@ protected:
     GfxBufferAccessBit mBufferAccess;
 };
 
-struct GfxTextureDesc
+typedef struct GfxSamplerDesc
 {
-    int width;
-    int height;
-    GfxPixelFormat format;
-    GfxPixelComponentType componentType;
-};
+    uint32_t magFilter;
+    uint32_t minFilter;
+    uint32_t wrapS;
+    uint32_t wrapT;
+} GfxSamplerDesc;
 
-class GfxTexture
+typedef struct GfxSampler
 {
-    friend class GfxRenderObj;
-public:
-    GfxTexture(const GfxTextureDesc& desc);
-    ~GfxTexture();
-    void writeData(void* data);
-    void setFiltering(const GfxFilterType& type, const GfxFilterOption& option);
-    void setAddressingMode(const GfxAddressingMode& s = GfxAddressingMode::WRAP,
-            const GfxAddressingMode& t = GfxAddressingMode::WRAP,
-            const GfxAddressingMode& r = GfxAddressingMode::WRAP);
+    uint32_t magFilter;
+    uint32_t minFilter;
+    uint32_t wrapS;
+    uint32_t wrapT;
+} GfxSampler;
 
-protected:
-    friend class GfxFramebuffer;
-    friend class GfxProgram;
-    GLuint mHandle;
-    int mWidth;
-    int mHeight;
-    GfxPixelFormat mFormat;
-    GfxPixelComponentType mComponentType;
-};
+    GfxSampler* createGfxSampler(const GfxSamplerDesc& desc);
+    void destroyGfxSampler(GfxSampler* sampler);
 
-struct GfxFramebufferDesc
+typedef struct GfxTextureDesc
+{
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth;
+    uint32_t arraySize;
+    uint32_t format;
+    uint32_t internalFormat;
+    uint32_t componentType;
+} GfxTextureDesc;
+
+typedef struct GfxTexture
+{
+    uint32_t handle;
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth = 1;
+    uint32_t arraySize = 1;
+    uint32_t format;
+    uint32_t internalFormat;
+    uint32_t componentType;
+} GfxTexture;
+
+    GfxTexture* createGfxTexture(const GfxTextureDesc& desc);
+    void destroyGfxTexture(GfxTexture* tex);
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize = 1, uint32_t depth = 1);
+    void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler);
+
+typedef struct GfxFramebufferDesc
 {
     GfxTexture* targets[8] = {nullptr};
-};
+} GfxFramebufferDesc;
 
 class GfxFramebuffer
 {
