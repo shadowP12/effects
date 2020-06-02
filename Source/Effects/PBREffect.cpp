@@ -30,10 +30,10 @@ PBREffect::~PBREffect()
 
 void PBREffect::prepare()
 {
-    gPBRProgram = loadProgram(getCurrentPath() + R"(\BuiltinResources\Shaders\pbr.vs)",
-                                 getCurrentPath() + R"(\BuiltinResources\Shaders\pbr.fs)");
+    gPBRProgram = loadProgram("./BuiltinResources/Shaders/pbr.vs",
+            "./BuiltinResources/Shaders/pbr.fs");
     gScene = new GltfScene();
-    gImporter.load(getCurrentPath() + R"(\BuiltinResources\Scenes\tf\scene.gltf)", gScene);
+    gImporter.load("./BuiltinResources/Scenes/tf/scene.gltf", gScene);
 
 	m_light = new Light();
 	m_light_widget = new LightWidget(m_light);

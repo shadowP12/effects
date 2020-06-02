@@ -3,8 +3,10 @@
 #include "../Core/Datas/MeshData.h"
 #include "../Core/RenderResources/Mesh.h"
 #include "../Core/Gfx/GfxResources.h"
+#include "TextureImporter.h"
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
+#include <algorithm>
 EFFECTS_NAMESPACE_BEGIN
 // cgltf helper funcs
 int getCNodeInxFromCData(const cgltf_node* node, const cgltf_data* data);
@@ -12,6 +14,9 @@ bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute_type type);
 bool findAttributesType(cgltf_primitive* primitive, cgltf_attribute** inAtt, cgltf_attribute_type type);
 glm::mat4 getLocalMatrix(cgltf_node* node);
 glm::mat4 getWorldMatrix(cgltf_node* node);
+uint32_t getGLFilter(uint32_t filter);
+uint32_t getGLWrap(uint32_t warp);
+GltfAlphaMode getAlphaMode(cgltf_alpha_mode alphaMode);
 
 GltfImporter::GltfImporter()
 {
@@ -31,6 +36,74 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
 
     if (result == cgltf_result_success)
         result = cgltf_validate(data);
+
+    // load images
+    std::map<cgltf_image*, GfxTexture*> imageHelper;
+    for (int i = 0; i < data->images_count; ++i)
+    {
+        cgltf_image* CImage = &data->images[i];
+        std::string imageURI = filePath + "/../" + CImage->uri;
+        int width, height, channels;
+        unsigned char* pixels = loadImage(imageURI.c_str(), width, height, channels);
+        GfxTextureDesc textureDesc;
+        textureDesc.width = width;
+        textureDesc.height = height;
+        textureDesc.componentType = GL_UNSIGNED_BYTE;
+        if (channels == 4)
+        {
+            textureDesc.internalFormat = GL_RGBA8;
+            textureDesc.format = GL_RGBA;
+        }
+        else if (channels == 3)
+        {
+            textureDesc.internalFormat = GL_RGB8;
+            textureDesc.format = GL_RGB;
+        }
+        GfxTexture* texture = createGfxTexture(textureDesc);
+        writeGfxTextureData(texture, pixels);
+        delete[] pixels;
+        imageHelper[CImage] = texture;
+        scene->textures.push_back(texture);
+    }
+
+    // load sampler
+    std::map<cgltf_sampler*, GfxSampler*> samplerHelper;
+    for (int i = 0; i < data->samplers_count; ++i)
+    {
+        cgltf_sampler* CSampler = &data->samplers[i];
+        GfxSamplerDesc samplerDesc;
+        samplerDesc.magFilter = getGLFilter(CSampler->mag_filter);
+        samplerDesc.minFilter = getGLFilter(CSampler->min_filter);
+        samplerDesc.wrapS = getGLWrap(CSampler->wrap_s);
+        samplerDesc.wrapT = getGLWrap(CSampler->wrap_t);
+        GfxSampler* sampler = createGfxSampler(samplerDesc);
+
+        scene->samples.push_back(sampler);
+        samplerHelper[CSampler] = sampler;
+    }
+
+    // load material
+    std::map<cgltf_material*, GltfMaterial*> materialHelper;
+    for (int i = 0; i < data->materials_count; ++i)
+    {
+        cgltf_material* CMaterial = &data->materials[i];
+        GltfMaterial* material = new GltfMaterial();
+        PBRMaterialBit materialBits = PBR_UNDEFINED;
+        if(CMaterial->pbr_metallic_roughness.base_color_texture.texture)
+        {
+            cgltf_image* CImage = CMaterial->pbr_metallic_roughness.base_color_texture.texture->image;
+            cgltf_sampler* CSampler = CMaterial->pbr_metallic_roughness.base_color_texture.texture->sampler;
+            materialBits |= PBR_BASE_COLOR_MAP;
+            material->baseColorMap.texture = imageHelper[CImage];
+            material->baseColorMap.sampler = samplerHelper[CSampler];
+        }
+        material->baseColor = glm::make_vec4(CMaterial->pbr_metallic_roughness.base_color_factor);
+        material->alphaMode = getAlphaMode(CMaterial->alpha_mode);
+        material->doubleSided = CMaterial->double_sided;
+        material->bits = materialBits;
+        materialHelper[CMaterial] = material;
+        scene->materials.push_back(material);
+    }
 
     for (size_t i = 0; i < data->nodes_count; ++i)
     {
@@ -312,20 +385,6 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         scene->meshHelper[node] = mesh;
     }
 
-
-    // load images
-    std::map<cgltf_image*, GfxTexture*> imageHelper;
-    for (int i = 0; i < data->images_count; ++i)
-    {
-        cgltf_image* CImage = &data->images[i];
-        
-    }
-
-    for (int i = 0; i < data->samplers_count; ++i)
-    {
-        cgltf_material* mat = &data->materials[i];
-    }
-
     cgltf_free(data);
 }
 
@@ -430,15 +489,66 @@ void destroyGltfScene(GltfScene* scene)
 
     for (int i = 0; i < scene->textures.size(); ++i)
     {
-        delete scene->textures[i];
+        destroyGfxTexture(scene->textures[i]);
     }
     scene->textures.clear();
 
     for (int i = 0; i < scene->samples.size(); ++i)
     {
-        delete scene->samples[i];
+        destroyGfxSampler(scene->samples[i]);
     }
     scene->samples.clear();
 }
+
+    uint32_t getGLFilter(uint32_t filter)
+    {
+        switch (filter)
+        {
+            case 9728:
+                return GL_NEAREST;
+            case 9729:
+                return GL_LINEAR;
+            case 9984:
+                return GL_NEAREST_MIPMAP_NEAREST;
+            case 9985:
+                return GL_LINEAR_MIPMAP_NEAREST;
+            case 9986:
+                return GL_NEAREST_MIPMAP_LINEAR;
+            case 9987:
+                return GL_LINEAR_MIPMAP_LINEAR;
+            default:
+                return GL_LINEAR;
+        }
+    }
+
+    uint32_t getGLWrap(uint32_t warp)
+    {
+        switch (warp)
+        {
+            case 10497:
+                return GL_REPEAT;
+            case 33071:
+                return GL_CLAMP_TO_EDGE;
+            case 33648 :
+                return GL_MIRRORED_REPEAT;
+            default:
+                return GL_REPEAT;
+        }
+    }
+
+    GltfAlphaMode getAlphaMode(cgltf_alpha_mode alphaMode)
+    {
+        switch (alphaMode)
+        {
+            case cgltf_alpha_mode_opaque:
+                return ALPHA_MODE_OPAQUE;
+            case cgltf_alpha_mode_mask:
+                return ALPHA_MODE_MASK;
+            case cgltf_alpha_mode_blend :
+                return ALPHA_MODE_BLEND;
+            default:
+                return ALPHA_MODE_OPAQUE;
+        }
+    }
 
 EFFECTS_NAMESPACE_END

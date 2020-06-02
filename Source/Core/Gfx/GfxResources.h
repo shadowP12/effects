@@ -58,8 +58,8 @@ typedef struct GfxTextureDesc
 {
     uint32_t width;
     uint32_t height;
-    uint32_t depth;
-    uint32_t arraySize;
+    uint32_t depth = 1;
+    uint32_t arraySize = 1;
     uint32_t format;
     uint32_t internalFormat;
     uint32_t componentType;
