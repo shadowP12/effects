@@ -344,50 +344,236 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
     return program_id;
 }
 
-GfxProgram::GfxProgram(const char* vs, const char* fs)
-{
-    mHandle = createGpuProgram(vs, fs);
-}
-
-GfxProgram::~GfxProgram()
-{
-    glDeleteProgram(mHandle);
-}
-
-void GfxProgram::bind()
-{
-    glUseProgram(mHandle);
-    for (int i = 0; i < mFloatParamCount; ++i)
+    GfxProgram* createGfxProgram(const GfxProgramDesc& desc)
     {
-        glUniform1f(glGetUniformLocation(mHandle, mFloatParams[i].name.c_str()), mFloatParams[i].value);
+        std::string vertSource = "#version 330 core\n" + desc.define + desc.vertSource;
+        std::string fragSource = "#version 330 core\n" + desc.define + desc.fragSource;
+        GfxProgram* program = new GfxProgram();
+        program->handle = createGpuProgram(vertSource.c_str(), fragSource.c_str());
+        return program;
     }
 
-    for (int i = 0; i < mFloat2ParamCount; ++i)
+    void destroyGfxProgram(GfxProgram* program)
     {
-        glUniform2fv(glGetUniformLocation(mHandle, mFloat2Params[i].name.c_str()), 1, &mFloat2Params[i].value[0]);
+        glDeleteProgram(program->handle);
     }
 
-    for (int i = 0; i < mFloat3ParamCount; ++i)
+    void setGfxProgramFloat(GfxProgram* program, const char* name, float value)
     {
-        glUniform3fv(glGetUniformLocation(mHandle, mFloat3Params[i].name.c_str()), 1, &mFloat3Params[i].value[0]);
+        for (int i = 0; i < program->floatParamCount; ++i)
+        {
+            if(program->floatParams[i].name == name)
+            {
+                program->floatParams[i].value = value;
+                return;
+            }
+        }
+        if(program->floatParamCount >= 8)
+            return;
+        program->floatParams[program->floatParamCount].name = name;
+        program->floatParams[program->floatParamCount].value = value;
+        program->floatParamCount++;
     }
 
-    for (int i = 0; i < mFloat4ParamCount; ++i)
+    void setGfxProgramFloat2(GfxProgram* program, const char* name, float x, float y)
     {
-        glUniform4fv(glGetUniformLocation(mHandle, mFloat4Params[i].name.c_str()), 1, &mFloat4Params[i].value[0]);
+        for (int i = 0; i < program->float2ParamCount; ++i)
+        {
+            if(program->float2Params[i].name == name)
+            {
+                program->float2Params[i].value[0] = x;
+                program->float2Params[i].value[1] = y;
+                return;
+            }
+        }
+        if(program->float2ParamCount >= 8)
+            return;
+        program->float2Params[program->float2ParamCount].name = name;
+        program->float2Params[program->float2ParamCount].value[0] = x;
+        program->float2Params[program->float2ParamCount].value[1] = y;
+        program->float2ParamCount++;
     }
 
-    for (int i = 0; i < mMat4ParamCount; ++i)
+    void setGfxProgramFloat2(GfxProgram* program, const char* name, const float* value)
     {
-        glUniformMatrix4fv(glGetUniformLocation(mHandle, mMat4Params[i].name.c_str()), 1, GL_FALSE, &mMat4Params[i].value[0]);
+        for (int i = 0; i < program->float2ParamCount; ++i)
+        {
+            if(program->float2Params[i].name == name)
+            {
+                program->float2Params[i].value[0] = value[0];
+                program->float2Params[i].value[1] = value[1];
+                return;
+            }
+        }
+        if(program->float2ParamCount >= 8)
+            return;
+        program->float2Params[program->float2ParamCount].name = name;
+        program->float2Params[program->float2ParamCount].value[0] = value[0];
+        program->float2Params[program->float2ParamCount].value[1] = value[1];
+        program->float2ParamCount++;
     }
 
-    for (int i = 0; i < mSampler2DParamCount; ++i)
+    void setGfxProgramFloat3(GfxProgram* program, const char* name, const float* value)
     {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, mSampler2DParams[i].texture->handle);
-        glUniform1i(glGetUniformLocation(mHandle, mSampler2DParams[i].name.c_str()), i);
+        for (int i = 0; i < program->float3ParamCount; ++i)
+        {
+            if(program->float3Params[i].name == name)
+            {
+                program->float3Params[i].value[0] = value[0];
+                program->float3Params[i].value[1] = value[1];
+                program->float3Params[i].value[2] = value[2];
+                return;
+            }
+        }
+        if(program->float3ParamCount >= 8)
+            return;
+        program->float3Params[program->float3ParamCount].name = name;
+        program->float3Params[program->float3ParamCount].value[0] = value[0];
+        program->float3Params[program->float3ParamCount].value[1] = value[1];
+        program->float3Params[program->float3ParamCount].value[2] = value[2];
+        program->float3ParamCount++;
     }
-}
+
+    void setGfxProgramFloat3(GfxProgram* program, const char* name, float x, float y, float z)
+    {
+        for (int i = 0; i < program->float3ParamCount; ++i)
+        {
+            if(program->float3Params[i].name == name)
+            {
+                program->float3Params[i].value[0] = x;
+                program->float3Params[i].value[1] = y;
+                program->float3Params[i].value[2] = z;
+                return;
+            }
+        }
+        if(program->float3ParamCount >= 8)
+            return;
+        program->float3Params[program->float3ParamCount].name = name;
+        program->float3Params[program->float3ParamCount].value[0] = x;
+        program->float3Params[program->float3ParamCount].value[1] = y;
+        program->float3Params[program->float3ParamCount].value[2] = z;
+        program->float3ParamCount++;
+    }
+
+    void setGfxProgramFloat4(GfxProgram* program, const char* name, const float* value)
+    {
+        for (int i = 0; i < program->float4ParamCount; ++i)
+        {
+            if(program->float4Params[i].name == name)
+            {
+                program->float4Params[i].value[0] = value[0];
+                program->float4Params[i].value[1] = value[1];
+                program->float4Params[i].value[2] = value[2];
+                program->float4Params[i].value[3] = value[3];
+                return;
+            }
+        }
+        if(program->float4ParamCount >= 8)
+            return;
+        program->float4Params[program->float4ParamCount].name = name;
+        program->float4Params[program->float4ParamCount].value[0] = value[0];
+        program->float4Params[program->float4ParamCount].value[1] = value[1];
+        program->float4Params[program->float4ParamCount].value[2] = value[2];
+        program->float4Params[program->float4ParamCount].value[3] = value[3];
+        program->float4ParamCount++;
+    }
+
+    void setGfxProgramFloat4(GfxProgram* program, const char* name, float x, float y, float z, float w)
+    {
+        for (int i = 0; i < program->float4ParamCount; ++i)
+        {
+            if(program->float4Params[i].name == name)
+            {
+                program->float4Params[i].value[0] = x;
+                program->float4Params[i].value[1] = y;
+                program->float4Params[i].value[2] = z;
+                program->float4Params[i].value[3] = w;
+                return;
+            }
+        }
+        if(program->float4ParamCount >= 8)
+            return;
+        program->float4Params[program->float4ParamCount].name = name;
+        program->float4Params[program->float4ParamCount].value[0] = x;
+        program->float4Params[program->float4ParamCount].value[1] = y;
+        program->float4Params[program->float4ParamCount].value[2] = z;
+        program->float4Params[program->float4ParamCount].value[3] = w;
+        program->float4ParamCount++;
+    }
+
+    void setGfxProgramMat4(GfxProgram* program, const char* name, const float* value)
+    {
+        for (int i = 0; i < program->mat4ParamCount; ++i)
+        {
+            if(program->mat4Params[i].name == name)
+            {
+                memcpy(program->mat4Params[i].value, value, sizeof(float) * 16);
+                return;
+            }
+        }
+        if(program->mat4ParamCount >= 8)
+            return;
+        program->mat4Params[program->mat4ParamCount].name = name;
+        memcpy(program->mat4Params[program->mat4ParamCount].value, value, sizeof(float) * 16);
+        program->mat4ParamCount++;
+    }
+
+    void setGfxProgramSampler(GfxProgram* program, const char* name, GfxTexture* texture)
+    {
+        for (int i = 0; i < program->sampler2DParamCount; ++i)
+        {
+            if(program->sampler2DParams[i].name == name)
+            {
+                program->sampler2DParams[i].texture = texture;
+                return;
+            }
+        }
+        if(program->sampler2DParamCount >= 8)
+            return;
+        program->sampler2DParams[program->sampler2DParamCount].name = name;
+        program->sampler2DParams[program->sampler2DParamCount].texture = texture;
+        program->sampler2DParamCount++;
+    }
+
+    void bindGfxProgram(const GfxProgram* program)
+    {
+        glUseProgram(program->handle);
+        for (int i = 0; i < program->floatParamCount; ++i)
+        {
+            glUniform1f(glGetUniformLocation(program->handle, program->floatParams[i].name.c_str()), program->floatParams[i].value);
+        }
+
+        for (int i = 0; i < program->float2ParamCount; ++i)
+        {
+            glUniform2fv(glGetUniformLocation(program->handle, program->float2Params[i].name.c_str()), 1, &program->float2Params[i].value[0]);
+        }
+
+        for (int i = 0; i < program->float3ParamCount; ++i)
+        {
+            glUniform3fv(glGetUniformLocation(program->handle, program->float3Params[i].name.c_str()), 1, &program->float3Params[i].value[0]);
+        }
+
+        for (int i = 0; i < program->float4ParamCount; ++i)
+        {
+            glUniform4fv(glGetUniformLocation(program->handle, program->float4Params[i].name.c_str()), 1, &program->float4Params[i].value[0]);
+        }
+
+        for (int i = 0; i < program->mat4ParamCount; ++i)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(program->handle, program->mat4Params[i].name.c_str()), 1, GL_FALSE, &program->mat4Params[i].value[0]);
+        }
+
+        for (int i = 0; i < program->sampler2DParamCount; ++i)
+        {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, program->sampler2DParams[i].texture->handle);
+            glUniform1i(glGetUniformLocation(program->handle, program->sampler2DParams[i].name.c_str()), i);
+        }
+    }
+
+    void unbindGfxProgram(const GfxProgram* program)
+    {
+        glUseProgram(0);
+    }
 
 EFFECTS_NAMESPACE_END

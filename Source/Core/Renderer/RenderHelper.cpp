@@ -28,7 +28,11 @@ GfxProgram* loadProgram(std::string vsFilePath, std::string fsFilePath)
     std::string vs, fs;
     readFileData(vsFilePath, vs);
     readFileData(fsFilePath, fs);
-    GfxProgram* program = new GfxProgram(vs.c_str(), fs.c_str());
+    GfxProgramDesc desc;
+    desc.vertSource = vs;
+    desc.fragSource = fs;
+    desc.define = "";
+    GfxProgram* program = createGfxProgram(desc);
     return program;
 }
 

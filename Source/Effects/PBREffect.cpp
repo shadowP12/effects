@@ -61,16 +61,17 @@ void PBREffect::render()
         glm::mat4 model = node->getWorldMatrix();
         glm::mat4 view = m_context->getCamera()->getViewMatrix();
         glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);
-        gPBRProgram->setMat4("u_model",  &model[0][0]);
-        gPBRProgram->setMat4("u_view",  &view[0][0]);
-        gPBRProgram->setMat4("u_projection",  &proj[0][0]);
-        gPBRProgram->setFloat("u_lightRadius", m_light->radius);
-        gPBRProgram->setFloat("u_lightIntensity", m_light->intensity);
-        gPBRProgram->setFloat3("u_lightPos", &m_light->position[0]);
-        gPBRProgram->setFloat3("u_lightColor", &lightColor[0]);
-        gPBRProgram->setFloat3("u_albedo", &albedo[0]);
-        gPBRProgram->bind();
+        setGfxProgramMat4(gPBRProgram, "u_model", &model[0][0]);
+        setGfxProgramMat4(gPBRProgram, "u_view", &view[0][0]);
+        setGfxProgramMat4(gPBRProgram, "u_projection", &proj[0][0]);
+        setGfxProgramFloat(gPBRProgram, "u_lightRadius", m_light->radius);
+        setGfxProgramFloat(gPBRProgram, "u_lightIntensity", m_light->intensity);
+        setGfxProgramFloat3(gPBRProgram, "u_lightPos", &m_light->position[0]);
+        setGfxProgramFloat3(gPBRProgram, "u_lightColor", &lightColor[0]);
+        setGfxProgramFloat3(gPBRProgram, "u_albedo", &albedo[0]);
+        bindGfxProgram(gPBRProgram);
         mesh->draw(GL_TRIANGLES);
+        unbindGfxProgram(gPBRProgram);
 	}
     glEnable(GL_DEPTH_TEST);
 }

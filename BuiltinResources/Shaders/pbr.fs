@@ -1,4 +1,3 @@
-#version 330 core
 in vec2 v_texCoords;
 in vec3 v_normal;
 in vec3 v_worldPos;
