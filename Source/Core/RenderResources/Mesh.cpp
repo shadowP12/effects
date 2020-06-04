@@ -114,6 +114,11 @@ uint32_t Mesh::getIndexCount()
     return mData->getNumIndices();
 }
 
+uint32_t Mesh::getLayout()
+{
+    return mData->getVertexLayout()->getLayout();
+}
+
 Mesh* genCubeMesh()
 {
     return nullptr;

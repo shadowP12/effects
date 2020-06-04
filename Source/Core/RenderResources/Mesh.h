@@ -18,6 +18,7 @@ public:
     VertexLayout* getVertexLayout();
     uint32_t getVertexCount();
     uint32_t getIndexCount();
+    uint32_t getLayout();
     void draw(unsigned int mode);
 private:
     MeshData* mData;

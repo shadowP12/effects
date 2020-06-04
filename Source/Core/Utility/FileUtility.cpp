@@ -15,7 +15,7 @@ std::string getCurrentPath()
 	return path;
 }
 
-bool readFileData(std::string& file_path, std::string& out_data)
+bool readFileData(const std::string& file_path, std::string& out_data)
 {
 	std::istream* stream = &std::cin;
 	std::ifstream input_file;

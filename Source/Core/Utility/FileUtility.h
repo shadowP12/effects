@@ -5,6 +5,6 @@ EFFECTS_NAMESPACE_BEGIN
 
 std::string getCurrentPath();
 
-bool readFileData(std::string& file_path, std::string& out_data);
+bool readFileData(const std::string& file_path, std::string& out_data);
 
 EFFECTS_NAMESPACE_END

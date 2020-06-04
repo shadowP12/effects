@@ -164,9 +164,9 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
 
     for (size_t i = 0; i < data->nodes_count; ++i)
     {
-
         cgltf_node* cNode = &data->nodes[i];
         cgltf_mesh* cMesh = cNode->mesh;
+        cgltf_material* cMaterial = nullptr;
         std::shared_ptr<Node> node = scene->nodes[i];
 
         if(!cMesh)
@@ -197,9 +197,11 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         std::vector<uint32_t> indexBuffer;
         uint32_t indexStart = 0;
         uint32_t indexCount = 0;
+
         for (int i = 0; i < cMesh->primitives_count; i++)
         {
             cgltf_primitive *cPrimitive = &cMesh->primitives[i];
+            cMaterial = cPrimitive->material;
             indexStart += indexCount;
             indexCount = 0;
 
@@ -383,6 +385,7 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         mesh->prepareGfxData();
         scene->meshs.push_back(mesh);
         scene->meshHelper[node] = mesh;
+        scene->materialHelper[mesh] = materialHelper[cMaterial];
     }
 
     cgltf_free(data);

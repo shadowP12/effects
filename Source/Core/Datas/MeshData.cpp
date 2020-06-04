@@ -112,10 +112,12 @@ uint16_t VertexAttribute::getTypeCount(VertexType type)
 
 VertexLayout::VertexLayout()
 {
+    mLayout = 0;
 }
 
 VertexLayout::VertexLayout(const uint32_t& layout)
 {
+    mLayout = layout;
 	if ((layout & (uint32_t)SEMANTIC_POSITION) != 0)
 		addVertexAttribute(VERTEX_TYPE_FLOAT3, SEMANTIC_POSITION);
 

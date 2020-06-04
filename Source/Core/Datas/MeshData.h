@@ -117,10 +117,13 @@ public:
 
 	uint32_t getVertexAttributeStride();
 
+	uint32_t getLayout(){return mLayout;}
+
 private:
 	void clearIfItExists(VertexType type, VertexSemantic semantic);
 private:
 	std::vector<VertexAttribute> mAttributes;
+	uint32_t mLayout;
 };
 
 // data = indexbuf + vertexbuf
