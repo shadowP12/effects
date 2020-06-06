@@ -51,14 +51,15 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         textureDesc.componentType = GL_UNSIGNED_BYTE;
         if (channels == 4)
         {
-            textureDesc.internalFormat = GL_RGBA8;
+            textureDesc.internalFormat = GL_RGBA;
             textureDesc.format = GL_RGBA;
         }
         else if (channels == 3)
         {
-            textureDesc.internalFormat = GL_RGB8;
+            textureDesc.internalFormat = GL_RGB;
             textureDesc.format = GL_RGB;
         }
+
         GfxTexture* texture = createGfxTexture(textureDesc);
         writeGfxTextureData(texture, pixels);
         delete[] pixels;
@@ -511,14 +512,14 @@ void destroyGltfScene(GltfScene* scene)
                 return GL_NEAREST;
             case 9729:
                 return GL_LINEAR;
-            case 9984:
-                return GL_NEAREST_MIPMAP_NEAREST;
-            case 9985:
-                return GL_LINEAR_MIPMAP_NEAREST;
-            case 9986:
-                return GL_NEAREST_MIPMAP_LINEAR;
-            case 9987:
-                return GL_LINEAR_MIPMAP_LINEAR;
+//            case 9984:
+//                return GL_NEAREST_MIPMAP_NEAREST;
+//            case 9985:
+//                return GL_LINEAR_MIPMAP_NEAREST;
+//            case 9986:
+//                return GL_NEAREST_MIPMAP_LINEAR;
+//            case 9987:
+//                return GL_LINEAR_MIPMAP_LINEAR;
             default:
                 return GL_LINEAR;
         }

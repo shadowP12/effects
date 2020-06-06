@@ -69,22 +69,49 @@ void PBREffect::render()
 	    Mesh* mesh = info.second;
 	    GltfMaterial* material = gScene->materialHelper[mesh];
 	    GfxProgram* program = getPBRProgram(material->bits, mesh->getLayout());
+
+	    // seting pipeline state
+        glEnable(GL_DEPTH_TEST);
+	    if(!material->doubleSided)
+        {
+	        glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        }
+	    if(material->alphaMode == ALPHA_MODE_BLEND)
+        {
+	        glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+
         glm::mat4 model = node->getWorldMatrix();
         glm::mat4 view = m_context->getCamera()->getViewMatrix();
         glm::mat4 proj = m_context->getCamera()->getProjectionMatrix(m_width, m_height);
         setGfxProgramMat4(program, "u_model", &model[0][0]);
         setGfxProgramMat4(program, "u_view", &view[0][0]);
         setGfxProgramMat4(program, "u_projection", &proj[0][0]);
-        setGfxProgramFloat(program, "u_lightRadius", m_light->radius);
-        setGfxProgramFloat(program, "u_lightIntensity", m_light->intensity);
-        setGfxProgramFloat3(program, "u_lightPos", &m_light->position[0]);
-        setGfxProgramFloat3(program, "u_lightColor", &lightColor[0]);
-        setGfxProgramFloat3(program, "u_albedo", &albedo[0]);
+        // seting base color
+        setGfxProgramFloat4(program, "u_baseColor", &material->baseColor[0]);
+        if((material->bits & SEMANTIC_POSITION) != 0)
+        {
+            setGfxTextureSampler(material->baseColorMap.texture, material->baseColorMap.sampler);
+            setGfxProgramSampler(program, "u_baseColorMap", material->baseColorMap.texture);
+        }
+
         bindGfxProgram(program);
         mesh->draw(GL_TRIANGLES);
         unbindGfxProgram(program);
+
+        // reset pipeline state
+        glDisable(GL_DEPTH_TEST);
+        if(!material->doubleSided)
+        {
+            glDisable(GL_CULL_FACE);
+        }
+        if(material->alphaMode == ALPHA_MODE_BLEND)
+        {
+            glDisable(GL_BLEND);
+        }
 	}
-    glEnable(GL_DEPTH_TEST);
 }
 
 static std::string getPBRDefine(uint32_t material, uint32_t layout)
