@@ -51,12 +51,12 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         textureDesc.componentType = GL_UNSIGNED_BYTE;
         if (channels == 4)
         {
-            textureDesc.internalFormat = GL_RGBA;
+            textureDesc.internalFormat = GL_RGBA8;
             textureDesc.format = GL_RGBA;
         }
         else if (channels == 3)
         {
-            textureDesc.internalFormat = GL_RGB;
+            textureDesc.internalFormat = GL_RGB8;
             textureDesc.format = GL_RGB;
         }
 
@@ -98,9 +98,13 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             material->baseColorMap.texture = imageHelper[CImage];
             material->baseColorMap.sampler = samplerHelper[CSampler];
         }
-        material->baseColor = glm::make_vec4(CMaterial->pbr_metallic_roughness.base_color_factor);
+        if(CMaterial->alpha_mode == cgltf_alpha_mode_blend)
+        {
+            materialBits |= PBR_ALPHA;
+        }
         material->alphaMode = getAlphaMode(CMaterial->alpha_mode);
         material->doubleSided = CMaterial->double_sided;
+        material->baseColor = glm::make_vec4(CMaterial->pbr_metallic_roughness.base_color_factor);
         material->bits = materialBits;
         materialHelper[CMaterial] = material;
         scene->materials.push_back(material);

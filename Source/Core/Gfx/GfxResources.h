@@ -82,23 +82,21 @@ typedef struct GfxTexture
     void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize = 1, uint32_t depth = 1);
     void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler);
 
-typedef struct GfxFramebufferDesc
-{
-    GfxTexture* targets[8] = {nullptr};
-} GfxFramebufferDesc;
+    typedef struct GfxFramebufferDesc
+    {
+        GfxTexture* targets[8] = {nullptr};
+    } GfxFramebufferDesc;
 
-class GfxFramebuffer
-{
-    friend class GfxRenderObj;
-public:
-    GfxFramebuffer(const GfxFramebufferDesc& desc);
-    ~GfxFramebuffer();
-    void bind();
+    typedef struct GfxFramebuffer
+    {
+        GLuint handle;
+        GfxTexture* tatgets[8];
+    } GfxFramebuffer;
 
-protected:
-    GLuint mHandle;
-    GfxTexture* mTatgets[8];
-};
+    GfxFramebuffer* createGfxFramebuffer(const GfxFramebufferDesc& desc);
+    void destroyGfxFramebuffer(GfxFramebuffer* fb);
+    void bindGfxFramebuffer(const GfxFramebuffer* fb);
+    void unbindGfxFramebuffer(const GfxFramebuffer* fb);
 
     typedef struct GfxProgramDesc
     {

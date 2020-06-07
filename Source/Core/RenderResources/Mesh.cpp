@@ -130,7 +130,7 @@ Mesh* genQuadMesh()
     layout |= (uint32_t)SEMANTIC_TEXCOORD0;
     layout |= (uint32_t)SEMANTIC_NORMAL;
     VertexLayout* vertexLayout = new VertexLayout(layout);
-    MeshData* meshData = new MeshData(4, 0, vertexLayout);
+    MeshData* meshData = new MeshData(4, 6, vertexLayout);
     float positionData[12] = {
             -1.0f,  1.0f, 0.0f,
             -1.0f, -1.0f, 0.0f,
@@ -147,7 +147,7 @@ Mesh* genQuadMesh()
             0.0f,  0.0f, 1.0f,
             0.0f, 0.0f, 1.0f};
 
-    uint32_t indexData[6] = {0, 1, 2, 0, 2, 3};
+    uint32_t indexData[6] = {0, 1, 3, 0, 3, 2};
 
     meshData->setAttribute(SEMANTIC_POSITION, positionData, 12 * sizeof(float));
     meshData->setAttribute(SEMANTIC_TEXCOORD0, texcoordData, 8 * sizeof(float));

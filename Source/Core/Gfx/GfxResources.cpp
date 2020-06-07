@@ -1,5 +1,6 @@
 #include "GfxResources.h"
 #include <string>
+#include <vector>
 EFFECTS_NAMESPACE_BEGIN
 
 static unsigned int gfxPixelComponentTypeToGLPixelComponentType(const GfxPixelComponentType& gfxComponentType)
@@ -244,7 +245,7 @@ void GfxBuffer::resize(int size)
         {
             // 2D
             glBindTexture(GL_TEXTURE_2D, tex->handle);
-            glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->width, tex->height, 0, tex->internalFormat, tex->componentType, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, tex->internalFormat, tex->width, tex->height, 0, tex->format, tex->componentType, data);
             glBindTexture(GL_TEXTURE_2D, 0);
         } else if(tex->arraySize == 6 && tex->depth == 1)
         {
@@ -262,34 +263,56 @@ void GfxBuffer::resize(int size)
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-GfxFramebuffer::GfxFramebuffer(const GfxFramebufferDesc& desc)
-{
-    for (int i = 0; i < 8; ++i)
+    GfxFramebuffer* createGfxFramebuffer(const GfxFramebufferDesc& desc)
     {
-        mTatgets[i] = desc.targets[i];
+        GfxFramebuffer* framebuffer = new GfxFramebuffer;
+        for (int i = 0; i < 8; ++i)
+        {
+            framebuffer->tatgets[i] = desc.targets[i];
+        }
+
+        glGenFramebuffers(1, &framebuffer->handle);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
+        int flag = 0;
+        for (int i = 0; i < 8; ++i)
+        {
+            if(framebuffer->tatgets[i] != nullptr)
+            {
+                flag = i+1;
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, framebuffer->tatgets[i]->handle, 0);
+            }
+        }
+        std::vector<uint32_t> attachments;
+        for (int i = 0; i < flag; ++i)
+        {
+            attachments.push_back(GL_COLOR_ATTACHMENT0 + i);
+        }
+        glDrawBuffers(attachments.size(), attachments.data());
+
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            printf("framebuffer is not complete!");
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return framebuffer;
     }
 
-    glGenFramebuffers(1, &mHandle);
-    glBindFramebuffer(GL_FRAMEBUFFER, mHandle);
-    for (int i = 0; i < 8; ++i)
+    void destroyGfxFramebuffer(GfxFramebuffer* fb)
     {
-        if(mTatgets[i] != nullptr)
+        if(fb)
         {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mTatgets[i]->handle, 0);
+            glDeleteFramebuffers(1, &fb->handle);
+            delete fb;
         }
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
-GfxFramebuffer::~GfxFramebuffer()
-{
-    glDeleteFramebuffers(1, &mHandle);
-}
+    void bindGfxFramebuffer(const GfxFramebuffer* fb)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, fb->handle);
+    }
 
-void GfxFramebuffer::bind()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, mHandle);
-}
+    void unbindGfxFramebuffer(const GfxFramebuffer* fb)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
 static void checkShaderCompileErrors(GLuint id)
 {

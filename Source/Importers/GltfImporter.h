@@ -17,8 +17,9 @@ struct GfxSampler;
 
 enum PBRMaterialBit
 {
-        PBR_UNDEFINED       = 1 << 0,
-        PBR_BASE_COLOR_MAP  = 1 << 1,
+    PBR_UNDEFINED       = 1 << 0,
+    PBR_ALPHA           = 1 << 1,
+    PBR_BASE_COLOR_MAP  = 1 << 2,
 };
 MAKE_ENUM_FLAG(uint32_t, PBRMaterialBit)
 
