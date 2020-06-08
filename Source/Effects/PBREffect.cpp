@@ -19,6 +19,8 @@ EFFECTS_NAMESPACE_BEGIN
     static glm::mat4 gProjMatrix;
     static std::string gPBRVertSource;
     static std::string gPBRFragSource;
+    static std::string gBlitVertSource;
+    static std::string gBlitFragSource;
     static std::string gOITVertSource;
     static std::string gOITFragSource;
     static GfxTexture* gDrawingTexture = nullptr;
@@ -29,6 +31,7 @@ EFFECTS_NAMESPACE_BEGIN
     static GfxTexture* gOITTextureA = nullptr;
     static GfxTexture* gOITTextureB = nullptr;
     static GfxSampler* gOITSampler = nullptr;
+    static GfxProgram* gBlitProgram = nullptr;
     static GfxFramebuffer * gOITFramebuffer = nullptr;
     static std::map<size_t, GfxProgram*> gProgramCache;
     static Mesh* gQuadMesh = nullptr;
@@ -74,12 +77,16 @@ PBREffect::~PBREffect()
     destroyGfxSampler(gOITSampler);
     destroyGfxFramebuffer(gOITFramebuffer);
     destroyGfxProgram(gOITProgram);
+
+    destroyGfxProgram(gBlitProgram);
 }
 
 void PBREffect::prepare()
 {
     readFileData("./BuiltinResources/Shaders/pbr.vs", gPBRVertSource);
     readFileData("./BuiltinResources/Shaders/pbr.fs", gPBRFragSource);
+    readFileData("./BuiltinResources/Shaders/blit.vs", gBlitVertSource);
+    readFileData("./BuiltinResources/Shaders/blit.fs", gBlitFragSource);
     readFileData("./BuiltinResources/Shaders/oit.vs", gOITVertSource);
     readFileData("./BuiltinResources/Shaders/oit.fs", gOITFragSource);
 
@@ -95,7 +102,7 @@ void PBREffect::prepare()
     drawingTexDesc.width = m_width;
     drawingTexDesc.height = m_height;
     drawingTexDesc.componentType = GL_FLOAT;
-    drawingTexDesc.internalFormat = GL_RGBA16F;
+    drawingTexDesc.internalFormat = GL_RGBA16;
     drawingTexDesc.format = GL_RGBA;
     gDrawingTexture = createGfxTexture(drawingTexDesc);
     writeGfxTextureData(gDrawingTexture, nullptr);
@@ -139,6 +146,12 @@ void PBREffect::prepare()
     oitProgramDesc.define = "";
     gOITProgram = createGfxProgram(oitProgramDesc);
 
+    GfxProgramDesc blitProgramDesc;
+    blitProgramDesc.vertSource = gBlitVertSource;
+    blitProgramDesc.fragSource = gBlitFragSource;
+    blitProgramDesc.define = "";
+    gBlitProgram = createGfxProgram(blitProgramDesc);
+
     gQuadMesh = genQuadMesh();
 
     gScene = new GltfScene();
@@ -155,10 +168,6 @@ void PBREffect::update(float t)
 
 void PBREffect::render()
 {
-	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
     glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
     gViewMatrix = m_context->getCamera()->getViewMatrix();
@@ -188,29 +197,36 @@ void PBREffect::render()
         }
 	}
 
-
-    glEnable(GL_DEPTH_TEST);
-	drawOpaqueSurfaces();
-    glDisable(GL_DEPTH_TEST);
-
-	bindGfxFramebuffer(gOITFramebuffer);
+    bindGfxFramebuffer(gDrawingFramebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
-    drawOpaqueSurfaces();
+	drawOpaqueSurfaces();
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+    unbindGfxFramebuffer(gDrawingFramebuffer);
 
+	bindGfxFramebuffer(gOITFramebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glDepthMask(GL_FALSE);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 	drawTransparentSurfaces();
-
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
     unbindGfxFramebuffer(gOITFramebuffer);
+
+    // normal post processing
+    glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setGfxProgramSampler(gBlitProgram, "u_texture", gDrawingTexture);
+    bindGfxProgram(gBlitProgram);
+    gQuadMesh->draw(GL_TRIANGLES);
+    unbindGfxProgram(gBlitProgram);
 
 	// oit post processing
     glEnable(GL_BLEND);
