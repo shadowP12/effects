@@ -65,32 +65,52 @@ typedef struct GfxTextureDesc
     uint32_t componentType;
 } GfxTextureDesc;
 
-typedef struct GfxTexture
-{
-    uint32_t handle;
-    uint32_t width;
-    uint32_t height;
-    uint32_t depth = 1;
-    uint32_t arraySize = 1;
-    uint32_t format;
-    uint32_t internalFormat;
-    uint32_t componentType;
-} GfxTexture;
+    typedef struct GfxTexture
+    {
+        uint32_t handle;
+        uint32_t width;
+        uint32_t height;
+        uint32_t depth = 1;
+        uint32_t arraySize = 1;
+        uint32_t format;
+        uint32_t internalFormat;
+        uint32_t componentType;
+    } GfxTexture;
 
     GfxTexture* createGfxTexture(const GfxTextureDesc& desc);
     void destroyGfxTexture(GfxTexture* tex);
     void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize = 1, uint32_t depth = 1);
     void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler);
 
+    typedef struct GfxRenderbufferDesc
+    {
+        uint32_t width;
+        uint32_t height;
+        uint32_t internalformat;
+    } GfxRenderbufferDesc;
+
+    typedef struct GfxRenderbuffer
+    {
+        uint32_t handle;
+        uint32_t width;
+        uint32_t height;
+        uint32_t internalformat;
+    } GfxRenderbuffer;
+
+    GfxRenderbuffer* createGfxRenderbuffer(const GfxRenderbufferDesc& desc);
+    void destroyGfxRenderbuffer(GfxRenderbuffer* renderbuffer);
+
     typedef struct GfxFramebufferDesc
     {
         GfxTexture* targets[8] = {nullptr};
+        GfxRenderbuffer* depthBuffer = nullptr;
     } GfxFramebufferDesc;
 
     typedef struct GfxFramebuffer
     {
         GLuint handle;
         GfxTexture* tatgets[8];
+        GfxRenderbuffer* depthBuffer = nullptr;
     } GfxFramebuffer;
 
     GfxFramebuffer* createGfxFramebuffer(const GfxFramebufferDesc& desc);

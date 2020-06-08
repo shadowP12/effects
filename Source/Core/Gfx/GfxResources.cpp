@@ -263,6 +263,28 @@ void GfxBuffer::resize(int size)
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    GfxRenderbuffer* createGfxRenderbuffer(const GfxRenderbufferDesc& desc)
+    {
+        GfxRenderbuffer* renderbuffer = new GfxRenderbuffer();
+        renderbuffer->height = desc.height;
+        renderbuffer->width = desc.width;
+        renderbuffer->internalformat = desc.internalformat;
+        glGenRenderbuffers(1, &renderbuffer->handle);
+        glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer->handle);
+        glRenderbufferStorage(GL_RENDERBUFFER, renderbuffer->internalformat, renderbuffer->width, renderbuffer->height);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        return renderbuffer;
+    }
+
+    void destroyGfxRenderbuffer(GfxRenderbuffer* renderbuffer)
+    {
+        if(renderbuffer)
+        {
+            glad_glDeleteRenderbuffers(1, &renderbuffer->handle);
+            delete renderbuffer;
+        }
+    }
+
     GfxFramebuffer* createGfxFramebuffer(const GfxFramebufferDesc& desc)
     {
         GfxFramebuffer* framebuffer = new GfxFramebuffer;
@@ -270,6 +292,7 @@ void GfxBuffer::resize(int size)
         {
             framebuffer->tatgets[i] = desc.targets[i];
         }
+        framebuffer->depthBuffer = desc.depthBuffer;
 
         glGenFramebuffers(1, &framebuffer->handle);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
@@ -288,6 +311,11 @@ void GfxBuffer::resize(int size)
             attachments.push_back(GL_COLOR_ATTACHMENT0 + i);
         }
         glDrawBuffers(attachments.size(), attachments.data());
+
+        if(framebuffer->depthBuffer)
+        {
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebuffer->depthBuffer->handle);
+        }
 
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             printf("framebuffer is not complete!");

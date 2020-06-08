@@ -2,8 +2,8 @@ in vec2 v_texCoords;
 in vec3 v_normal;
 in vec3 v_worldPos;
 #if defined(USE_ALPHA_MODE)
-layout (location = 0) out vec4 out_oitData1;
-layout (location = 1) out vec4 out_oitData2;
+layout (location = 0) out vec4 accumColor;
+layout (location = 1) out vec4 accumAlpha;
 out vec4 FragColor;
 #else
 out vec4 FragColor;
@@ -17,6 +17,10 @@ uniform sampler2D u_baseColorMap;
 #define PI 3.1415926
 #define saturate(a) clamp( a, 0.0, 1.0 )
 
+float weight(float z, float a) {
+    return clamp(pow(min(1.0, a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - z * 0.9, 3.0), 1e-2, 3e3);
+}
+
 void main()
 {
     vec4 baseColor = u_baseColor;
@@ -25,8 +29,10 @@ void main()
 #endif
     vec4 resultColor = baseColor;
 #if defined(USE_ALPHA_MODE)
-    out_oitData1 = vec4(resultColor.rgb, resultColor.w);
-    out_oitData2 = vec4(1.0, 0.0, 0.0, 1.0);
+    resultColor.rgb *= resultColor.a;
+    float w = weight(gl_FragCoord.z, resultColor.a);
+    accumColor = vec4(resultColor.rgb * w, resultColor.a);
+    accumAlpha = vec4(resultColor.a * w, 0.0, 0.0, 1.0);
 #else
     FragColor = resultColor;
 #endif

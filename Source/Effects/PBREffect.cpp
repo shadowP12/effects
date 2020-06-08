@@ -21,6 +21,10 @@ EFFECTS_NAMESPACE_BEGIN
     static std::string gPBRFragSource;
     static std::string gOITVertSource;
     static std::string gOITFragSource;
+    static GfxTexture* gDrawingTexture = nullptr;
+    static GfxSampler* gDrawingSampler = nullptr;
+    static GfxFramebuffer * gDrawingFramebuffer = nullptr;
+    static GfxRenderbuffer* gDrawingDepthBuffer;
     static GfxProgram* gOITProgram = nullptr;
     static GfxTexture* gOITTextureA = nullptr;
     static GfxTexture* gOITTextureB = nullptr;
@@ -60,6 +64,11 @@ PBREffect::~PBREffect()
 
     if(gQuadMesh)
         delete gQuadMesh;
+    destroyGfxTexture(gDrawingTexture);
+    destroyGfxSampler(gDrawingSampler);
+    destroyGfxFramebuffer(gDrawingFramebuffer);
+    destroyGfxRenderbuffer(gDrawingDepthBuffer);
+
     destroyGfxTexture(gOITTextureA);
     destroyGfxTexture(gOITTextureB);
     destroyGfxSampler(gOITSampler);
@@ -79,7 +88,29 @@ void PBREffect::prepare()
     samplerDesc.magFilter = GL_NEAREST;
     samplerDesc.wrapS = GL_REPEAT;
     samplerDesc.wrapT = GL_REPEAT;
+    gDrawingSampler = createGfxSampler(samplerDesc);
     gOITSampler = createGfxSampler(samplerDesc);
+
+    GfxTextureDesc drawingTexDesc;
+    drawingTexDesc.width = m_width;
+    drawingTexDesc.height = m_height;
+    drawingTexDesc.componentType = GL_FLOAT;
+    drawingTexDesc.internalFormat = GL_RGBA16F;
+    drawingTexDesc.format = GL_RGBA;
+    gDrawingTexture = createGfxTexture(drawingTexDesc);
+    writeGfxTextureData(gDrawingTexture, nullptr);
+    setGfxTextureSampler(gDrawingTexture, gDrawingSampler);
+
+    GfxRenderbufferDesc drawingDepthBufferDesc;
+    drawingDepthBufferDesc.width = m_width;
+    drawingDepthBufferDesc.height = m_height;
+    drawingDepthBufferDesc.internalformat = GL_DEPTH_COMPONENT;
+    gDrawingDepthBuffer = createGfxRenderbuffer(drawingDepthBufferDesc);
+
+    GfxFramebufferDesc drawingFramebufferDesc;
+    drawingFramebufferDesc.targets[0] = gDrawingTexture;
+    drawingFramebufferDesc.depthBuffer = gDrawingDepthBuffer;
+    gDrawingFramebuffer = createGfxFramebuffer(drawingFramebufferDesc);
 
     GfxTextureDesc oitTexDesc;
     oitTexDesc.width = m_width;
@@ -99,6 +130,7 @@ void PBREffect::prepare()
     GfxFramebufferDesc oitFramebufferDesc;
     oitFramebufferDesc.targets[0] = gOITTextureA;
     oitFramebufferDesc.targets[1] = gOITTextureB;
+    oitFramebufferDesc.depthBuffer = gDrawingDepthBuffer;
     gOITFramebuffer = createGfxFramebuffer(oitFramebufferDesc);
 
     GfxProgramDesc oitProgramDesc;
@@ -156,17 +188,28 @@ void PBREffect::render()
         }
 	}
 
+
+    glEnable(GL_DEPTH_TEST);
 	drawOpaqueSurfaces();
+    glDisable(GL_DEPTH_TEST);
 
 	bindGfxFramebuffer(gOITFramebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+    drawOpaqueSurfaces();
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 	drawTransparentSurfaces();
+
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
     unbindGfxFramebuffer(gOITFramebuffer);
 
 	// oit post processing
@@ -178,7 +221,6 @@ void PBREffect::render()
     gQuadMesh->draw(GL_TRIANGLES);
     unbindGfxProgram(gOITProgram);
     glDisable(GL_BLEND);
-
 }
 
 static std::string getPBRDefine(uint32_t material, uint32_t layout)
@@ -216,7 +258,6 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
 
     static void drawOpaqueSurfaces()
     {
-        glEnable(GL_DEPTH_TEST);
         for (int i = 0; i < gOpaqueQueue.size(); ++i)
         {
             std::shared_ptr<Node> node = gOpaqueQueue[i].node;
@@ -253,7 +294,6 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
                 glDisable(GL_CULL_FACE);
             }
         }
-        glDisable(GL_DEPTH_TEST);
     }
 
     static void drawTransparentSurfaces()
