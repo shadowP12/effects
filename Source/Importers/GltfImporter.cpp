@@ -98,6 +98,23 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             material->baseColorMap.texture = imageHelper[CImage];
             material->baseColorMap.sampler = samplerHelper[CSampler];
         }
+        if(CMaterial->normal_texture.texture)
+        {
+            cgltf_image* CImage = CMaterial->normal_texture.texture->image;
+            cgltf_sampler* CSampler = CMaterial->normal_texture.texture->sampler;
+            materialBits |= PBR_NORMAL_MAP;
+            material->normalMap.texture = imageHelper[CImage];
+            material->normalMap.sampler = samplerHelper[CSampler];
+        }
+        if(CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture)
+        {
+            cgltf_image* CImage = CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture->image;
+            cgltf_sampler* CSampler = CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture->sampler;
+            materialBits |= PBR_METALLIC_ROUGHNESS_MAP;
+            material->metallicRoughnessMap.texture = imageHelper[CImage];
+            material->metallicRoughnessMap.sampler = samplerHelper[CSampler];
+        }
+
         if(CMaterial->alpha_mode == cgltf_alpha_mode_blend)
         {
             materialBits |= PBR_ALPHA;
@@ -105,6 +122,8 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         material->alphaMode = getAlphaMode(CMaterial->alpha_mode);
         material->doubleSided = CMaterial->double_sided;
         material->baseColor = glm::make_vec4(CMaterial->pbr_metallic_roughness.base_color_factor);
+        material->metallic = CMaterial->pbr_metallic_roughness.metallic_factor;
+        material->roughness = CMaterial->pbr_metallic_roughness.roughness_factor;
         material->bits = materialBits;
         materialHelper[CMaterial] = material;
         scene->materials.push_back(material);

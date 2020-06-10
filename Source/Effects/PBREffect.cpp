@@ -155,7 +155,7 @@ void PBREffect::prepare()
     gQuadMesh = genQuadMesh();
 
     gScene = new GltfScene();
-    gImporter.load("./BuiltinResources/Scenes/tf/scene.gltf", gScene);
+    gImporter.load("./BuiltinResources/Scenes/71m/scene.gltf", gScene);
 	m_light = new Light();
 	m_light_widget = new LightWidget(m_light);
 	m_context->getUISystem()->addWidget(m_light_widget);
@@ -198,7 +198,7 @@ void PBREffect::render()
 	}
 
     bindGfxFramebuffer(gDrawingFramebuffer);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
@@ -250,6 +250,14 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
     {
         define += "#define USE_BASE_COLOR_MAP \n";
     }
+    if((material & PBR_NORMAL_MAP) != 0 && (layout & SEMANTIC_TANGENT) != 0)
+    {
+        define += "#define USE_NORMAL_MAP \n";
+    }
+    if((material & PBR_METALLIC_ROUGHNESS_MAP) != 0)
+    {
+        define += "#define USE_METALLIC_ROUGHNESS_MAP \n";
+    }
     return define;
 }
 
@@ -299,7 +307,11 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
                 setGfxTextureSampler(material->baseColorMap.texture, material->baseColorMap.sampler);
                 setGfxProgramSampler(program, "u_baseColorMap", material->baseColorMap.texture);
             }
-
+            if((material->bits & PBR_NORMAL_MAP) != 0 && (mesh->getLayout() & SEMANTIC_TANGENT) != 0)
+            {
+                setGfxTextureSampler(material->normalMap.texture, material->normalMap.sampler);
+                setGfxProgramSampler(program, "u_normalMap", material->normalMap.texture);
+            }
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);
@@ -344,7 +356,11 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
                 setGfxTextureSampler(material->baseColorMap.texture, material->baseColorMap.sampler);
                 setGfxProgramSampler(program, "u_baseColorMap", material->baseColorMap.texture);
             }
-
+            if((material->bits & PBR_NORMAL_MAP) != 0 && (mesh->getLayout() & SEMANTIC_TANGENT) != 0)
+            {
+                setGfxTextureSampler(material->normalMap.texture, material->normalMap.sampler);
+                setGfxProgramSampler(program, "u_normalMap", material->normalMap.texture);
+            }
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);

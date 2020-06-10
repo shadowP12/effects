@@ -17,9 +17,11 @@ struct GfxSampler;
 
 enum PBRMaterialBit
 {
-    PBR_UNDEFINED       = 1 << 0,
-    PBR_ALPHA           = 1 << 1,
-    PBR_BASE_COLOR_MAP  = 1 << 2,
+    PBR_UNDEFINED               = 1 << 0,
+    PBR_ALPHA                   = 1 << 1,
+    PBR_BASE_COLOR_MAP          = 1 << 2,
+    PBR_NORMAL_MAP              = 1 << 3,
+    PBR_METALLIC_ROUGHNESS_MAP  = 1 << 4,
 };
 MAKE_ENUM_FLAG(uint32_t, PBRMaterialBit)
 
@@ -39,7 +41,11 @@ struct GltfTextureView
 struct GltfMaterial
 {
     GltfTextureView baseColorMap;
+    GltfTextureView normalMap;
+    GltfTextureView metallicRoughnessMap;
     glm::vec4 baseColor;
+    float metallic;
+    float roughness;
     bool doubleSided;
     GltfAlphaMode alphaMode;
     PBRMaterialBit bits;

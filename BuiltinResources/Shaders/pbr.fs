@@ -1,6 +1,11 @@
 in vec2 v_texCoords;
 in vec3 v_normal;
 in vec3 v_worldPos;
+#if defined(USE_NORMAL_MAP)
+in mat3 v_tbn;
+uniform sampler2D u_normalMap;
+#endif
+
 #if defined(USE_ALPHA_MODE)
 layout (location = 0) out vec4 accumColor;
 layout (location = 1) out vec4 accumAlpha;
@@ -27,7 +32,16 @@ void main()
 #if defined(USE_BASE_COLOR_MAP)
     baseColor = texture(u_baseColorMap, v_texCoords);
 #endif
-    vec4 resultColor = baseColor;
+    vec3 normal = v_normal;
+#if defined(USE_NORMAL_MAP)
+    normal = texture(u_normalMap, v_texCoords).rgb;
+    normal = normalize(normal * 2.0 - 1.0);
+    normal = normalize(v_tbn * normal);
+#endif
+    vec3 lightDir = normalize(vec3(0.0, 0.0, 1.0));
+    vec3 diffuse = max(dot(normal, lightDir), 0.0) * vec3(1.0);
+    vec4 resultColor = vec4(diffuse * baseColor.rgb, baseColor.a);
+
 #if defined(USE_ALPHA_MODE)
     resultColor.rgb *= resultColor.a;
     float w = weight(gl_FragCoord.z, resultColor.a);
