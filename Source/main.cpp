@@ -4,6 +4,7 @@
 #include "Core/Scene/CommonTool.h"
 #include "UI/UISystem.h"
 #include "Effects/PBREffect.h"
+#include "Effects/DebugEffect.h"
 #include "Core/Renderer/RenderView.h"
 #include "Core/Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"

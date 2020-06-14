@@ -221,3 +221,22 @@ inline glm::vec3 TransformNormal(const glm::vec3& norm, const glm::mat4& inMat)
                      mat[0][1] * x + mat[1][1] * y + mat[2][1] * z,
                      mat[0][2] * x + mat[1][2] * y + mat[2][2] * z);
 }
+
+inline glm::vec2 projectPointToVector(const glm::vec2& point, const glm::vec2& proj)
+{
+    glm::vec2 ret;
+    const float mul = glm::dot(point, proj) / glm::dot(proj, proj);
+    ret.x = mul * proj.x;
+    ret.y = mul * proj.y;
+    return ret;
+}
+
+inline glm::vec3 projectPointToVector(const glm::vec3& point, const glm::vec3& proj)
+{
+    glm::vec3 ret;
+    const float mul = glm::dot(point, proj) / glm::dot(proj, proj);
+    ret.x = mul * proj.x;
+    ret.y = mul * proj.y;
+    ret.z = mul * proj.z;
+    return ret;
+}

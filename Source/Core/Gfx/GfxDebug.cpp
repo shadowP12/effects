@@ -2,6 +2,60 @@
 #include "../Utility/Log.h"
 EFFECTS_NAMESPACE_BEGIN
 
+    DebugPoints::DebugPoints()
+    {
+        glGenVertexArrays(1, &m_vao);
+        glBindVertexArray(m_vao);
+        glGenBuffers(1, &m_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, 4 * MAX_GL_POINTS * 7, NULL, GL_DYNAMIC_DRAW);
+
+        GLsizei stride = 4 * 7;
+        GLintptr offs = 4 * 3;
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offs);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glBindVertexArray(0);
+    }
+    DebugPoints::~DebugPoints()
+    {
+        glDeleteBuffers(1, &m_vao);
+        glDeleteVertexArrays(1, &m_vbo);
+    }
+
+    void DebugPoints::draw()
+    {
+        glBindVertexArray(m_vao);
+        glDrawArrays(GL_POINTS, 0, m_points_count);
+        glBindVertexArray(0);
+    }
+
+    void DebugPoints::addPoint(float* point_xyz, float* colour_rgba)
+    {
+        if (m_points_count >= MAX_GL_POINTS)
+        {
+            LOGE("too many points");
+            return;
+        }
+
+        float sd[7];
+        sd[0] = point_xyz[0];
+        sd[1] = point_xyz[1];
+        sd[2] = point_xyz[2];
+        sd[3] = colour_rgba[0];
+        sd[4] = colour_rgba[1];
+        sd[5] = colour_rgba[2];
+        sd[6] = colour_rgba[3];
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        GLintptr os = sizeof(sd) * m_points_count;
+        GLsizei sz = sizeof(sd);
+        glBufferSubData(GL_ARRAY_BUFFER, os, sz, sd);
+
+        m_points_count++;
+    }
+
 DebugLines::DebugLines()
 {
 	glGenVertexArrays(1, &m_vao);

@@ -5,3 +5,4 @@
 *.a
 .idea
 cmake-build-debug
+BuiltinResources
