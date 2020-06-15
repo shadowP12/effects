@@ -41,13 +41,21 @@ public:
 	glm::vec2 m_mouse_previou_position;
 };
 
-// 测试阶段:目前只有方向光
 struct Light
 {
-	glm::vec3 direction = glm::vec3(0.0f);
-	glm::vec3 position = glm::vec3(0.0f);
-	float radius = 1.0f;
-	float intensity = 1000.0f;
+	// main lit
+	glm::vec3 mainLitDir;
+	glm::vec4 mainLitColorIntensity;
+
+	// point lit 0
+    glm::vec3 pointLitPos0;
+    float pointLitRadius0;
+    float pointLitColorIntensity0;
+
+    // point lit 1
+    glm::vec3 pointLitPos1;
+    float pointLitRadius1;
+    float pointLitColorIntensity1;
 };
 
 class UISystem;

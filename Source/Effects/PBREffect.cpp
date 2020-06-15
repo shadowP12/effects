@@ -15,6 +15,7 @@ EFFECTS_NAMESPACE_BEGIN
 
     static GltfScene* gScene = nullptr;
     static GltfImporter gImporter;
+    static Light gLight;
     static glm::mat4 gViewMatrix;
     static glm::mat4 gProjMatrix;
     static std::string gPBRVertSource;
@@ -156,8 +157,10 @@ void PBREffect::prepare()
 
     gScene = new GltfScene();
     gImporter.load("./BuiltinResources/Scenes/71m/scene.gltf", gScene);
-	m_light = new Light();
-	m_light_widget = new LightWidget(m_light);
+
+    gLight.mainLitDir = glm::vec3(0.0f, 0.0f, -1.0f);
+    gLight.mainLitColorIntensity = glm::vec4(1.0f, 1.0f, 1.0f, 1000.0f);
+	m_light_widget = new LightWidget(&gLight);
 	m_context->getUISystem()->addWidget(m_light_widget);
 }
 
@@ -300,6 +303,11 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             setGfxProgramMat4(program, "u_model", &model[0][0]);
             setGfxProgramMat4(program, "u_view", &gViewMatrix[0][0]);
             setGfxProgramMat4(program, "u_projection", &gProjMatrix[0][0]);
+
+            // seting lights
+            setGfxProgramFloat3(program, "u_mainLitDir", &gLight.mainLitDir[0]);
+            setGfxProgramFloat4(program, "u_mainLitColorIntensity", &gLight.mainLitColorIntensity[0]);
+
             // seting base color
             setGfxProgramFloat4(program, "u_baseColor", &material->baseColor[0]);
             if((material->bits & PBR_BASE_COLOR_MAP) != 0)
@@ -349,6 +357,11 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             setGfxProgramMat4(program, "u_model", &model[0][0]);
             setGfxProgramMat4(program, "u_view", &gViewMatrix[0][0]);
             setGfxProgramMat4(program, "u_projection", &gProjMatrix[0][0]);
+
+            // seting lights
+            setGfxProgramFloat3(program, "u_mainLitDir", &gLight.mainLitDir[0]);
+            setGfxProgramFloat4(program, "u_mainLitColorIntensity", &gLight.mainLitColorIntensity[0]);
+
             // seting base color
             setGfxProgramFloat4(program, "u_baseColor", &material->baseColor[0]);
             if((material->bits & PBR_BASE_COLOR_MAP) != 0)

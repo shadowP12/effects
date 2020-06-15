@@ -19,6 +19,9 @@ uniform vec4 u_baseColor;
 uniform sampler2D u_baseColorMap;
 #endif
 
+uniform vec3 u_mainLitDir;
+uniform vec4 u_mainLitColorIntensity;
+
 #define PI 3.1415926
 #define saturate(a) clamp( a, 0.0, 1.0 )
 
@@ -38,8 +41,8 @@ void main()
     normal = normalize(normal * 2.0 - 1.0);
     normal = normalize(v_tbn * normal);
 #endif
-    vec3 lightDir = normalize(vec3(0.0, 0.0, 1.0));
-    vec3 diffuse = max(dot(normal, lightDir), 0.0) * vec3(1.0);
+    vec3 lightDir = normalize(-u_mainLitDir);
+    vec3 diffuse = max(dot(normal, lightDir), 0.0) * u_mainLitColorIntensity.rgb;
     vec4 resultColor = vec4(diffuse * baseColor.rgb, baseColor.a);
 
 #if defined(USE_ALPHA_MODE)
