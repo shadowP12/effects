@@ -23,6 +23,19 @@ void UISystem::addWidget(UIWidget* widget)
 	m_widgets.push_back(widget);
 }
 
+    void UISystem::deleteWidget(UIWidget* widget)
+    {
+        for (auto it = m_widgets.begin(); it != m_widgets.end();)
+        {
+            if (widget == *it) {
+                it = m_widgets.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+    }
+
 void UISystem::update()
 {
 	ImGui_ImplOpenGL3_NewFrame();

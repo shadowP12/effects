@@ -23,6 +23,7 @@ public:
 	void update();
 	void draw();
 	void addWidget(UIWidget* widget);
+	void deleteWidget(UIWidget* widget);
 private:
 	std::vector<UIWidget*> m_widgets;
 	
