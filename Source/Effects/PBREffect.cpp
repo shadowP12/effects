@@ -16,6 +16,7 @@ EFFECTS_NAMESPACE_BEGIN
     static GltfScene* gScene = nullptr;
     static GltfImporter gImporter;
     static LightWidget* gLightWidget = nullptr;
+    static glm::vec3 gCameraPosition;
     static glm::mat4 gViewMatrix;
     static glm::mat4 gProjMatrix;
     static std::string gPBRVertSource;
@@ -161,7 +162,7 @@ void PBREffect::prepare()
     gImporter.load("./BuiltinResources/Scenes/71m/scene.gltf", gScene);
 
 	gLightWidget = new LightWidget();
-    gLightWidget->mAperture = 0.5f;
+    gLightWidget->mAperture = 0.85f;
     gLightWidget->mShutterSpeed = 1.0f/125.0f;
     gLightWidget->mSensitivity = 100.0f;
     gLightWidget->mMainLitDir = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -178,6 +179,7 @@ void PBREffect::render()
 {
     glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
     glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
+    gCameraPosition = m_context->getCamera()->getPosition();
     gViewMatrix = m_context->getCamera()->getViewMatrix();
     gProjMatrix = m_context->getCamera()->getProjectionMatrix(m_width, m_height);;
     gOpaqueQueue.clear();
@@ -310,6 +312,7 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             setGfxProgramMat4(program, "u_projection", &gProjMatrix[0][0]);
 
             // seting lights
+            setGfxProgramFloat3(program, "u_cameraPos", &gCameraPosition[0]);
             setGfxProgramFloat(program, "u_aperture", gLightWidget->mAperture);
             setGfxProgramFloat(program, "u_shutterSpeed", gLightWidget->mShutterSpeed);
             setGfxProgramFloat(program, "u_sensitivity", gLightWidget->mSensitivity);
@@ -329,6 +332,14 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
                 setGfxTextureSampler(material->normalMap.texture, material->normalMap.sampler);
                 setGfxProgramSampler(program, "u_normalMap", material->normalMap.texture);
             }
+            setGfxProgramFloat(program, "u_roughness", material->roughness);
+            setGfxProgramFloat(program, "u_metallic", material->metallic);
+            if((material->bits & PBR_METALLIC_ROUGHNESS_MAP) != 0)
+            {
+                setGfxTextureSampler(material->metallicRoughnessMap.texture, material->metallicRoughnessMap.sampler);
+                setGfxProgramSampler(program, "u_metallicRoughnessMap", material->metallicRoughnessMap.texture);
+            }
+
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);
@@ -368,6 +379,7 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             setGfxProgramMat4(program, "u_projection", &gProjMatrix[0][0]);
 
             // seting lights
+            setGfxProgramFloat3(program, "u_cameraPos", &gCameraPosition[0]);
             setGfxProgramFloat(program, "u_aperture", gLightWidget->mAperture);
             setGfxProgramFloat(program, "u_shutterSpeed", gLightWidget->mShutterSpeed);
             setGfxProgramFloat(program, "u_sensitivity", gLightWidget->mSensitivity);
@@ -386,6 +398,13 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             {
                 setGfxTextureSampler(material->normalMap.texture, material->normalMap.sampler);
                 setGfxProgramSampler(program, "u_normalMap", material->normalMap.texture);
+            }
+            setGfxProgramFloat(program, "u_roughness", material->roughness);
+            setGfxProgramFloat(program, "u_metallic", material->metallic);
+            if((material->bits & PBR_METALLIC_ROUGHNESS_MAP) != 0)
+            {
+                setGfxTextureSampler(material->metallicRoughnessMap.texture, material->metallicRoughnessMap.sampler);
+                setGfxProgramSampler(program, "u_metallicRoughnessMap", material->metallicRoughnessMap.texture);
             }
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
