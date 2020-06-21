@@ -12,6 +12,11 @@
 #define INV_PI 0.31830988618f
 #define INV_TWO_PI 0.15915494309f
 
+inline glm::vec3 vectorLerp(const glm::vec3& from, const glm::vec3& to, float t)
+{
+    return from+(to-from)*t;
+}
+
 inline glm::vec3 getAxisX(const glm::mat4& mat)
 {
 	return glm::vec3(mat[0][0], mat[0][1], mat[0][2]);

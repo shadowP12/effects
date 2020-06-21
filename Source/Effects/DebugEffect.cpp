@@ -24,6 +24,7 @@ EFFECTS_NAMESPACE_BEGIN
     static GfxProgram* gDebugProgram = nullptr;
     static GfxProgram* gTextureProgram = nullptr;
     static Mesh* gQuadMesh = nullptr;
+    static Mesh* gCubeMesh = nullptr;
     static DebugPoints* gDebugPoints = nullptr;
     static DebugLines* gDebugLines = nullptr;
 
@@ -36,6 +37,8 @@ EFFECTS_NAMESPACE_BEGIN
     {
         if(gQuadMesh)
             delete gQuadMesh;
+        if(gCubeMesh)
+            delete gCubeMesh;
         destroyGfxTexture(gDrawingTexture);
         destroyGfxSampler(gDrawingSampler);
         destroyGfxProgram(gDebugProgram);
@@ -92,6 +95,7 @@ EFFECTS_NAMESPACE_BEGIN
         gTextureProgram = createGfxProgram(blitProgramDesc);
 
         gQuadMesh = genQuadMesh();
+        gCubeMesh = genCubeMesh();
 
         gDebugPoints = new DebugPoints;
         gDebugLines = new DebugLines;
@@ -112,31 +116,6 @@ EFFECTS_NAMESPACE_BEGIN
     void DebugEffect::update(float t)
     {
         BaseEffect::update(t);
-        if(m_context->getInput()->m_mouse_button_down[0])
-        {
-            printf("%f   %f\n", m_context->getInput()->m_mouse_position.x, m_context->getInput()->m_mouse_position.y);
-            glm::vec3 worldPoint = unProject(glm::vec4(0.0f, 0.0f, m_width, m_height), m_context->getInput()->m_mouse_position, 0.1f, gProjMatrix * gViewMatrix);
-            gDebugPoints->addPoint(&worldPoint[0], &glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)[0]);
-
-            glm::mat4 invViewMatrix = glm::inverse(gViewMatrix);
-            glm::vec3 cameraPos = getTranslate(invViewMatrix);
-            glm::vec3 centerPos = glm::vec3(0.0f);
-            glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
-            glm::vec3 normCenter = glm::normalize(centerPos - cameraPos);
-            glm::vec3 plane = glm::cross(normCenter, axis);
-            glm::vec3 vec = projectPointToVector(worldPoint, plane);
-            vec = worldPoint - vec;
-            glm::vec3 v = centerPos + vec;
-            glm::vec3 norm = glm::normalize(v - cameraPos);
-
-            gDebugPoints->addPoint(&v[0], &glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)[0]);
-
-            glm::vec3 target = v + norm * 1000.0f;
-            gDebugLines->addLine(&target[0],
-                                 &v[0],
-                                 &glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)[0]);
-        }
-
     }
 
     void DebugEffect::render()
@@ -152,7 +131,9 @@ EFFECTS_NAMESPACE_BEGIN
         setGfxProgramMat4(gTextureProgram, "u_projection", &gProjMatrix[0][0]);
         setGfxProgramSampler(gTextureProgram, "u_texture", gDrawingTexture);
         bindGfxProgram(gTextureProgram);
-        gQuadMesh->draw(GL_TRIANGLES);
+        glEnable(GL_DEPTH_TEST);
+        gCubeMesh->draw(GL_TRIANGLES);
+        glDisable(GL_DEPTH_TEST);
         unbindGfxProgram(gTextureProgram);
 
         setGfxProgramMat4(gDebugProgram, "u_model", &glm::mat4(1.0f)[0][0]);

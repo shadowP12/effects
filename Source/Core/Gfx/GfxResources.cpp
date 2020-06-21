@@ -207,7 +207,21 @@ void GfxBuffer::resize(int size)
         sampler->minFilter = desc.minFilter;
         sampler->wrapS = desc.wrapS;
         sampler->wrapT = desc.wrapT;
+        sampler->wrapR = desc.wrapR;
         return sampler;
+    }
+
+    void setGfxSamplerFilter(GfxSampler* sampler, uint32_t min, uint32_t mag)
+    {
+        sampler->magFilter = min;
+        sampler->minFilter = mag;
+    }
+
+    void setGfxSamplerWrap(GfxSampler* sampler, uint32_t s, uint32_t t, uint32_t r)
+    {
+        sampler->wrapS = s;
+        sampler->wrapT = t;
+        sampler->wrapR = r;
     }
 
     void destroyGfxSampler(GfxSampler* sampler)
@@ -250,17 +264,35 @@ void GfxBuffer::resize(int size)
         } else if(tex->arraySize == 6 && tex->depth == 1)
         {
             // cube
+            glBindTexture(GL_TEXTURE_CUBE_MAP, tex->handle);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + arraySize, 0, tex->internalFormat, tex->width, tex->height, 0, tex->format, tex->componentType, data);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         }
     }
 
     void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler)
     {
-        glBindTexture(GL_TEXTURE_2D, tex->handle);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler->magFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler->minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler->wrapS);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler->wrapT);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        if(tex->arraySize == 1 && tex->depth == 1)
+        {
+            // 2D
+            glBindTexture(GL_TEXTURE_2D, tex->handle);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler->magFilter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler->minFilter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler->wrapS);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler->wrapT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, sampler->wrapR);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        } else if(tex->arraySize == 6 && tex->depth == 1)
+        {
+            // cube
+            glBindTexture(GL_TEXTURE_CUBE_MAP, tex->handle);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, sampler->magFilter);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, sampler->minFilter);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, sampler->wrapS);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, sampler->wrapT);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, sampler->wrapR);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        }
     }
 
     GfxRenderbuffer* createGfxRenderbuffer(const GfxRenderbufferDesc& desc)
@@ -321,6 +353,43 @@ void GfxBuffer::resize(int size)
             printf("framebuffer is not complete!");
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         return framebuffer;
+    }
+
+    GfxFramebuffer* createGfxFramebuffer()
+    {
+        GfxFramebuffer* framebuffer = new GfxFramebuffer;
+        glGenFramebuffers(1, &framebuffer->handle);
+        return framebuffer;
+    }
+
+    void attachGfxFramebufferTexture(GfxFramebuffer* fb, uint32_t idx, GfxTexture* texture)
+    {
+        fb->tatgets[idx] = texture;
+        glBindFramebuffer(GL_FRAMEBUFFER, fb->handle);
+        std::vector<uint32_t> attachments;
+        attachments.push_back(GL_COLOR_ATTACHMENT0 + idx);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + idx, GL_TEXTURE_2D, fb->tatgets[idx]->handle, 0);
+        glDrawBuffers(attachments.size(), attachments.data());
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void attachGfxFramebufferCubeMap(GfxFramebuffer* fb, uint32_t idx, uint32_t face,  GfxTexture* texture)
+    {
+        fb->tatgets[idx] = texture;
+        glBindFramebuffer(GL_FRAMEBUFFER, fb->handle);
+        std::vector<uint32_t> attachments;
+        attachments.push_back(GL_COLOR_ATTACHMENT0 + idx);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + idx, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, fb->tatgets[idx]->handle, 0);
+        glDrawBuffers(attachments.size(), attachments.data());
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void attachGfxFramebufferRenderBuffer(GfxFramebuffer* fb, GfxRenderbuffer* renderbuffer)
+    {
+        fb->depthBuffer = renderbuffer;
+        glBindFramebuffer(GL_FRAMEBUFFER, fb->handle);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb->depthBuffer->handle);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void destroyGfxFramebuffer(GfxFramebuffer* fb)
@@ -586,6 +655,23 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
         program->sampler2DParamCount++;
     }
 
+    void setGfxProgramCubeMapSampler(GfxProgram* program, const char* name, GfxTexture* texture)
+    {
+        for (int i = 0; i < program->samplerCubeMapParamCount; ++i)
+        {
+            if(program->samplerCubeMapParams[i].name == name)
+            {
+                program->samplerCubeMapParams[i].texture = texture;
+                return;
+            }
+        }
+        if(program->samplerCubeMapParamCount >= 8)
+            return;
+        program->samplerCubeMapParams[program->samplerCubeMapParamCount].name = name;
+        program->samplerCubeMapParams[program->samplerCubeMapParamCount].texture = texture;
+        program->samplerCubeMapParamCount++;
+    }
+
     void bindGfxProgram(const GfxProgram* program)
     {
         glUseProgram(program->handle);
@@ -619,6 +705,13 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, program->sampler2DParams[i].texture->handle);
             glUniform1i(glGetUniformLocation(program->handle, program->sampler2DParams[i].name.c_str()), i);
+        }
+
+        for (int i = 0; i < program->samplerCubeMapParamCount; ++i)
+        {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, program->samplerCubeMapParams[i].texture->handle);
+            glUniform1i(glGetUniformLocation(program->handle, program->samplerCubeMapParams[i].name.c_str()), i);
         }
     }
 

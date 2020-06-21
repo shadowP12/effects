@@ -37,10 +37,11 @@ protected:
 
 typedef struct GfxSamplerDesc
 {
-    uint32_t magFilter;
-    uint32_t minFilter;
-    uint32_t wrapS;
-    uint32_t wrapT;
+    uint32_t magFilter = GL_LINEAR;
+    uint32_t minFilter = GL_LINEAR;
+    uint32_t wrapS = GL_CLAMP_TO_EDGE;
+    uint32_t wrapT = GL_CLAMP_TO_EDGE;
+    uint32_t wrapR = GL_CLAMP_TO_EDGE;
 } GfxSamplerDesc;
 
 typedef struct GfxSampler
@@ -49,9 +50,12 @@ typedef struct GfxSampler
     uint32_t minFilter;
     uint32_t wrapS;
     uint32_t wrapT;
+    uint32_t wrapR;
 } GfxSampler;
 
     GfxSampler* createGfxSampler(const GfxSamplerDesc& desc);
+    void setGfxSamplerFilter(GfxSampler* sampler, uint32_t min, uint32_t mag);
+    void setGfxSamplerWrap(GfxSampler* sampler, uint32_t s, uint32_t t, uint32_t r);
     void destroyGfxSampler(GfxSampler* sampler);
 
 typedef struct GfxTextureDesc
@@ -114,6 +118,10 @@ typedef struct GfxTextureDesc
     } GfxFramebuffer;
 
     GfxFramebuffer* createGfxFramebuffer(const GfxFramebufferDesc& desc);
+    GfxFramebuffer* createGfxFramebuffer();
+    void attachGfxFramebufferTexture(GfxFramebuffer* fb, uint32_t idx, GfxTexture* texture);
+    void attachGfxFramebufferCubeMap(GfxFramebuffer* fb, uint32_t idx, uint32_t face,  GfxTexture* texture);
+    void attachGfxFramebufferRenderBuffer(GfxFramebuffer* fb, GfxRenderbuffer* renderbuffer);
     void destroyGfxFramebuffer(GfxFramebuffer* fb);
     void bindGfxFramebuffer(const GfxFramebuffer* fb);
     void unbindGfxFramebuffer(const GfxFramebuffer* fb);
@@ -163,6 +171,12 @@ typedef struct GfxTextureDesc
             GfxTexture* texture;
         } Sampler2DParam;
 
+        typedef struct SamplerCubeMapParam
+        {
+            std::string name;
+            GfxTexture* texture;
+        } SamplerCubeMapParam;
+
         GLuint handle;
         FloatParam floatParams[8] = {};
         int floatParamCount = 0;
@@ -176,6 +190,8 @@ typedef struct GfxTextureDesc
         int mat4ParamCount = 0;
         Sampler2DParam sampler2DParams[8] = {};
         int sampler2DParamCount = 0;
+        SamplerCubeMapParam samplerCubeMapParams[8] = {};
+        int samplerCubeMapParamCount = 0;
     } GfxProgram;
 
     GfxProgram* createGfxProgram(const GfxProgramDesc& desc);
@@ -189,6 +205,7 @@ typedef struct GfxTextureDesc
     void setGfxProgramFloat4(GfxProgram* program, const char* name, float x, float y, float z, float w);
     void setGfxProgramMat4(GfxProgram* program, const char* name, const float* value);
     void setGfxProgramSampler(GfxProgram* program, const char* name, GfxTexture* texture);
+    void setGfxProgramCubeMapSampler(GfxProgram* program, const char* name, GfxTexture* texture);
     void bindGfxProgram(const GfxProgram* program);
     void unbindGfxProgram(const GfxProgram* program);
 EFFECTS_NAMESPACE_END

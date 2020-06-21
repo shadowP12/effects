@@ -20,6 +20,7 @@ set(CORE_SRC
 	Source/Core/Renderer/RenderView.cpp
 	Source/Core/Renderer/Renderer.cpp
 	Source/Core/Renderer/RenderHelper.cpp
+	Source/Core/Renderer/IBLUtility.cpp
 	Source/Core/Components/CRenderable.cpp
 	Source/Core/Components/CCamera.cpp
 )
