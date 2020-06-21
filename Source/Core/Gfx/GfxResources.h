@@ -84,6 +84,7 @@ typedef struct GfxTextureDesc
     GfxTexture* createGfxTexture(const GfxTextureDesc& desc);
     void destroyGfxTexture(GfxTexture* tex);
     void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize = 1, uint32_t depth = 1);
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height, uint32_t arraySize = 1, uint32_t depth = 1);
     void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler);
 
     typedef struct GfxRenderbufferDesc

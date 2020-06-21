@@ -270,6 +270,23 @@ void GfxBuffer::resize(int size)
         }
     }
 
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height,uint32_t arraySize, uint32_t depth)
+    {
+        if(tex->arraySize == 1 && tex->depth == 1)
+        {
+            // 2D
+            glBindTexture(GL_TEXTURE_2D, tex->handle);
+            glTexImage2D(GL_TEXTURE_2D, 0, tex->internalFormat, width, height, 0, tex->format, tex->componentType, data);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        } else if(tex->arraySize == 6 && tex->depth == 1)
+        {
+            // cube
+            glBindTexture(GL_TEXTURE_CUBE_MAP, tex->handle);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + arraySize, 0, tex->internalFormat, width, height, 0, tex->format, tex->componentType, data);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        }
+    }
+
     void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler)
     {
         if(tex->arraySize == 1 && tex->depth == 1)

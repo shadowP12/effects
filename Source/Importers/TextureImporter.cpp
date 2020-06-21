@@ -10,4 +10,11 @@ unsigned char* loadImage(const char* filePath, int& width, int& height, int& cha
     return pixels;
 }
 
+float* loadFloatImage(const char* filePath, int& width, int& height, int& channel, bool flip)
+{
+    stbi_set_flip_vertically_on_load(flip);
+    float* pixels = stbi_loadf(filePath, &width, &height, &channel, 0);
+    return pixels;
+}
+
 EFFECTS_NAMESPACE_END
