@@ -41,6 +41,16 @@ EFFECTS_NAMESPACE_BEGIN
         equirectangularToCubemapProgramDesc.define = "";
         mEquirectangularToCubemapProgram = createGfxProgram(equirectangularToCubemapProgramDesc);
 
+        std::string genIrradianceMapVertSource;
+        std::string genIrradianceMapFragSource;
+        readFileData("./BuiltinResources/Shaders/ibl/genIrradianceMap.vs", genIrradianceMapVertSource);
+        readFileData("./BuiltinResources/Shaders/ibl/genIrradianceMap.fs", genIrradianceMapFragSource);
+        GfxProgramDesc genIrradianceMapProgramDesc;
+        genIrradianceMapProgramDesc.vertSource = genIrradianceMapVertSource;
+        genIrradianceMapProgramDesc.fragSource = genIrradianceMapFragSource;
+        genIrradianceMapProgramDesc.define = "";
+        mGenIrradianceMapProgram = createGfxProgram(genIrradianceMapProgramDesc);
+
         GfxSamplerDesc samplerDesc;
         mSampler = createGfxSampler(samplerDesc);
     }
@@ -51,10 +61,12 @@ EFFECTS_NAMESPACE_BEGIN
             delete mCubeMesh;
         destroyGfxTexture(mHDRMap);
         destroyGfxTexture(mEnvCubeMap);
+        destroyGfxTexture(mIrradianceMap);
         destroyGfxSampler(mSampler);
         destroyGfxFramebuffer(mCaptureFramebuffer);
         destroyGfxRenderbuffer(mCaptureRenderbuffer);
         destroyGfxProgram(mEquirectangularToCubemapProgram);
+        destroyGfxProgram(mGenIrradianceMapProgram);
     }
 
     void IBLUtility::loadHdrEnvMap(const std::string &path)
@@ -74,7 +86,7 @@ EFFECTS_NAMESPACE_BEGIN
         setGfxTextureSampler(mHDRMap, mSampler);
         delete[] pixels;
 
-        // create env cubemap
+        // create env env map
         GfxTextureDesc envTextureDesc;
         envTextureDesc.width = gStandardWidth;
         envTextureDesc.height = gStandardHeight;
@@ -84,26 +96,6 @@ EFFECTS_NAMESPACE_BEGIN
         envTextureDesc.arraySize = 6;
         envTextureDesc.depth = 1;
         mEnvCubeMap = createGfxTexture(envTextureDesc);
-
-//        std::vector<std::string> faces {
-//                "./BuiltinResources/Textures/skybox/right.jpg",
-//                "./BuiltinResources/Textures/skybox/left.jpg",
-//                "./BuiltinResources/Textures/skybox/top.jpg",
-//                "./BuiltinResources/Textures/skybox//bottom.jpg",
-//                "./BuiltinResources/Textures/skybox//front.jpg",
-//                "./BuiltinResources/Textures/skybox/back.jpg",
-//        };
-//
-//        for (unsigned int i = 0; i < faces.size(); i++)
-//        {
-//            unsigned char *data = loadImage(faces[i].c_str(), width, height, channels, false);
-//            if (data)
-//            {
-//                writeGfxTextureData(mEnvCubeMap, data, width, height, i);
-//                delete[] data;
-//            }
-//        }
-
         writeGfxTextureData(mEnvCubeMap, nullptr, 0);
         writeGfxTextureData(mEnvCubeMap, nullptr, 1);
         writeGfxTextureData(mEnvCubeMap, nullptr, 2);
@@ -118,7 +110,7 @@ EFFECTS_NAMESPACE_BEGIN
             attachGfxFramebufferCubeMap(mCaptureFramebuffer, 0, i, mEnvCubeMap);
             bindGfxFramebuffer(mCaptureFramebuffer);
             glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT);
             setGfxProgramMat4(mEquirectangularToCubemapProgram, "u_projection", &gCaptureProjection[0][0]);
             setGfxProgramMat4(mEquirectangularToCubemapProgram, "u_view", &gCaptureViews[i][0][0]);
             setGfxProgramSampler(mEquirectangularToCubemapProgram, "u_equirectangularMap", mHDRMap);
@@ -128,5 +120,38 @@ EFFECTS_NAMESPACE_BEGIN
             unbindGfxFramebuffer(mCaptureFramebuffer);
         }
 
+        // create irradiance map
+        GfxTextureDesc irradianceTextureDesc;
+        irradianceTextureDesc.width = 32;
+        irradianceTextureDesc.height = 32;
+        irradianceTextureDesc.componentType = GL_FLOAT;
+        irradianceTextureDesc.format = GL_RGB;
+        irradianceTextureDesc.internalFormat = GL_RGB16F;
+        irradianceTextureDesc.arraySize = 6;
+        irradianceTextureDesc.depth = 1;
+        mIrradianceMap = createGfxTexture(irradianceTextureDesc);
+        writeGfxTextureData(mIrradianceMap, nullptr, 0);
+        writeGfxTextureData(mIrradianceMap, nullptr, 1);
+        writeGfxTextureData(mIrradianceMap, nullptr, 2);
+        writeGfxTextureData(mIrradianceMap, nullptr, 3);
+        writeGfxTextureData(mIrradianceMap, nullptr, 4);
+        writeGfxTextureData(mIrradianceMap, nullptr, 5);
+        setGfxTextureSampler(mIrradianceMap, mSampler);
+
+        glViewport(0, 0, 32, 32);
+        for (int i = 0; i < 6; ++i)
+        {
+            attachGfxFramebufferCubeMap(mCaptureFramebuffer, 0, i, mIrradianceMap);
+            bindGfxFramebuffer(mCaptureFramebuffer);
+            glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            setGfxProgramMat4(mGenIrradianceMapProgram, "u_projection", &gCaptureProjection[0][0]);
+            setGfxProgramMat4(mGenIrradianceMapProgram, "u_view", &gCaptureViews[i][0][0]);
+            setGfxProgramCubeMapSampler(mGenIrradianceMapProgram, "u_environmentMap", mEnvCubeMap);
+            bindGfxProgram(mGenIrradianceMapProgram);
+            mCubeMesh->draw(GL_TRIANGLES);
+            unbindGfxProgram(mGenIrradianceMapProgram);
+            unbindGfxFramebuffer(mCaptureFramebuffer);
+        }
     }
 EFFECTS_NAMESPACE_END

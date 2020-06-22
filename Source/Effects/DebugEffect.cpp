@@ -150,11 +150,9 @@ EFFECTS_NAMESPACE_BEGIN
         glm::mat4 viewMatrix = glm::mat4(glm::mat3(gViewMatrix));
         setGfxProgramMat4(gSkyboxProgram, "u_view", &viewMatrix[0][0]);
         setGfxProgramMat4(gSkyboxProgram, "u_projection", &gProjMatrix[0][0]);
-        setGfxProgramCubeMapSampler(gSkyboxProgram, "u_skybox", gIBL->getEnvMap());
+        setGfxProgramCubeMapSampler(gSkyboxProgram, "u_skybox", gIBL->getIrradianceMap());
         bindGfxProgram(gSkyboxProgram);
-        glDepthMask(false);
         gCubeMesh->draw(GL_TRIANGLES);
-        glDepthMask(true);
         unbindGfxProgram(gSkyboxProgram);
 
         setGfxProgramMat4(gTextureProgram, "u_model", &modelMatrix[0][0]);

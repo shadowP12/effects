@@ -19,15 +19,18 @@ EFFECTS_NAMESPACE_BEGIN
         IBLUtility();
         ~IBLUtility();
         void loadHdrEnvMap(const std::string& path);
-        GfxTexture* getHDRMap(){return mHDRMap;}
-        GfxTexture* getEnvMap(){return mEnvCubeMap;}
-        GfxFramebuffer* getCaptureFramebuffer(){return mCaptureFramebuffer;}
+        GfxTexture* getHDRMap(){ return mHDRMap; }
+        GfxTexture* getEnvMap(){ return mEnvCubeMap; }
+        GfxTexture* getIrradianceMap(){ return mIrradianceMap; }
+        GfxFramebuffer* getCaptureFramebuffer(){ return mCaptureFramebuffer; }
     private:
         Mesh* mCubeMesh;
         GfxSampler* mSampler;
         GfxTexture* mHDRMap;
         GfxTexture* mEnvCubeMap;
+        GfxTexture* mIrradianceMap;
         GfxProgram* mEquirectangularToCubemapProgram;
+        GfxProgram* mGenIrradianceMapProgram;
         GfxFramebuffer* mCaptureFramebuffer;
         GfxRenderbuffer* mCaptureRenderbuffer;
     };
