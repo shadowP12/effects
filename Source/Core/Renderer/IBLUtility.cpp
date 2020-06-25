@@ -153,5 +153,7 @@ EFFECTS_NAMESPACE_BEGIN
             unbindGfxProgram(mGenIrradianceMapProgram);
             unbindGfxFramebuffer(mCaptureFramebuffer);
         }
+
+        // 
     }
 EFFECTS_NAMESPACE_END

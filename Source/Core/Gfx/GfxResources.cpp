@@ -240,7 +240,24 @@ void GfxBuffer::resize(int size)
         tex->format = desc.format;
         tex->internalFormat = desc.internalFormat;
         tex->componentType = desc.componentType;
+        tex->mipmap = desc.mipmap;
         glGenTextures(1, &tex->handle);
+        if(desc.mipmap)
+        {
+            if(tex->arraySize == 1 && tex->depth == 1)
+            {
+                // 2D
+                glBindTexture(GL_TEXTURE_2D, tex->handle);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            } else if(tex->arraySize == 6 && tex->depth == 1)
+            {
+                // cube
+                glBindTexture(GL_TEXTURE_CUBE_MAP, tex->handle);
+                glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+            }
+        }
         return tex;
     }
 
@@ -253,36 +270,36 @@ void GfxBuffer::resize(int size)
         }
     }
 
-    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize, uint32_t depth)
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize, uint32_t depth, uint32_t level)
     {
         if(tex->arraySize == 1 && tex->depth == 1)
         {
             // 2D
             glBindTexture(GL_TEXTURE_2D, tex->handle);
-            glTexImage2D(GL_TEXTURE_2D, 0, tex->internalFormat, tex->width, tex->height, 0, tex->format, tex->componentType, data);
+            glTexImage2D(GL_TEXTURE_2D, level, tex->internalFormat, tex->width, tex->height, 0, tex->format, tex->componentType, data);
             glBindTexture(GL_TEXTURE_2D, 0);
         } else if(tex->arraySize == 6 && tex->depth == 1)
         {
             // cube
             glBindTexture(GL_TEXTURE_CUBE_MAP, tex->handle);
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + arraySize, 0, tex->internalFormat, tex->width, tex->height, 0, tex->format, tex->componentType, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + arraySize, level, tex->internalFormat, tex->width, tex->height, 0, tex->format, tex->componentType, data);
             glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         }
     }
 
-    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height,uint32_t arraySize, uint32_t depth)
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height,uint32_t arraySize, uint32_t depth, uint32_t level)
     {
         if(tex->arraySize == 1 && tex->depth == 1)
         {
             // 2D
             glBindTexture(GL_TEXTURE_2D, tex->handle);
-            glTexImage2D(GL_TEXTURE_2D, 0, tex->internalFormat, width, height, 0, tex->format, tex->componentType, data);
+            glTexImage2D(GL_TEXTURE_2D, level, tex->internalFormat, width, height, 0, tex->format, tex->componentType, data);
             glBindTexture(GL_TEXTURE_2D, 0);
         } else if(tex->arraySize == 6 && tex->depth == 1)
         {
             // cube
             glBindTexture(GL_TEXTURE_CUBE_MAP, tex->handle);
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + arraySize, 0, tex->internalFormat, width, height, 0, tex->format, tex->componentType, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + arraySize, level, tex->internalFormat, width, height, 0, tex->format, tex->componentType, data);
             glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         }
     }
@@ -379,24 +396,24 @@ void GfxBuffer::resize(int size)
         return framebuffer;
     }
 
-    void attachGfxFramebufferTexture(GfxFramebuffer* fb, uint32_t idx, GfxTexture* texture)
+    void attachGfxFramebufferTexture(GfxFramebuffer* fb, uint32_t idx, GfxTexture* texture, uint32_t level)
     {
         fb->tatgets[idx] = texture;
         glBindFramebuffer(GL_FRAMEBUFFER, fb->handle);
         std::vector<uint32_t> attachments;
         attachments.push_back(GL_COLOR_ATTACHMENT0 + idx);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + idx, GL_TEXTURE_2D, fb->tatgets[idx]->handle, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + idx, GL_TEXTURE_2D, fb->tatgets[idx]->handle, level);
         glDrawBuffers(attachments.size(), attachments.data());
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void attachGfxFramebufferCubeMap(GfxFramebuffer* fb, uint32_t idx, uint32_t face,  GfxTexture* texture)
+    void attachGfxFramebufferCubeMap(GfxFramebuffer* fb, uint32_t idx, uint32_t face,  GfxTexture* texture, uint32_t level)
     {
         fb->tatgets[idx] = texture;
         glBindFramebuffer(GL_FRAMEBUFFER, fb->handle);
         std::vector<uint32_t> attachments;
         attachments.push_back(GL_COLOR_ATTACHMENT0 + idx);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + idx, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, fb->tatgets[idx]->handle, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + idx, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, fb->tatgets[idx]->handle, level);
         glDrawBuffers(attachments.size(), attachments.data());
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }

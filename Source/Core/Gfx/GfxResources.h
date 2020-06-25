@@ -67,6 +67,7 @@ typedef struct GfxTextureDesc
     uint32_t format;
     uint32_t internalFormat;
     uint32_t componentType;
+    bool mipmap = false;
 } GfxTextureDesc;
 
     typedef struct GfxTexture
@@ -79,12 +80,13 @@ typedef struct GfxTextureDesc
         uint32_t format;
         uint32_t internalFormat;
         uint32_t componentType;
+        bool mipmap = false;
     } GfxTexture;
 
     GfxTexture* createGfxTexture(const GfxTextureDesc& desc);
     void destroyGfxTexture(GfxTexture* tex);
-    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize = 1, uint32_t depth = 1);
-    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height, uint32_t arraySize = 1, uint32_t depth = 1);
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize = 1, uint32_t depth = 1, uint32_t level = 0);
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height, uint32_t arraySize = 1, uint32_t depth = 1, uint32_t level = 0);
     void setGfxTextureSampler(const GfxTexture* tex, const GfxSampler* sampler);
 
     typedef struct GfxRenderbufferDesc
@@ -120,8 +122,8 @@ typedef struct GfxTextureDesc
 
     GfxFramebuffer* createGfxFramebuffer(const GfxFramebufferDesc& desc);
     GfxFramebuffer* createGfxFramebuffer();
-    void attachGfxFramebufferTexture(GfxFramebuffer* fb, uint32_t idx, GfxTexture* texture);
-    void attachGfxFramebufferCubeMap(GfxFramebuffer* fb, uint32_t idx, uint32_t face,  GfxTexture* texture);
+    void attachGfxFramebufferTexture(GfxFramebuffer* fb, uint32_t idx, GfxTexture* texture, uint32_t level = 0);
+    void attachGfxFramebufferCubeMap(GfxFramebuffer* fb, uint32_t idx, uint32_t face,  GfxTexture* texture, uint32_t level = 0);
     void attachGfxFramebufferRenderBuffer(GfxFramebuffer* fb, GfxRenderbuffer* renderbuffer);
     void destroyGfxFramebuffer(GfxFramebuffer* fb);
     void bindGfxFramebuffer(const GfxFramebuffer* fb);
