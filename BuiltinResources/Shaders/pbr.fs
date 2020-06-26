@@ -140,6 +140,10 @@ void main()
     vec3 Fr = (nominator / denominator) * metallic;
     vec3 Fd = (baseColor.rgb / 3.1415926) * (1.0 - metallic);
     vec3 color = (Fd + Fr) * u_mainLitColorIntensity.rgb * u_mainLitColorIntensity.w * exposure * saturate(dot(N, L));
+
+    // IBL
+    
+
     color = ACESToneMap(color);
     color = LinearToSRGB(color);
     vec4 resultColor = vec4(color, baseColor.a);

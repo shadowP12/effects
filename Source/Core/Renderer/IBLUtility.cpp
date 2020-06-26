@@ -22,6 +22,8 @@ EFFECTS_NAMESPACE_BEGIN
     {
         mCubeMesh = genCubeMesh();
 
+        mQuadMesh = genQuadMesh();
+
         GfxRenderbufferDesc captureRenderbufferDesc;
         captureRenderbufferDesc.width = gStandardWidth;
         captureRenderbufferDesc.height = gStandardHeight;
@@ -41,15 +43,35 @@ EFFECTS_NAMESPACE_BEGIN
         equirectangularToCubemapProgramDesc.define = "";
         mEquirectangularToCubemapProgram = createGfxProgram(equirectangularToCubemapProgramDesc);
 
-        std::string genIrradianceMapVertSource;
-        std::string genIrradianceMapFragSource;
-        readFileData("./BuiltinResources/Shaders/ibl/genIrradianceMap.vs", genIrradianceMapVertSource);
-        readFileData("./BuiltinResources/Shaders/ibl/genIrradianceMap.fs", genIrradianceMapFragSource);
+        std::string irradianceMapVertSource;
+        std::string irradianceMapFragSource;
+        readFileData("./BuiltinResources/Shaders/ibl/irradianceMap.vs", irradianceMapVertSource);
+        readFileData("./BuiltinResources/Shaders/ibl/irradianceMap.fs", irradianceMapFragSource);
         GfxProgramDesc genIrradianceMapProgramDesc;
-        genIrradianceMapProgramDesc.vertSource = genIrradianceMapVertSource;
-        genIrradianceMapProgramDesc.fragSource = genIrradianceMapFragSource;
+        genIrradianceMapProgramDesc.vertSource = irradianceMapVertSource;
+        genIrradianceMapProgramDesc.fragSource = irradianceMapFragSource;
         genIrradianceMapProgramDesc.define = "";
-        mGenIrradianceMapProgram = createGfxProgram(genIrradianceMapProgramDesc);
+        mIrradianceMapProgram = createGfxProgram(genIrradianceMapProgramDesc);
+
+        std::string prefilterMapVertSource;
+        std::string prefilterMapFragSource;
+        readFileData("./BuiltinResources/Shaders/ibl/prefilterMap.vs", prefilterMapVertSource);
+        readFileData("./BuiltinResources/Shaders/ibl/prefilterMap.fs", prefilterMapFragSource);
+        GfxProgramDesc prefilterMapProgramDesc;
+        prefilterMapProgramDesc.vertSource = prefilterMapVertSource;
+        prefilterMapProgramDesc.fragSource = prefilterMapFragSource;
+        prefilterMapProgramDesc.define = "";
+        mPrefilterMapProgram = createGfxProgram(prefilterMapProgramDesc);
+
+        std::string lutMapVertSource;
+        std::string lutMapFragSource;
+        readFileData("./BuiltinResources/Shaders/ibl/brdfLUT.vs", lutMapVertSource);
+        readFileData("./BuiltinResources/Shaders/ibl/brdfLUT.fs", lutMapFragSource);
+        GfxProgramDesc lutMapProgramDesc;
+        lutMapProgramDesc.vertSource = lutMapVertSource;
+        lutMapProgramDesc.fragSource = lutMapFragSource;
+        lutMapProgramDesc.define = "";
+        mLUTMapProgram = createGfxProgram(lutMapProgramDesc);
 
         GfxSamplerDesc samplerDesc;
         mSampler = createGfxSampler(samplerDesc);
@@ -59,14 +81,20 @@ EFFECTS_NAMESPACE_BEGIN
     {
         if(mCubeMesh)
             delete mCubeMesh;
+        if(mQuadMesh)
+            delete mQuadMesh;
         destroyGfxTexture(mHDRMap);
         destroyGfxTexture(mEnvCubeMap);
         destroyGfxTexture(mIrradianceMap);
+        destroyGfxTexture(mPrefilterMap);
+        destroyGfxTexture(mLUTMap);
         destroyGfxSampler(mSampler);
         destroyGfxFramebuffer(mCaptureFramebuffer);
         destroyGfxRenderbuffer(mCaptureRenderbuffer);
         destroyGfxProgram(mEquirectangularToCubemapProgram);
-        destroyGfxProgram(mGenIrradianceMapProgram);
+        destroyGfxProgram(mIrradianceMapProgram);
+        destroyGfxProgram(mPrefilterMapProgram);
+        destroyGfxProgram(mLUTMapProgram);
     }
 
     void IBLUtility::loadHdrEnvMap(const std::string &path)
@@ -95,6 +123,7 @@ EFFECTS_NAMESPACE_BEGIN
         envTextureDesc.internalFormat = GL_RGB16F;
         envTextureDesc.arraySize = 6;
         envTextureDesc.depth = 1;
+        envTextureDesc.mipmap = true;
         mEnvCubeMap = createGfxTexture(envTextureDesc);
         writeGfxTextureData(mEnvCubeMap, nullptr, 0);
         writeGfxTextureData(mEnvCubeMap, nullptr, 1);
@@ -119,6 +148,7 @@ EFFECTS_NAMESPACE_BEGIN
             unbindGfxProgram(mEquirectangularToCubemapProgram);
             unbindGfxFramebuffer(mCaptureFramebuffer);
         }
+        genGfxTextureMipmap(mEnvCubeMap);
 
         // create irradiance map
         GfxTextureDesc irradianceTextureDesc;
@@ -145,15 +175,81 @@ EFFECTS_NAMESPACE_BEGIN
             bindGfxFramebuffer(mCaptureFramebuffer);
             glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-            setGfxProgramMat4(mGenIrradianceMapProgram, "u_projection", &gCaptureProjection[0][0]);
-            setGfxProgramMat4(mGenIrradianceMapProgram, "u_view", &gCaptureViews[i][0][0]);
-            setGfxProgramCubeMapSampler(mGenIrradianceMapProgram, "u_environmentMap", mEnvCubeMap);
-            bindGfxProgram(mGenIrradianceMapProgram);
+            setGfxProgramMat4(mIrradianceMapProgram, "u_projection", &gCaptureProjection[0][0]);
+            setGfxProgramMat4(mIrradianceMapProgram, "u_view", &gCaptureViews[i][0][0]);
+            setGfxProgramCubeMapSampler(mIrradianceMapProgram, "u_environmentMap", mEnvCubeMap);
+            bindGfxProgram(mIrradianceMapProgram);
             mCubeMesh->draw(GL_TRIANGLES);
-            unbindGfxProgram(mGenIrradianceMapProgram);
+            unbindGfxProgram(mIrradianceMapProgram);
             unbindGfxFramebuffer(mCaptureFramebuffer);
         }
 
-        // 
+        // create prefilter map
+        GfxTextureDesc prefilterTextureDesc;
+        prefilterTextureDesc.width = 128;
+        prefilterTextureDesc.height = 128;
+        prefilterTextureDesc.componentType = GL_FLOAT;
+        prefilterTextureDesc.format = GL_RGB;
+        prefilterTextureDesc.internalFormat = GL_RGB16F;
+        prefilterTextureDesc.arraySize = 6;
+        prefilterTextureDesc.depth = 1;
+        prefilterTextureDesc.mipmap = true;
+        mPrefilterMap = createGfxTexture(prefilterTextureDesc);
+        writeGfxTextureData(mPrefilterMap, nullptr, 0);
+        writeGfxTextureData(mPrefilterMap, nullptr, 1);
+        writeGfxTextureData(mPrefilterMap, nullptr, 2);
+        writeGfxTextureData(mPrefilterMap, nullptr, 3);
+        writeGfxTextureData(mPrefilterMap, nullptr, 4);
+        writeGfxTextureData(mPrefilterMap, nullptr, 5);
+        mSampler->minFilter = GL_LINEAR_MIPMAP_LINEAR;
+        setGfxTextureSampler(mPrefilterMap, mSampler);
+        genGfxTextureMipmap(mPrefilterMap);
+
+        uint32_t maxMipLevels = 5;
+        for (int mip = 0; mip < maxMipLevels; ++mip)
+        {
+            uint32_t mipWidth = 128 * std::pow(0.5, mip);
+            uint32_t mipHeight = 128 * std::pow(0.5, mip);
+            float roughness = (float)mip / (float)(maxMipLevels - 1);
+            glViewport(0, 0, mipWidth, mipHeight);
+            for (int i = 0; i < 6; ++i)
+            {
+                attachGfxFramebufferCubeMap(mCaptureFramebuffer, 0, i, mPrefilterMap, mip);
+                bindGfxFramebuffer(mCaptureFramebuffer);
+                glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                setGfxProgramMat4(mPrefilterMapProgram, "u_projection", &gCaptureProjection[0][0]);
+                setGfxProgramMat4(mPrefilterMapProgram, "u_view", &gCaptureViews[i][0][0]);
+                setGfxProgramCubeMapSampler(mPrefilterMapProgram, "u_environmentMap", mEnvCubeMap);
+                setGfxProgramFloat(mPrefilterMapProgram, "u_roughness", roughness);
+                setGfxProgramFloat(mPrefilterMapProgram, "u_resolution", 512.0f);
+                bindGfxProgram(mPrefilterMapProgram);
+                mCubeMesh->draw(GL_TRIANGLES);
+                unbindGfxProgram(mPrefilterMapProgram);
+                unbindGfxFramebuffer(mCaptureFramebuffer);
+            }
+        }
+
+        // create lut map
+        GfxTextureDesc lutTextureDesc;
+        lutTextureDesc.width = 512;
+        lutTextureDesc.height = 512;
+        lutTextureDesc.componentType = GL_FLOAT;
+        lutTextureDesc.format = GL_RGB;
+        lutTextureDesc.internalFormat = GL_RGB16F;
+        mLUTMap = createGfxTexture(lutTextureDesc);
+        writeGfxTextureData(mLUTMap, nullptr);
+        mSampler->minFilter = GL_LINEAR;
+        setGfxTextureSampler(mLUTMap, mSampler);
+
+        glViewport(0, 0, 512, 512);
+        attachGfxFramebufferTexture(mCaptureFramebuffer, 0, mLUTMap);
+        bindGfxFramebuffer(mCaptureFramebuffer);
+        glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        bindGfxProgram(mLUTMapProgram);
+        mQuadMesh->draw(GL_TRIANGLES);
+        unbindGfxProgram(mLUTMapProgram);
+        unbindGfxFramebuffer(mCaptureFramebuffer);
     }
 EFFECTS_NAMESPACE_END

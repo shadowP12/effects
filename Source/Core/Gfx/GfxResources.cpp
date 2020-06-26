@@ -242,7 +242,21 @@ void GfxBuffer::resize(int size)
         tex->componentType = desc.componentType;
         tex->mipmap = desc.mipmap;
         glGenTextures(1, &tex->handle);
-        if(desc.mipmap)
+        return tex;
+    }
+
+    void destroyGfxTexture(GfxTexture* tex)
+    {
+        if(!tex)
+        {
+            glDeleteTextures(1, &tex->handle);
+            delete tex;
+        }
+    }
+
+    void genGfxTextureMipmap(const GfxTexture* tex)
+    {
+        if(tex->mipmap)
         {
             if(tex->arraySize == 1 && tex->depth == 1)
             {
@@ -257,16 +271,6 @@ void GfxBuffer::resize(int size)
                 glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
             }
-        }
-        return tex;
-    }
-
-    void destroyGfxTexture(GfxTexture* tex)
-    {
-        if(!tex)
-        {
-            glDeleteTextures(1, &tex->handle);
-            delete tex;
         }
     }
 

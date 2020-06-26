@@ -22,15 +22,22 @@ EFFECTS_NAMESPACE_BEGIN
         GfxTexture* getHDRMap(){ return mHDRMap; }
         GfxTexture* getEnvMap(){ return mEnvCubeMap; }
         GfxTexture* getIrradianceMap(){ return mIrradianceMap; }
+        GfxTexture* getPrefilterMap(){ return mPrefilterMap; }
+        GfxTexture* getLUTMap(){ return mLUTMap; }
         GfxFramebuffer* getCaptureFramebuffer(){ return mCaptureFramebuffer; }
     private:
         Mesh* mCubeMesh;
+        Mesh* mQuadMesh;
         GfxSampler* mSampler;
         GfxTexture* mHDRMap;
         GfxTexture* mEnvCubeMap;
         GfxTexture* mIrradianceMap;
+        GfxTexture* mPrefilterMap;
+        GfxTexture* mLUTMap;
         GfxProgram* mEquirectangularToCubemapProgram;
-        GfxProgram* mGenIrradianceMapProgram;
+        GfxProgram* mIrradianceMapProgram;
+        GfxProgram* mPrefilterMapProgram;
+        GfxProgram* mLUTMapProgram;
         GfxFramebuffer* mCaptureFramebuffer;
         GfxRenderbuffer* mCaptureRenderbuffer;
     };
