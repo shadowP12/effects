@@ -22,6 +22,12 @@ void LightWidget::draw()
         ImGui::TreePop();
     }
 
+    if(ImGui::TreeNode("IBL"))
+    {
+        ImGui::Checkbox("enable", &enableIBL);
+        ImGui::TreePop();
+    }
+
     if(ImGui::TreeNode("Main Lit"))
     {
         ImGui::SliderFloat("dirX", &mMainLitDir.x, -10.0f, 10.0f);

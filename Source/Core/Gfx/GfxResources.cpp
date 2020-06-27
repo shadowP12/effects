@@ -713,6 +713,7 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
     void bindGfxProgram(const GfxProgram* program)
     {
         glUseProgram(program->handle);
+
         for (int i = 0; i < program->floatParamCount; ++i)
         {
             glUniform1f(glGetUniformLocation(program->handle, program->floatParams[i].name.c_str()), program->floatParams[i].value);
@@ -738,8 +739,10 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
             glUniformMatrix4fv(glGetUniformLocation(program->handle, program->mat4Params[i].name.c_str()), 1, GL_FALSE, &program->mat4Params[i].value[0]);
         }
 
+        int idx = 0;
         for (int i = 0; i < program->sampler2DParamCount; ++i)
         {
+            idx++;
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, program->sampler2DParams[i].texture->handle);
             glUniform1i(glGetUniformLocation(program->handle, program->sampler2DParams[i].name.c_str()), i);
@@ -747,9 +750,9 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
 
         for (int i = 0; i < program->samplerCubeMapParamCount; ++i)
         {
-            glActiveTexture(GL_TEXTURE0 + i);
+            glActiveTexture(GL_TEXTURE0 + i + idx);
             glBindTexture(GL_TEXTURE_CUBE_MAP, program->samplerCubeMapParams[i].texture->handle);
-            glUniform1i(glGetUniformLocation(program->handle, program->samplerCubeMapParams[i].name.c_str()), i);
+            glUniform1i(glGetUniformLocation(program->handle, program->samplerCubeMapParams[i].name.c_str()), i + idx);
         }
     }
 

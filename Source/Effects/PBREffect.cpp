@@ -11,6 +11,7 @@
 #include "../Core/RenderResources/Mesh.h"
 #include "../Core/Utility/Hash.h"
 #include "../Core/Utility/FileUtility.h"
+#include "../Core/Renderer/IBLUtility.h"
 EFFECTS_NAMESPACE_BEGIN
 
     static GltfScene* gScene = nullptr;
@@ -37,8 +38,9 @@ EFFECTS_NAMESPACE_BEGIN
     static GfxFramebuffer * gOITFramebuffer = nullptr;
     static std::map<size_t, GfxProgram*> gProgramCache;
     static Mesh* gQuadMesh = nullptr;
-    static GfxProgram* getPBRProgram(uint32_t material, uint32_t layout);
-    static std::string getPBRDefine(uint32_t material, uint32_t layout);
+    static IBLUtility* gIBL = nullptr;
+    static GfxProgram* getPBRProgram(uint32_t material, uint32_t layout, bool ibl);
+    static std::string getPBRDefine(uint32_t material, uint32_t layout, bool ibl);
 
 typedef struct RenderElement
 {
@@ -83,6 +85,9 @@ PBREffect::~PBREffect()
 
     m_context->getUISystem()->deleteWidget(gLightWidget);
     delete gLightWidget;
+
+    if(gIBL)
+        delete gIBL;
 }
 
 void PBREffect::prepare()
@@ -168,6 +173,9 @@ void PBREffect::prepare()
     gLightWidget->mMainLitDir = glm::vec3(0.0f, 0.0f, -1.0f);
     gLightWidget->mMainLitColorIntensity = glm::vec4(1.0f, 1.0f, 1.0f, 1000.0f);
 	m_context->getUISystem()->addWidget(gLightWidget);
+
+    gIBL = new IBLUtility();
+    gIBL->loadHdrEnvMap("./BuiltinResources/Textures/newport_loft.hdr");
 }
 
 void PBREffect::update(float t)
@@ -207,6 +215,7 @@ void PBREffect::render()
         }
 	}
 
+	glViewport(0, 0, m_width, m_height);
     bindGfxFramebuffer(gDrawingFramebuffer);
     glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -249,7 +258,7 @@ void PBREffect::render()
     glDisable(GL_BLEND);
 }
 
-static std::string getPBRDefine(uint32_t material, uint32_t layout)
+static std::string getPBRDefine(uint32_t material, uint32_t layout, bool ibl)
 {
     std::string define;
     if((material & PBR_ALPHA) != 0)
@@ -258,6 +267,7 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
     }
     if((material & PBR_BASE_COLOR_MAP) != 0)
     {
+
         define += "#define USE_BASE_COLOR_MAP \n";
     }
     if((material & PBR_NORMAL_MAP) != 0 && (layout & SEMANTIC_TANGENT) != 0)
@@ -268,14 +278,19 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
     {
         define += "#define USE_METALLIC_ROUGHNESS_MAP \n";
     }
+    if(ibl)
+    {
+        define += "#define USE_IBL \n";
+    }
     return define;
 }
 
-    static GfxProgram* getPBRProgram(uint32_t material, uint32_t layout)
+    static GfxProgram* getPBRProgram(uint32_t material, uint32_t layout, bool ibl)
     {
         size_t hash = 0;
         Hash(hash, material);
         Hash(hash, layout);
+        Hash(hash, ibl);
 
         auto it = gProgramCache.find(hash);
         if (it == gProgramCache.end())
@@ -283,7 +298,7 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             GfxProgramDesc programDesc;
             programDesc.vertSource = gPBRVertSource;
             programDesc.fragSource = gPBRFragSource;
-            programDesc.define = getPBRDefine(material, layout);
+            programDesc.define = getPBRDefine(material, layout, ibl);
             gProgramCache[hash] = createGfxProgram(programDesc);
             return gProgramCache[hash];
         }
@@ -297,7 +312,7 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             std::shared_ptr<Node> node = gOpaqueQueue[i].node;
             Mesh* mesh = gOpaqueQueue[i].mesh;
             GltfMaterial* material = gOpaqueQueue[i].material;
-            GfxProgram* program = getPBRProgram(material->bits, mesh->getLayout());
+            GfxProgram* program = getPBRProgram(material->bits, mesh->getLayout(), gLightWidget->enableIBL);
 
             // seting pipeline state
             if(!material->doubleSided)
@@ -340,6 +355,11 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
                 setGfxProgramSampler(program, "u_metallicRoughnessMap", material->metallicRoughnessMap.texture);
             }
 
+            // ibl
+            setGfxProgramCubeMapSampler(program, "u_irradianceMap", gIBL->getIrradianceMap());
+            setGfxProgramCubeMapSampler(program, "u_prefilterMap", gIBL->getPrefilterMap());
+            setGfxProgramSampler(program, "u_brdfLUT", gIBL->getLUTMap());
+
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);
@@ -359,7 +379,7 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
             std::shared_ptr<Node> node = gTransparentQueue[i].node;
             Mesh* mesh = gTransparentQueue[i].mesh;
             GltfMaterial* material = gTransparentQueue[i].material;
-            GfxProgram* program = getPBRProgram(material->bits, mesh->getLayout());
+            GfxProgram* program = getPBRProgram(material->bits, mesh->getLayout(), gLightWidget->enableIBL);
 
             // seting pipeline state
             if(!material->doubleSided)
@@ -406,6 +426,11 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout)
                 setGfxTextureSampler(material->metallicRoughnessMap.texture, material->metallicRoughnessMap.sampler);
                 setGfxProgramSampler(program, "u_metallicRoughnessMap", material->metallicRoughnessMap.texture);
             }
+            // ibl
+            setGfxProgramCubeMapSampler(program, "u_irradianceMap", gIBL->getIrradianceMap());
+            setGfxProgramCubeMapSampler(program, "u_prefilterMap", gIBL->getPrefilterMap());
+            setGfxProgramSampler(program, "u_brdfLUT", gIBL->getLUTMap());
+
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);

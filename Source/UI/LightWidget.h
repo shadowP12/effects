@@ -29,6 +29,9 @@ public:
     glm::vec3 mPointLitPos1;
     float mPointLitRadius1;
     float mPointLitColorIntensity1;
+
+    // ibl
+    bool enableIBL;
 };
 
 EFFECTS_NAMESPACE_END

@@ -28,6 +28,11 @@ uniform float u_metallic;
 uniform sampler2D u_metallicRoughnessMap;
 #endif
 
+#if defined(USE_IBL)
+uniform samplerCube u_irradianceMap;
+uniform samplerCube u_prefilterMap;
+uniform sampler2D u_brdfLUT;
+#endif
 
 uniform float u_aperture;
 uniform float u_shutterSpeed;
@@ -52,8 +57,13 @@ float weight(float z, float a) {
     return clamp(pow(min(1.0, a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - z * 0.9, 3.0), 1e-2, 3e3);
 }
 
-vec3 LinearToSRGB(vec3 linear)
+vec3 SRGBToLinear(vec3 gamma)
 {
+    return pow(gamma, vec3(2.2));
+}
+
+vec3 LinearToSRGB(vec3 linear)
+{	
     return pow(linear, vec3(0.454545));
 }
 
@@ -129,6 +139,7 @@ void main()
     float exposure = exposure(ev100);
     vec3 N = normal;
     vec3 V = normalize(u_cameraPos - v_worldPos);
+    vec3 R = reflect(-V, N); 
     vec3 L = normalize(-u_mainLitDir);
     vec3 H = normalize(L+V);
     vec3 f0 = vec3(0.56, 0.57, 0.58);
@@ -142,9 +153,16 @@ void main()
     vec3 color = (Fd + Fr) * u_mainLitColorIntensity.rgb * u_mainLitColorIntensity.w * exposure * saturate(dot(N, L));
 
     // IBL
-    
+#if defined(USE_IBL)
+    float scaleIBL = 0.1;
+    vec3 irradiance = texture(u_irradianceMap, N).rgb;
+    color += irradiance * baseColor.rgb * (1.0 - metallic) * scaleIBL;
 
-    color = ACESToneMap(color);
+    vec3 prefilteredColor = textureLod(u_prefilterMap, R,  roughness * 4.0).rgb;
+    vec2 brdf = texture(u_brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    color += prefilteredColor * (vec3(0.9) * brdf.x + brdf.y) * scaleIBL;
+#endif
+
     color = LinearToSRGB(color);
     vec4 resultColor = vec4(color, baseColor.a);
 

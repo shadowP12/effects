@@ -150,7 +150,7 @@ EFFECTS_NAMESPACE_BEGIN
         glm::mat4 viewMatrix = glm::mat4(glm::mat3(gViewMatrix));
         setGfxProgramMat4(gSkyboxProgram, "u_view", &viewMatrix[0][0]);
         setGfxProgramMat4(gSkyboxProgram, "u_projection", &gProjMatrix[0][0]);
-        setGfxProgramCubeMapSampler(gSkyboxProgram, "u_skybox", gIBL->getPrefilterMap());
+        setGfxProgramCubeMapSampler(gSkyboxProgram, "u_skybox", gIBL->getIrradianceMap());
         bindGfxProgram(gSkyboxProgram);
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
         gCubeMesh->draw(GL_TRIANGLES);
