@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Core/Utility/FileUtility.h"
 #include "Core/Gfx/Gfx.h"
 #include "Scene/CommonTool.h"
 #include "UI/UISystem.h"
@@ -8,14 +7,15 @@
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"
+#include "Core/InputSystem/InputSystem.h"
 #include "Core/Utility/FileUtility.h"
+#include "Core/Utility/Event.h"
 #include "Core/Utility/Hash.h"
 #include "Scene/Scene.h"
 #include "Scene/Components/CCamera.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
-//ȫ�ֱ���
 et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
@@ -25,7 +25,14 @@ std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
 static float gPitch = 0.0f;
 static float gYaw = 0.0f;
-//���ڻص�����
+
+// events
+Event<void, float, float> onMousePositionEvent;
+Event<void, int, int> onMouseButtonEvent;
+Event<void, float> onMouseScrollEvent;
+Event<void, int, int> onWindowResizeEvent;
+Event<void> onFrameFinishEvent;
+
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods);
 void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y);
@@ -47,6 +54,12 @@ void init()
 	g_effect->prepare();
 
 	// module
+	et::InputSystem::startUp();
+    onMousePositionEvent.bind(CALLBACK_2(et::InputSystem::onMousePosition, et::InputSystem::instance()));
+    onMouseButtonEvent.bind(CALLBACK_2(et::InputSystem::onMouseButton, et::InputSystem::instance()));
+    onMouseScrollEvent.bind(CALLBACK_1(et::InputSystem::onMouseScroll, et::InputSystem::instance()));
+    onFrameFinishEvent.bind(CALLBACK_0(et::InputSystem::reset, et::InputSystem::instance()));
+
 	et::Renderer::startUp();
 	et::SceneManager::startUp();
 
@@ -69,12 +82,9 @@ void release()
 	delete g_input;
 	delete g_camera;
 	delete g_ui_system;
+	et::InputSystem::shutDown();
 	et::Renderer::shutDown();
 	et::SceneManager::shutDown();
-}
-
-void loadResource()
-{
 }
 
 void update(float t)
@@ -124,13 +134,11 @@ void render()
 
 int main()
 {
-	//��ʼ��glfw
 	glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	//���������ڵ�gl����
 	g_window = glfwCreateWindow(800, 600, "effects", NULL, NULL);
 	if (g_window == NULL)
 	{
@@ -138,20 +146,18 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
-	//�󶨵�ǰgl����
 	glfwMakeContextCurrent(g_window);
 	glfwSetMouseButtonCallback(g_window, mouse_button_callback);
 	glfwSetCursorPosCallback(g_window, cursor_pos_callback);
 	glfwSetScrollCallback(g_window, mouse_scroll_callback);
 	glfwSetFramebufferSizeCallback(g_window, window_size_callback);
-	//��ʼ��gl����ָ��
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 	init();
-    loadResource();
+
 	while (!glfwWindowShouldClose(g_window))
 	{
 		update(0.001);
@@ -159,6 +165,7 @@ int main()
 		g_ui_system->draw();
 		glfwSwapBuffers(g_window);
 		glfwPollEvents();
+		onFrameFinishEvent.dispatch();
 	}
 	glfwDestroyWindow(g_window);
 	glfwTerminate();
@@ -168,11 +175,13 @@ int main()
 
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y)
 {
+    onMousePositionEvent.dispatch(pos_x, pos_y);
 	g_input->m_mouse_position = glm::vec2(pos_x, pos_y);
 }
 
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
 {
+    onMouseButtonEvent.dispatch(button, action);
 	switch (action)
 	{
 	case GLFW_PRESS:
@@ -190,11 +199,12 @@ void mouse_button_callback(GLFWwindow * window, int button, int action, int mods
 
 void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y)
 {
+    onMouseScrollEvent.dispatch(offset_y);
 	g_input->m_mouse_scroll_wheel = offset_y;
 }
 
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
-	// resize
+    onWindowResizeEvent.dispatch(width, height);
 	g_effect->resize(width, height);
 }
