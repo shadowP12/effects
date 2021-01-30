@@ -1,21 +1,21 @@
 #include <iostream>
 #include "Core/Utility/FileUtility.h"
 #include "Core/Gfx/Gfx.h"
-#include "Core/Scene/CommonTool.h"
+#include "Scene/CommonTool.h"
 #include "UI/UISystem.h"
-#include "Effects/PBREffect.h"
-#include "Effects/DebugEffect.h"
-#include "Core/Renderer/RenderView.h"
-#include "Core/Renderer/Renderer.h"
+#include "Renderer/Effects/PBREffect.h"
+#include "Renderer/Effects/DebugEffect.h"
+#include "Renderer/RenderView.h"
+#include "Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"
 #include "Core/Utility/FileUtility.h"
 #include "Core/Utility/Hash.h"
-#include "Core/Scene/Scene.h"
-#include "Core/Components/CCamera.h"
+#include "Scene/Scene.h"
+#include "Scene/Components/CCamera.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
-//È«¾Ö±äÁ¿
+//È«ï¿½Ö±ï¿½ï¿½ï¿½
 et::Camera* g_camera = nullptr;
 et::Input* g_input = nullptr;
 et::UISystem* g_ui_system = nullptr;
@@ -25,7 +25,7 @@ std::shared_ptr<et::SceneObject> gMainCamera;
 GLFWwindow* g_window = nullptr;
 static float gPitch = 0.0f;
 static float gYaw = 0.0f;
-//´°¿Ú»Øµ÷º¯Êý
+//ï¿½ï¿½ï¿½Ú»Øµï¿½ï¿½ï¿½ï¿½ï¿½
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y);
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods);
 void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y);
@@ -124,13 +124,13 @@ void render()
 
 int main()
 {
-	//³õÊ¼»¯glfw
+	//ï¿½ï¿½Ê¼ï¿½ï¿½glfw
 	glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	//´´½¨´ø´°¿ÚµÄgl»·¾³
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½glï¿½ï¿½ï¿½ï¿½
 	g_window = glfwCreateWindow(800, 600, "effects", NULL, NULL);
 	if (g_window == NULL)
 	{
@@ -138,13 +138,13 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
-	//°ó¶¨µ±Ç°gl»·¾³
+	//ï¿½ó¶¨µï¿½Ç°glï¿½ï¿½ï¿½ï¿½
 	glfwMakeContextCurrent(g_window);
 	glfwSetMouseButtonCallback(g_window, mouse_button_callback);
 	glfwSetCursorPosCallback(g_window, cursor_pos_callback);
 	glfwSetScrollCallback(g_window, mouse_scroll_callback);
 	glfwSetFramebufferSizeCallback(g_window, window_size_callback);
-	//³õÊ¼»¯glº¯ÊýÖ¸Õë
+	//ï¿½ï¿½Ê¼ï¿½ï¿½glï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;

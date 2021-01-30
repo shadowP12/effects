@@ -1,7 +1,7 @@
 # fftw
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/FFTWConfig.cmake)
-include_directories(${FFTW_INCLUDE_DIR})
-set(DependentLibs ${DependentLibs} ${FFTW_LIBS})
+#include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/FFTWConfig.cmake)
+#include_directories(${FFTW_INCLUDE_DIR})
+#set(DependentLibs ${DependentLibs} ${FFTW_LIBS})
 
 # stb
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/Modules/STBConfig.cmake)

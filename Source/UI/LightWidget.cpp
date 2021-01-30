@@ -1,5 +1,5 @@
 #include "LightWidget.h"
-#include "../Core/Scene/CommonTool.h"
+#include "Scene/CommonTool.h"
 EFFECTS_NAMESPACE_BEGIN
 
 LightWidget::LightWidget()
