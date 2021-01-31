@@ -28,8 +28,6 @@ private:
     std::shared_ptr<Mesh> mQuadMesh;
     std::vector<Renderable*> mRenderables;
     std::vector<RenderView*> mViews;
-
-
 };
 
 EFFECTS_NAMESPACE_END

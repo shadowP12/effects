@@ -14,6 +14,7 @@
 #include "Core/Utility/FileUtility.h"
 #include "Renderer/IBLUtility.h"
 EFFECTS_NAMESPACE_BEGIN
+/*
     static glm::mat4 gViewMatrix;
     static glm::mat4 gProjMatrix;
     static std::string gTextureVertSource;
@@ -177,4 +178,5 @@ EFFECTS_NAMESPACE_BEGIN
         glPointSize(1.0f);
         bindGfxProgram(gDebugProgram);
     }
+    */
 EFFECTS_NAMESPACE_END

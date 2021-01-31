@@ -12,7 +12,7 @@ class GfxBuffer;
 class Mesh
 {
 public:
-    Mesh(MeshData* data);
+    Mesh(MeshData *data);
     ~Mesh();
     void prepareGfxData();
     VertexLayout* getVertexLayout();

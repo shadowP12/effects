@@ -123,16 +123,27 @@ int main()
 	}
 	init();
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(g_window, true);
+    ImGui_ImplOpenGL3_Init("#version 150");
+
 	while (!glfwWindowShouldClose(g_window)) {
+        glfwPollEvents();
 		update(0.001);
         et::Renderer::instance().render();
 		glfwSwapBuffers(g_window);
-		glfwPollEvents();
 		onFrameFinishEvent.dispatch();
 	}
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    release();
 	glfwDestroyWindow(g_window);
 	glfwTerminate();
-	release();
 	return 0;
 }
 

@@ -5,7 +5,7 @@
 #include "Core/Gfx/GfxResources.h"
 EFFECTS_NAMESPACE_BEGIN
 
-Mesh::Mesh(MeshData* data)
+Mesh::Mesh(MeshData *data)
     :mData(data)
 {
 }

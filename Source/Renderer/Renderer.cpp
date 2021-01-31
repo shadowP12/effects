@@ -6,7 +6,7 @@
 EFFECTS_NAMESPACE_BEGIN
 
 Renderer::Renderer() {
-    mQuadMesh = std::make_shared<Mesh*>(genQuadMesh());
+    mQuadMesh = std::shared_ptr<Mesh>(genQuadMesh());
 }
 
 Renderer::~Renderer() {
