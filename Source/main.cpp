@@ -1,9 +1,6 @@
 #include <iostream>
 #include "Core/Gfx/Gfx.h"
-#include "Scene/CommonTool.h"
 #include "UI/UISystem.h"
-#include "Renderer/Effects/PBREffect.h"
-#include "Renderer/Effects/DebugEffect.h"
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderer.h"
 #include "Importers/GltfImporter.h"
@@ -16,15 +13,8 @@
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
-et::Camera* g_camera = nullptr;
-et::Input* g_input = nullptr;
-et::UISystem* g_ui_system = nullptr;
-et::Context* g_context = nullptr;
-et::PBREffect* g_effect = nullptr;
-std::shared_ptr<et::SceneObject> gMainCamera;
+et::SceneNode* gMainCamera;
 GLFWwindow* g_window = nullptr;
-static float gPitch = 0.0f;
-static float gYaw = 0.0f;
 
 // events
 Event<void, float, float> onMousePositionEvent;
@@ -40,19 +30,6 @@ void window_size_callback(GLFWwindow* window, int width, int height);
 
 void init()
 {
-	g_camera = new et::Camera(glm::vec3(0.0, 0.0, 5.0));
-	g_input = new et::Input();
-	g_ui_system = new et::UISystem(g_window);
-	g_context = new et::Context();
-	g_context->setInput(g_input);
-	g_context->setCamera(g_camera);
-	g_context->setUISystem(g_ui_system);
-
-	// effect
-	g_effect = new et::PBREffect(SCREEN_WIDTH, SCREEN_HEIGHT);
-	g_effect->setContext(g_context);
-	g_effect->prepare();
-
 	// module
 	et::InputSystem::startUp();
     onMousePositionEvent.bind(CALLBACK_2(et::InputSystem::onMousePosition, et::InputSystem::instance()));
@@ -61,36 +38,30 @@ void init()
     onFrameFinishEvent.bind(CALLBACK_0(et::InputSystem::reset, et::InputSystem::instance()));
 
 	et::Renderer::startUp();
-	et::SceneManager::startUp();
+	et::Scene::startUp();
 
-    gMainCamera = std::make_shared<et::SceneObject>();
-    gMainCamera->initialized();
-    gMainCamera->addComponent<et::CCamera>();
+//    gMainCamera = ();
+//    gMainCamera->initialized();
+//    gMainCamera->addComponent<et::CCamera>();
     //gMainCamera->rotate(glm::vec3(0.0f, 1.0f, 0.0f), 180.0f);
     //glm::quat rot = fromAxisAngle(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(gYaw));
     //rot = glm::normalize(rot);
     //gMainCamera->setRotation(rot);
-    glm::vec3 cameraPos = gMainCamera->getPosition();
-    glm::vec3 cameraFront = gMainCamera->getFrontVector();
-    cameraPos += cameraFront * 10.0f;
-    gMainCamera->setPosition(cameraPos);
+//    glm::vec3 cameraPos = gMainCamera->getPosition();
+//    glm::vec3 cameraFront = gMainCamera->getFrontVector();
+//    cameraPos += cameraFront * 10.0f;
+//    gMainCamera->setPosition(cameraPos);
 }
 
 void release()
 {
-	delete g_context;
-	delete g_input;
-	delete g_camera;
-	delete g_ui_system;
 	et::InputSystem::shutDown();
 	et::Renderer::shutDown();
-	et::SceneManager::shutDown();
+	et::Scene::shutDown();
 }
 
 void update(float t)
 {
-	g_effect->update(t);
-	g_context->update(t);
 //    et::Input* input = g_input;
 //    et::Camera* camera = g_camera;
 //    if (input->m_mouse_button_down[1])
@@ -126,12 +97,6 @@ void update(float t)
     //g_input->update();
 }
 
-void render()
-{
-    //et::Renderer::instance().render(g_camera);
-	g_effect->render();
-}
-
 int main()
 {
 	glfwInit();
@@ -158,11 +123,9 @@ int main()
 	}
 	init();
 
-	while (!glfwWindowShouldClose(g_window))
-	{
+	while (!glfwWindowShouldClose(g_window)) {
 		update(0.001);
-		render();
-		g_ui_system->draw();
+        et::Renderer::instance().render();
 		glfwSwapBuffers(g_window);
 		glfwPollEvents();
 		onFrameFinishEvent.dispatch();
@@ -176,35 +139,19 @@ int main()
 void cursor_pos_callback(GLFWwindow * window, double pos_x, double pos_y)
 {
     onMousePositionEvent.dispatch(pos_x, pos_y);
-	g_input->m_mouse_position = glm::vec2(pos_x, pos_y);
 }
 
 void mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
 {
     onMouseButtonEvent.dispatch(button, action);
-	switch (action)
-	{
-	case GLFW_PRESS:
-		g_input->m_mouse_button_down[button] = true;
-		g_input->m_mouse_button_held[button] = true;
-		break;
-	case GLFW_RELEASE:
-		g_input->m_mouse_button_up[button] = true;
-		g_input->m_mouse_button_held[button] = false;
-		break;
-	default:
-		break;
-	}
 }
 
 void mouse_scroll_callback(GLFWwindow * window, double offset_x, double offset_y)
 {
     onMouseScrollEvent.dispatch(offset_y);
-	g_input->m_mouse_scroll_wheel = offset_y;
 }
 
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
     onWindowResizeEvent.dispatch(width, height);
-	g_effect->resize(width, height);
 }

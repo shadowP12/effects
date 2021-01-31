@@ -10,21 +10,38 @@ EFFECTS_NAMESPACE_BEGIN
 Renderer::Renderer()
 {}
 
-Renderer::~Renderer()
-{}
+Renderer::~Renderer() {
+    for (int i = 0; i < mViews.size(); ++i) {
+        SAFE_DELETE(mViews[i]);
+    }
+    mViews.clear();
 
-void Renderer::notifyRenderViewAdded(std::shared_ptr<RenderView> view)
-{
-    mMainView = view;
+    for (int i = 0; i < mRenderables.size(); ++i) {
+        SAFE_DELETE(mRenderables[i]);
+    }
+    mRenderables.clear();
 }
 
-void Renderer::notifyRenderableAdded(std::shared_ptr<Renderable> renderable)
-{
+RenderView* Renderer::addRenderView() {
+    RenderView* view = new RenderView();
+    mViews.push_back(view);
+    return view;
+}
+
+Renderable* Renderer::addRenderable() {
+    Renderable* renderable = new Renderable();
     mRenderables.push_back(renderable);
+    return renderable;
 }
 
-void Renderer::render(Camera* cam)
+void Renderer::render()
 {
+
+
+    // output
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 //    // seting global defines
 //    glClearColor(0.3f, 0.3f, 0.8f, 1.0f);
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -42,7 +59,7 @@ void Renderer::render(Camera* cam)
 //        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &modelMatrix[0][0]);
 //        glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, &viewMatrix[0][0]);
 //        glUniformMatrix4fv(glGetUniformLocation(programID, "projection"), 1, GL_FALSE, &projMatrix[0][0]);
-//        // µÆ¹â²ÎÊý
+//        // ï¿½Æ¹ï¿½ï¿½ï¿½ï¿½
 //        glm::vec3 lightPosition = glm::vec3(0.0, 0.0, 0.0);
 //        glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
 //        float lightRadius = 0.5f;
@@ -51,7 +68,7 @@ void Renderer::render(Camera* cam)
 //        glUniform3fv(glGetUniformLocation(programID, "u_lightColor"), 1, &lightColor[0]);
 //        glUniform1fv(glGetUniformLocation(programID, "u_lightRadius"), 1, &lightRadius);
 //        glUniform1fv(glGetUniformLocation(programID, "u_lightIntensity"), 1, &lightIntensity);
-//        // ²ÄÖÊ²ÎÊý
+//        // ï¿½ï¿½ï¿½Ê²ï¿½ï¿½ï¿½
 //        glm::vec3 albedo = glm::vec3(0.8f, 0.3f, 0.3f);
 //        glUniform3fv(glGetUniformLocation(programID, "u_albedo"), 1, &albedo[0]);
 //

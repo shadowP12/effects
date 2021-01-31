@@ -1,46 +1,40 @@
 #include "Node.h"
 EFFECTS_NAMESPACE_BEGIN
 
-void Node::setParent(std::shared_ptr<Node> newParent)
-{
-	std::shared_ptr<Node> oldParent = mParent;
+void Node::setParent(Node* newParent) {
+	Node* oldParent = mParent;
 
 	if (oldParent == newParent)
 		return;
 
-	std::shared_ptr<Node> curNode = newParent;
-	while (curNode)
-	{
-		if (curNode == shared_from_this())
+	Node* curNode = newParent;
+	while (curNode) {
+		if (curNode == this)
 			return;
 		curNode = curNode->getParent();
 	}
 
-	if (oldParent)
-	{
-		for (std::vector<std::shared_ptr<Node>>::iterator iter = oldParent->mChildren.begin(); iter != oldParent->mChildren.end(); )
-		{
+	if (oldParent) {
+		for (auto iter = oldParent->mChildren.begin(); iter != oldParent->mChildren.end(); ) {
 			if (iter == oldParent->mChildren.end())
 				break;
-			if (*iter == shared_from_this())
+			if (*iter == this)
 				oldParent->mChildren.erase(iter);
 		}
 	}
 
 	mParent = newParent;
-	if (newParent)
-	{
-		newParent->mChildren.push_back(shared_from_this());
+	if (newParent) {
+		newParent->mChildren.push_back(this);
 	}
-	mWorldDirtyFlag = true;
+	mDirtyFlag = true;
 }
 
-void Node::appendChildren(std::shared_ptr<Node> newChildren) 
-{
+void Node::appendChildren(Node* newChildren) {
 	if (!newChildren)
 		return;
 
-	std::shared_ptr<Node> curNode = std::dynamic_pointer_cast<Node>(shared_from_this());
+	Node* curNode = this;
 	while (curNode)
 	{
 		if (curNode == newChildren)
@@ -48,11 +42,9 @@ void Node::appendChildren(std::shared_ptr<Node> newChildren)
 		curNode = curNode->getParent();
 	}
 
-	std::shared_ptr<Node> oldParent = newChildren->mParent;
-	if (oldParent)
-	{
-		for (std::vector<std::shared_ptr<Node>>::iterator iter = oldParent->mChildren.begin(); iter != oldParent->mChildren.end(); )
-		{
+	Node* oldParent = newChildren->mParent;
+	if (oldParent) {
+		for (auto iter = oldParent->mChildren.begin(); iter != oldParent->mChildren.end(); ) {
 			if (iter == oldParent->mChildren.end())
 				break;
 			if (*iter == newChildren)
@@ -60,32 +52,93 @@ void Node::appendChildren(std::shared_ptr<Node> newChildren)
 		}
 	}
 	
-	newChildren->mParent = shared_from_this();
-	newChildren->mWorldDirtyFlag = true;
+	newChildren->mParent = this;
+	newChildren->mDirtyFlag = true;
 	mChildren.push_back(newChildren);
 }
 
-void Node::removeChildren(std::shared_ptr<Node> children)
-{
-	for (std::vector<std::shared_ptr<Node>>::iterator iter = mChildren.begin(); iter != mChildren.end(); )
-	{
+void Node::removeChildren(Node* children) {
+	for (auto iter = mChildren.begin(); iter != mChildren.end(); ) {
 		if (iter == mChildren.end())
 			break;
-		if (*iter == children)
-		{
+
+		if (*iter == children) {
 			mChildren.erase(iter);
-            children->mParent = NULL;
-            children->mWorldDirtyFlag = true;
+            children->mParent = nullptr;
+            children->mDirtyFlag = true;
 		}
 	}
 }
 
-void Node::setTransform(const glm::vec3 &pos, const glm::vec3 &scale, const glm::quat &rot)
-{
+void Node::setTransform(const glm::vec3 &pos, const glm::vec3 &scale, const glm::quat &rot) {
     mLPos = pos;
     mLScale = scale;
     mLRot = rot;
-    mLocalDirtyFlag = true;
+    mDirtyFlag = true;
+}
+
+void Node::setPosition(const glm::vec3& pos) {
+    mLPos = pos;
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
+}
+
+void Node::setRotation(const glm::quat& rot) {
+    mLRot = rot;
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
+}
+
+void Node::setScale(const glm::vec3& scale) {
+    mLScale = scale;
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
+}
+
+void Node::setPitch(const float& pitch) {
+    mPitch = pitch;
+    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));//fromEulerAngles(mPitch, mYaw, mRoll);
+    float pp = glm::pitch(mLRot);
+    pp = pp * 180.0f / PI;
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
+}
+
+void Node::setYaw(const float& yaw) {
+    mYaw = yaw;
+    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));
+    //mLRot = fromEulerAngles(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll));
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
+}
+
+void Node::setRoll(const float& roll) {
+    mRoll = roll;
+    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));
+    //mLRot = fromEulerAngles(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll));
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
+}
+
+void Node::rotate(const glm::vec3 axis, const float &angle) {
+    glm::quat r = fromAxisAngle(axis, glm::radians(angle));
+    mLRot = mLRot * r;
+    mDirtyFlag = true;
+    for (int i = 0; i < mChildren.size(); ++i) {
+        mChildren[i]->mDirtyFlag = true;
+    }
 }
 
 glm::mat4 Node::getLocalMatrix()
@@ -96,87 +149,31 @@ glm::mat4 Node::getLocalMatrix()
     T = glm::translate(glm::mat4(1.0),mLPos);
     S = glm::scale(glm::mat4(1.0),mLScale);
     mLocalMatrix = T * R * S;
-    mLocalDirtyFlag = false;
     return mLocalMatrix;
 }
 
 glm::mat4 Node::getWorldMatrix()
 {
     glm::mat4 out = getLocalMatrix();
-    std::shared_ptr<Node> cur = mParent;
-    while (cur)
-    {
+    Node* cur = mParent;
+    while (cur) {
         out = cur->getLocalMatrix() * out;
         cur = cur->mParent;
     }
     mWorldMatrix = out;
-    mWorldDirtyFlag = false;
     return mWorldMatrix;
 }
 
-void Node::setPosition(const glm::vec3& pos)
-{
-    mLPos = pos;
-    mLocalDirtyFlag = true;
-}
-
-void Node::setRotation(const glm::quat& rot)
-{
-    mLRot = rot;
-    mLocalDirtyFlag = true;
-}
-
-void Node::setScale(const glm::vec3& scale)
-{
-    mLScale = scale;
-    mLocalDirtyFlag = true;
-}
-
-glm::vec3 Node::getRightVector()
-{
+glm::vec3 Node::getRightVector() {
     return getAxisX(getWorldMatrix());
 }
 
-glm::vec3 Node::getUpVector()
-{
+glm::vec3 Node::getUpVector() {
     return getAxisY(getWorldMatrix());
 }
 
-glm::vec3 Node::getFrontVector()
-{
+glm::vec3 Node::getFrontVector() {
     return getAxisZ(getWorldMatrix());
-}
-
-void Node::setPitch(const float& pitch)
-{
-    mPitch = pitch;
-    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));//fromEulerAngles(mPitch, mYaw, mRoll);
-    float pp = glm::pitch(mLRot);
-    pp = pp * 180.0f / PI;
-    mLocalDirtyFlag = true;
-}
-
-void Node::setYaw(const float& yaw)
-{
-    mYaw = yaw;
-    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));
-    //mLRot = fromEulerAngles(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll));
-    mLocalDirtyFlag = true;
-}
-
-void Node::setRoll(const float& roll)
-{
-    mRoll = roll;
-    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));
-    //mLRot = fromEulerAngles(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll));
-    mLocalDirtyFlag = true;
-}
-
-void Node::rotate(const glm::vec3 axis, const float &angle)
-{
-    glm::quat r = fromAxisAngle(axis, glm::radians(angle));
-    mLRot = mLRot * r;
-    mLocalDirtyFlag = true;
 }
 
 EFFECTS_NAMESPACE_END

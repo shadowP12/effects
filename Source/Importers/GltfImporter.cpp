@@ -28,6 +28,7 @@ GltfImporter::~GltfImporter()
 
 void GltfImporter::load(std::string filePath, GltfScene* scene)
 {
+    /*
     cgltf_options options = {static_cast<cgltf_file_type>(0)};
     cgltf_data* data = NULL;
     cgltf_result result = cgltf_parse_file(&options, filePath.c_str(), &data);
@@ -413,6 +414,7 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
     }
 
     cgltf_free(data);
+    */
 }
 
 int getCNodeInxFromCData(const cgltf_node* node, const cgltf_data* data)

@@ -14,13 +14,16 @@ class Renderer : public Module<Renderer>
 public:
     Renderer();
     ~Renderer();
-    void render(Camera* cam);
-    void notifyRenderViewAdded(std::shared_ptr<RenderView> view);
-    void notifyRenderableAdded(std::shared_ptr<Renderable> renderable);
-    std::vector<std::shared_ptr<Renderable>> getRenderables(){return mRenderables;}
+    void render();
+    RenderView* addRenderView();
+    Renderable* addRenderable();
+    std::vector<RenderView*>& getViews() { return mViews; }
+    std::vector<Renderable*>& getRenderables() { return mRenderables; }
 private:
-    std::vector<std::shared_ptr<Renderable>> mRenderables;
-    std::shared_ptr<RenderView> mMainView;
+    std::vector<Renderable*> mRenderables;
+    std::vector<RenderView*> mViews;
+
+
 };
 
 EFFECTS_NAMESPACE_END

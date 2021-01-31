@@ -14,7 +14,7 @@ enum class RenderableAnimType
 class Mesh;
 class Material;
 
-class Renderable : public std::enable_shared_from_this<Renderable>
+class Renderable
 {
 public:
     Renderable();

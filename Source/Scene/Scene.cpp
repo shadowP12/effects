@@ -1,47 +1,52 @@
 #include "Scene.h"
-#include "Component.h"
+#include "Components/Component.h"
 EFFECTS_NAMESPACE_BEGIN
 
-SceneObject::SceneObject()
-{
+SceneNode::SceneNode() {
 }
 
-SceneObject::~SceneObject()
-{
+SceneNode::~SceneNode() {
+    for (int i = 0; i < mComponents.size(); ++i) {
+        SAFE_DELETE(mComponents[i]);
+    }
+    mComponents.clear();
 }
 
-void SceneObject::initialized()
-{
-    SceneManager::instance().addSceneObject(std::dynamic_pointer_cast<SceneObject>(shared_from_this()));
+void SceneNode::initialized() {
 }
 
-void SceneObject::update()
-{
-    for (int i = 0; i < mComponents.size(); ++i)
-    {
-        mComponents[i]->update();
+void SceneNode::update(float dt) {
+    for (int i = 0; i < mComponents.size(); ++i) {
+        if (mDirtyFlag) {
+            mComponents[i]->onNodeDirty();
+        }
+        mComponents[i]->update(dt);
+    }
+    if (mDirtyFlag) {
+        mDirtyFlag = false;
     }
 }
 
-SceneManager::SceneManager()
-{
+Scene::Scene(){
+    mRootNode = new SceneNode();
+    mNodes.push_back(mRootNode);
 }
 
-SceneManager::~SceneManager()
-{
+Scene::~Scene(){
+    SAFE_DELETE(mRootNode);
+    mNodes.clear();
 }
 
-void SceneManager::addSceneObject(std::shared_ptr<SceneObject> obj)
-{
-    // todo: add check process
-    mSceneObjects.push_back(obj);
+SceneNode* Scene::addNode() {
+    SceneNode* node = new SceneNode();
+    node->setParent(mRootNode);
+    mNodes.push_back(node);
+    return node;
 }
 
-void SceneManager::update()
-{
-    for (int i = 0; i < mSceneObjects.size(); ++i)
-    {
-        mSceneObjects[i]->update();
+void Scene::update(float dt) {
+    for (int i = 0; i < mNodes.size(); ++i) {
+        mNodes[i]->update(dt);
     }
 }
 

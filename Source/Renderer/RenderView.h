@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Core/Base.h"
+#include "Core/Gfx/GfxResources.h"
 #include "Math/Math.h"
 #include <memory>
 EFFECTS_NAMESPACE_BEGIN
 
-class RenderView : public std::enable_shared_from_this<RenderView>
+class Renderer;
+
+class RenderView
 {
 public:
     RenderView();
@@ -24,6 +27,8 @@ public:
     glm::mat4 getViewMatrix();
     glm::mat4 getProjMatrix();
 private:
+    friend Renderer;
+    GfxFramebuffer* mRenderTarget = nullptr;
     float mFov;
     float mNear;
     float mFar;

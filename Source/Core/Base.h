@@ -5,3 +5,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define TINYGLTF_IMPLEMENTATION
+
+#define SAFE_DELETE(x) \
+    { \
+        delete x; \
+        x = nullptr; \
+    }
+
+#define SAFE_DELETE_ARRAY(x) \
+    { \
+        delete[] x; \
+        x = nullptr; \
+    }

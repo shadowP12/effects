@@ -16,7 +16,6 @@ Renderable::~Renderable()
 
 void Renderable::initialize()
 {
-    Renderer::instance().notifyRenderableAdded(shared_from_this());
 }
 
 void Renderable::setMesh(std::shared_ptr<Mesh> mesh)
