@@ -9,13 +9,10 @@ Renderable::Renderable()
 
 }
 
-Renderable::~Renderable()
-{
-
+Renderable::~Renderable() {
 }
 
-void Renderable::initialize()
-{
+void Renderable::initialize() {
 }
 
 void Renderable::setMesh(std::shared_ptr<Mesh> mesh)

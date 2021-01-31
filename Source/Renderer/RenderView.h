@@ -27,7 +27,12 @@ public:
     glm::mat4 getViewMatrix();
     glm::mat4 getProjMatrix();
 private:
+    void resetRenderTarget();
+private:
     friend Renderer;
+    GfxSampler* mSampler = nullptr;
+    GfxTexture* mColorTex = nullptr;
+    GfxRenderbuffer* mDepthTex = nullptr;
     GfxFramebuffer* mRenderTarget = nullptr;
     float mFov;
     float mNear;

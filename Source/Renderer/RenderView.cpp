@@ -5,13 +5,51 @@ RenderView::RenderView()
 {
 }
 
-RenderView::~RenderView()
-{
+RenderView::~RenderView() {
+    SAFE_DELETE(mSampler);
+    SAFE_DELETE(mColorTex);
+    SAFE_DELETE(mDepthTex);
+    SAFE_DELETE(mRenderTarget);
 }
 
 void RenderView::initialize() {
-
+    resetRenderTarget();
     mProjDirtyFlag = true;
+}
+
+void RenderView::resetRenderTarget() {
+    SAFE_DELETE(mSampler);
+    SAFE_DELETE(mColorTex);
+    SAFE_DELETE(mDepthTex);
+    SAFE_DELETE(mRenderTarget);
+
+    GfxSamplerDesc samplerDesc;
+    samplerDesc.minFilter = GL_LINEAR;
+    samplerDesc.magFilter = GL_LINEAR;
+    samplerDesc.wrapS = GL_REPEAT;
+    samplerDesc.wrapT = GL_REPEAT;
+    mSampler = createGfxSampler(samplerDesc);
+
+    GfxTextureDesc drawingTexDesc;
+    drawingTexDesc.width = mViewPort.z;
+    drawingTexDesc.height = mViewPort.w;
+    drawingTexDesc.componentType = GL_FLOAT;
+    drawingTexDesc.internalFormat = GL_RGBA16;
+    drawingTexDesc.format = GL_RGBA;
+    mColorTex = createGfxTexture(drawingTexDesc);
+    writeGfxTextureData(mColorTex, nullptr);
+    setGfxTextureSampler(mColorTex, mSampler);
+
+    GfxRenderbufferDesc drawingDepthBufferDesc;
+    drawingDepthBufferDesc.width = mViewPort.z;
+    drawingDepthBufferDesc.height = mViewPort.w;
+    drawingDepthBufferDesc.internalformat = GL_DEPTH_COMPONENT;
+    mDepthTex = createGfxRenderbuffer(drawingDepthBufferDesc);
+
+    GfxFramebufferDesc drawingFramebufferDesc;
+    drawingFramebufferDesc.targets[0] = mColorTex;
+    drawingFramebufferDesc.depthBuffer = mDepthTex;
+    mRenderTarget = createGfxFramebuffer(drawingFramebufferDesc);
 }
 
 void RenderView::setTransform(const glm::mat4 &mat)
@@ -69,6 +107,7 @@ void RenderView::setFar(const float& far)
 void RenderView::setViewPort(const float& x, const float& y, const float& w, const float& h)
 {
     mViewPort = glm::vec4(x, y, w, h);
+    resetRenderTarget();
     mProjDirtyFlag = true;
 }
 

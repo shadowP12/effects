@@ -1,14 +1,13 @@
 #include "Renderer.h"
 #include "Renderable.h"
 #include "RenderView.h"
-#include "../RenderResources/Mesh.h"
-#include "../RenderResources/Material.h"
-#include "../Scene/RenderScene.h"
-#include "../Scene/CommonTool.h"
+#include "RenderResources/Mesh.h"
+#include "RenderResources/Material.h"
 EFFECTS_NAMESPACE_BEGIN
 
-Renderer::Renderer()
-{}
+Renderer::Renderer() {
+    mQuadMesh = std::make_shared<Mesh*>(genQuadMesh());
+}
 
 Renderer::~Renderer() {
     for (int i = 0; i < mViews.size(); ++i) {
@@ -36,7 +35,6 @@ Renderable* Renderer::addRenderable() {
 
 void Renderer::render()
 {
-
 
     // output
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

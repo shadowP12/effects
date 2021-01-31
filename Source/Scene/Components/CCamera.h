@@ -11,8 +11,9 @@ public:
     CCamera(SceneNode* node);
     virtual ~CCamera();
     static ComponentType getClassType() { return ComponentType::Camera; }
-    ComponentType getType() override { return mType; }
+    ComponentType getType() override { return ComponentType::Camera; }
     void onNodeDirty() override;
+    void initialized() override;
     void setFov(const float& fov);
     void setNear(const float& near);
     void setFar(const float& far);
