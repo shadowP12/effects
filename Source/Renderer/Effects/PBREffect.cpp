@@ -14,6 +14,7 @@
 #include "Renderer/IBLUtility.h"
 EFFECTS_NAMESPACE_BEGIN
 
+/*
     static GltfScene* gScene = nullptr;
     static GltfImporter gImporter;
     static LightWidget* gLightWidget = nullptr;
@@ -446,4 +447,5 @@ static std::string getPBRDefine(uint32_t material, uint32_t layout, bool ibl)
 //            }
         }
     }
+    */
 EFFECTS_NAMESPACE_END

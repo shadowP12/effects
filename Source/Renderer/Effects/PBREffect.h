@@ -4,6 +4,7 @@
 
 EFFECTS_NAMESPACE_BEGIN
 
+/*
 class LightWidget;
 struct Light;
 
@@ -20,5 +21,5 @@ private:
 	Light* m_light;
 	LightWidget* m_light_widget;
 };
-
+*/
 EFFECTS_NAMESPACE_END

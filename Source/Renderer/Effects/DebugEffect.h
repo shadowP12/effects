@@ -4,6 +4,7 @@
 
 EFFECTS_NAMESPACE_BEGIN
 
+/*
 class DebugEffect : public BaseEffect
 {
 public:
@@ -13,5 +14,5 @@ public:
 	void update(float t) override ;
 	void render() override;
 };
-
+*/
 EFFECTS_NAMESPACE_END
