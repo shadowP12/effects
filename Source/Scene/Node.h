@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include "Core/Base.h"
+#include "Core/Utility/Log.h"
 #include "Math/Math.h"
 
 EFFECTS_NAMESPACE_BEGIN
@@ -14,17 +15,17 @@ public:
 		mLPos = glm::vec3(0,0,0);
 		mLScale = glm::vec3(1,1,1);
 		mLRot = glm::quat(1,0,0,0);
-        mPitch = 0.0f;
-        mYaw = 0.0f;
-        mRoll = 0.0;
         mDirtyFlag = true;
 	}
 
 	virtual ~Node() {
         setParent(nullptr);
-        for (auto iter = mChildren.begin(); iter != mChildren.end(); ) {
-            SAFE_DELETE(*iter);
+
+        std::vector<Node*> temp = mChildren;
+        for (int i = 0; i < temp.size(); ++i) {
+            SAFE_DELETE(temp[i]);
         }
+		mChildren.clear();
 	}
 
 	Node* getParent() {
@@ -49,12 +50,6 @@ public:
     glm::vec3 getRightVector();
     glm::vec3 getUpVector();
     glm::vec3 getFrontVector();
-    void setPitch(const float& pitch);
-    void setYaw(const float& yaw);
-    void setRoll(const float& roll);
-    float getPitch() { return mPitch; }
-    float getYaw() { return mYaw; }
-    float getRoll() { return mRoll; }
     void rotate(const glm::vec3 axis, const float& angle);
 protected:
 	Node* mParent;
@@ -62,9 +57,6 @@ protected:
 	glm::vec3 mLPos;
 	glm::vec3 mLScale;
 	glm::quat mLRot;
-    float mPitch;
-    float mYaw;
-    float mRoll;
 	glm::mat4 mLocalMatrix;
     glm::mat4 mWorldMatrix;
     bool mDirtyFlag;

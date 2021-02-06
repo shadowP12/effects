@@ -1,8 +1,7 @@
 #include "RenderView.h"
 #include "Renderer.h"
 EFFECTS_NAMESPACE_BEGIN
-RenderView::RenderView()
-{
+RenderView::RenderView() {
 }
 
 RenderView::~RenderView() {
@@ -13,11 +12,10 @@ RenderView::~RenderView() {
 }
 
 void RenderView::initialize() {
-    resetRenderTarget();
-    mProjDirtyFlag = true;
 }
 
 void RenderView::resetRenderTarget() {
+    // todo
     SAFE_DELETE(mSampler);
     SAFE_DELETE(mColorTex);
     SAFE_DELETE(mDepthTex);
@@ -61,54 +59,50 @@ void RenderView::setTransform(const glm::mat4 &mat)
     glm::vec3 right = getAxisX(mWorldMatrix);
     glm::vec3 up = getAxisY(mWorldMatrix);
 
-    mViewMatrix = lookAt(position, position + front, up);
+    mViewMatrix = glm::lookAt(position, position + front, up);
     //mViewMatrix = glm::inverse(mWorldMatrix);
 }
 
-glm::mat4 RenderView::getTransform()
+const glm::mat4& RenderView::getTransform() const
 {
     return mWorldMatrix;
 }
 
-glm::mat4 RenderView::getViewMatrix()
-{
+const glm::mat4& RenderView::getViewMatrix() const {
     return mViewMatrix;
 }
 
-glm::mat4 RenderView::getProjMatrix()
-{
-    if(mProjDirtyFlag)
-    {
-        mProjDirtyFlag = false;
-        float ratio = (mViewPort.z - mViewPort.x) / (mViewPort.w - mViewPort.y);
-        mProjMatrix = glm::perspective(glm::radians(mFov), ratio, mNear, mFar);
-    }
+const glm::mat4& RenderView::getProjMatrix() const {
     return mProjMatrix;
 }
 
 void RenderView::setFov(const float& fov)
 {
     mFov = fov;
-    mProjDirtyFlag = true;
+    float ratio = (mViewPort.z - mViewPort.x) / (mViewPort.w - mViewPort.y);
+    mProjMatrix = glm::perspective(glm::radians(mFov), ratio, mNear, mFar);
 }
 
 void RenderView::setNear(const float& near)
 {
     mNear = near;
-    mProjDirtyFlag = true;
+    float ratio = (mViewPort.z - mViewPort.x) / (mViewPort.w - mViewPort.y);
+    mProjMatrix = glm::perspective(glm::radians(mFov), ratio, mNear, mFar);
 }
 
 void RenderView::setFar(const float& far)
 {
     mFar = far;
-    mProjDirtyFlag = true;
+    float ratio = (mViewPort.z - mViewPort.x) / (mViewPort.w - mViewPort.y);
+    mProjMatrix = glm::perspective(glm::radians(mFov), ratio, mNear, mFar);
 }
 
 void RenderView::setViewPort(const float& x, const float& y, const float& w, const float& h)
 {
     mViewPort = glm::vec4(x, y, w, h);
     resetRenderTarget();
-    mProjDirtyFlag = true;
+    float ratio = (mViewPort.z - mViewPort.x) / (mViewPort.w - mViewPort.y);
+    mProjMatrix = glm::perspective(glm::radians(mFov), ratio, mNear, mFar);
 }
 
 float RenderView::getFov()

@@ -12,6 +12,7 @@ class RenderView;
 class GpuProgramDefines;
 class Camera;
 class Mesh;
+class DefaultEffect;
 
 class Renderer : public Module<Renderer>
 {
@@ -28,6 +29,7 @@ private:
     std::shared_ptr<Mesh> mQuadMesh;
     std::vector<Renderable*> mRenderables;
     std::vector<RenderView*> mViews;
+    std::shared_ptr<DefaultEffect> mDefaultEffect;
 };
 
 EFFECTS_NAMESPACE_END

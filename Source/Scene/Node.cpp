@@ -16,10 +16,14 @@ void Node::setParent(Node* newParent) {
 
 	if (oldParent) {
 		for (auto iter = oldParent->mChildren.begin(); iter != oldParent->mChildren.end(); ) {
-			if (iter == oldParent->mChildren.end())
-				break;
-			if (*iter == this)
-				oldParent->mChildren.erase(iter);
+			if (iter == oldParent->mChildren.end()) {
+			    break;
+			}
+
+			if (*iter == this) {
+                oldParent->mChildren.erase(iter);
+                break;
+            }
 		}
 	}
 
@@ -45,10 +49,14 @@ void Node::appendChildren(Node* newChildren) {
 	Node* oldParent = newChildren->mParent;
 	if (oldParent) {
 		for (auto iter = oldParent->mChildren.begin(); iter != oldParent->mChildren.end(); ) {
-			if (iter == oldParent->mChildren.end())
-				break;
-			if (*iter == newChildren)
-				oldParent->mChildren.erase(iter);
+			if (iter == oldParent->mChildren.end()) {
+                break;
+			}
+
+			if (*iter == newChildren) {
+                oldParent->mChildren.erase(iter);
+                break;
+            }
 		}
 	}
 	
@@ -95,37 +103,6 @@ void Node::setRotation(const glm::quat& rot) {
 
 void Node::setScale(const glm::vec3& scale) {
     mLScale = scale;
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
-}
-
-void Node::setPitch(const float& pitch) {
-    mPitch = pitch;
-    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));//fromEulerAngles(mPitch, mYaw, mRoll);
-    float pp = glm::pitch(mLRot);
-    pp = pp * 180.0f / PI;
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
-}
-
-void Node::setYaw(const float& yaw) {
-    mYaw = yaw;
-    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));
-    //mLRot = fromEulerAngles(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll));
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
-}
-
-void Node::setRoll(const float& roll) {
-    mRoll = roll;
-    mLRot = glm::quat(glm::vec3(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll)));
-    //mLRot = fromEulerAngles(glm::radians(mPitch), glm::radians(mYaw), glm::radians(mRoll));
     mDirtyFlag = true;
     for (int i = 0; i < mChildren.size(); ++i) {
         mChildren[i]->mDirtyFlag = true;

@@ -3,14 +3,17 @@
 EFFECTS_NAMESPACE_BEGIN
 
 InputSystem::InputSystem() {
-    reset();
+    mMousePosition = glm::vec2(0.0f, 0.0f);
+    memset(mMouseButtonHeld, 0, sizeof(mMouseButtonHeld));
+    memset(mMouseButtonUp, 0, sizeof(mMouseButtonUp));
+    memset(mMouseButtonDown, 0, sizeof(mMouseButtonDown));
+    mMouseScrollWheel = 0.0;
 }
 
 InputSystem::~InputSystem() {
 }
 
 void InputSystem::reset() {
-    mMousePosition = glm::vec2(0.0f, 0.0f);
     memset(mMouseButtonUp, 0, sizeof(mMouseButtonUp));
     memset(mMouseButtonDown, 0, sizeof(mMouseButtonDown));
     mMouseScrollWheel = 0.0;

@@ -12,6 +12,7 @@ public:
     virtual ~CCamera();
     static ComponentType getClassType() { return ComponentType::Camera; }
     ComponentType getType() override { return ComponentType::Camera; }
+    RenderView* getRenderView() { return mInternal; }
     void onNodeDirty() override;
     void initialized() override;
     void setFov(const float& fov);

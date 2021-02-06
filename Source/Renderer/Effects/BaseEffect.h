@@ -8,9 +8,11 @@ EFFECTS_NAMESPACE_BEGIN
 
 class RenderView;
 class Renderable;
+class GfxProgram;
 
 enum class EffectType {
     DEFAULT = 0,
+    MAX_EFFECT_TYPES
 };
 
 class BaseEffect

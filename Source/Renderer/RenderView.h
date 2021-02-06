@@ -6,6 +6,7 @@
 #include <memory>
 EFFECTS_NAMESPACE_BEGIN
 
+class BaseEffect;
 class Renderer;
 
 class RenderView
@@ -14,6 +15,9 @@ public:
     RenderView();
     ~RenderView();
     void initialize();
+    GfxFramebuffer* getRenderTarget() { return mRenderTarget; }
+    GfxTexture* getColorTex() { return mColorTex; }
+    GfxRenderbuffer* getRenderbuffer() { return mDepthTex; }
     void setFov(const float& fov);
     void setNear(const float& near);
     void setFar(const float& far);
@@ -23,13 +27,14 @@ public:
     float getFar();
     glm::vec4 getViewPort();
     void setTransform(const glm::mat4& mat);
-    glm::mat4 getTransform();
-    glm::mat4 getViewMatrix();
-    glm::mat4 getProjMatrix();
+    const glm::mat4& getTransform() const;
+    const glm::mat4& getViewMatrix() const;
+    const glm::mat4& getProjMatrix() const;
 private:
     void resetRenderTarget();
 private:
     friend Renderer;
+    friend BaseEffect;
     GfxSampler* mSampler = nullptr;
     GfxTexture* mColorTex = nullptr;
     GfxRenderbuffer* mDepthTex = nullptr;

@@ -13,7 +13,9 @@ class Material
 public:
     Material();
     ~Material();
-    void setType(const EffectType& type);
+    void setType(const EffectType& type) {
+        mType = type;
+    }
     EffectType getType() { return mType; }
     std::unordered_map<std::string, int>& getIntParams(){return mIntParams;}
     std::unordered_map<std::string, float>& getFloatParams(){return mFloatParams;}

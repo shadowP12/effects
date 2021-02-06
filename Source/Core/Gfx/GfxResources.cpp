@@ -514,6 +514,7 @@ static GLuint createGpuProgram(const char* vertex_source, const char* fragment_s
     void destroyGfxProgram(GfxProgram* program)
     {
         glDeleteProgram(program->handle);
+        SAFE_DELETE(program);
     }
 
     void setGfxProgramFloat(GfxProgram* program, const char* name, float value)

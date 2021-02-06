@@ -4,6 +4,7 @@
 #include "IMGUI/imgui.h"
 #include "IMGUI/imgui_impl_glfw.h"
 #include "IMGUI/imgui_impl_opengl3.h"
+#include "IMGUI/imgui_internal.h"
 #include <vector>
 EFFECTS_NAMESPACE_BEGIN
 

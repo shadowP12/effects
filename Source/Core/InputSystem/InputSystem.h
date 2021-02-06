@@ -11,7 +11,9 @@ public:
     InputSystem();
     ~InputSystem();
     void reset();
-    float getMouseScrollWheel() { return mMouseScrollWheel; }
+    float getMouseScrollWheel() {
+        return mMouseScrollWheel;
+    }
     bool getMouseButtonHeld(uint8_t i) { return mMouseButtonHeld[i]; }
     bool getMouseButtonDown(uint8_t i) { return mMouseButtonDown[i]; }
     bool getMouseButtonUp(uint8_t i) { return mMouseButtonUp[i]; }

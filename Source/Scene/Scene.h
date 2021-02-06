@@ -15,9 +15,9 @@ class SceneNode : public Node
 {
 public:
     SceneNode();
-    virtual ~SceneNode();
+    ~SceneNode();
     template<class T, class... Args>
-    std::shared_ptr<T> addComponent(Args &&... args) {
+    T* addComponent(Args &&... args) {
         T* component = new T(this, std::forward<Args>(args)...);
         mComponents.push_back(component);
         return component;
@@ -27,7 +27,7 @@ public:
     T* getComponent() {
         for (int i = 0; i < mComponents.size(); ++i) {
             if(mComponents[i]->getType() == T::getClassType()) {
-                return std::static_pointer_cast<T>(mComponents[i]);
+                return (T*)mComponents[i];
             }
         }
         return nullptr;
