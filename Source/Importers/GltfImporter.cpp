@@ -1,7 +1,7 @@
 #include "GltfImporter.h"
 #include "Scene/Node.h"
 #include "Datas/MeshData.h"
-#include "RenderResources/Mesh.h"
+#include "Renderer/Resources/Mesh.h"
 #include "Core/Gfx/GfxResources.h"
 #include "TextureImporter.h"
 #define CGLTF_IMPLEMENTATION

@@ -3,8 +3,8 @@
 #include "UI/UISystem.h"
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderer.h"
-#include "RenderResources/Mesh.h"
-#include "RenderResources/Material.h"
+#include "Renderer/Resources/Mesh.h"
+#include "Renderer/Resources/Material.h"
 #include "Importers/GltfImporter.h"
 #include "Core/InputSystem/InputSystem.h"
 #include "Core/Utility/FileUtility.h"
@@ -46,7 +46,7 @@ void init()
 	et::Scene::startUp();
 
     {
-        gMainCamera = et::Scene::instance().addNode();
+        gMainCamera = et::SceneNode::create();
         et::CCamera* ccamera = gMainCamera->addComponent<et::CCamera>();
         ccamera->setViewPort(0.0f, 0.0f, 1200.0f, 1000.0f);
         ccamera->setFov(60.0f);
@@ -56,7 +56,7 @@ void init()
     }
 
     {
-        et::SceneNode* cubeNode = et::Scene::instance().addNode();
+        et::SceneNode* cubeNode = et::SceneNode::create();
         et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
         std::shared_ptr<et::Mesh> cubeMesh = std::shared_ptr<et::Mesh>(et::genQuadMesh());
         std::shared_ptr<et::Material> cubeMaterial = std::make_shared<et::Material>();
@@ -120,7 +120,8 @@ int main()
 
     bool loadDefaultLayout = true;
     ImVec2 region = ImVec2(0.0f, 0.0f);
-	while (!glfwWindowShouldClose(g_window)) {
+    et::SceneNode* selectionNode = nullptr;
+    while (!glfwWindowShouldClose(g_window)) {
         glfwPollEvents();
         update(0.001);
         et::Renderer::instance().render();
@@ -166,6 +167,18 @@ int main()
         }
 
         ImGui::Begin("hierarchy");
+        for (int i = 0; i < et::Scene::instance().getNodes().size(); ++i) {
+            et::SceneNode* node = et::Scene::instance().getNodes()[i];
+            ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow;
+            treeNodeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+            bool opened = ImGui::TreeNodeEx((void*)node, treeNodeFlags, "node");
+            if (ImGui::IsItemClicked()) {
+                selectionNode = node;
+            }
+            if (opened) {
+                ImGui::TreePop();
+            }
+        }
         ImGui::End();
 
         ImGui::Begin("resources");

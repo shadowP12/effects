@@ -1,7 +1,7 @@
 #include "Renderable.h"
 #include "Renderer.h"
-#include "../RenderResources/Mesh.h"
-#include "../RenderResources/Material.h"
+#include "Renderer/Resources/Mesh.h"
+#include "Renderer/Resources/Material.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Renderable::Renderable()

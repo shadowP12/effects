@@ -1,6 +1,6 @@
 #include "IBLUtility.h"
 #include "Core/Gfx/GfxResources.h"
-#include "RenderResources/Mesh.h"
+#include "Renderer/Resources/Mesh.h"
 #include "Core/Utility/FileUtility.h"
 #include "Math/Math.h"
 #include "Importers/TextureImporter.h"
