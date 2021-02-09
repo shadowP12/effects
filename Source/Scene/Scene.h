@@ -14,7 +14,7 @@ class SceneManager;
 class SceneNode
 {
 public:
-    static SceneNode* create();
+    static SceneNode* create(const std::string& id);
     static void destroy(SceneNode* node);
 
     template<class T, class... Args>
@@ -66,6 +66,8 @@ private:
     void destroyInternal();
 protected:
     friend class Scene;
+    std::string mId;
+    std::string mUUID;
     SceneNode* mParent;
     std::vector<SceneNode*> mChildren;
     std::vector<Component*> mComponents;

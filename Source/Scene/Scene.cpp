@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Components/Component.h"
+#include "Core/Utility/UUID.h"
 EFFECTS_NAMESPACE_BEGIN
 
 SceneNode::SceneNode() {
@@ -8,8 +9,10 @@ SceneNode::SceneNode() {
 SceneNode::~SceneNode() {
 }
 
-SceneNode* SceneNode::create() {
+SceneNode* SceneNode::create(const std::string& id) {
     SceneNode* node = Scene::instance().addNode();
+    node->mId = id;
+    node->mUUID = generateUUID();
     node->mParent = nullptr;
     node->mChildren.clear();
     node->mComponents.clear();

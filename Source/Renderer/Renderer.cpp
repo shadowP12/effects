@@ -1,8 +1,8 @@
 #include "Renderer.h"
 #include "Renderable.h"
 #include "RenderView.h"
-#include "Renderer/Resources/Mesh.h"
-#include "Renderer/Resources/Material.h"
+#include "Resources/Mesh.h"
+#include "Resources/Material.h"
 #include "Renderer/Effects/DefaultEffect.h"
 EFFECTS_NAMESPACE_BEGIN
 

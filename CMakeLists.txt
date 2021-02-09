@@ -9,4 +9,7 @@ target_link_libraries(effects ${DependentLibs})
 add_library(libglad STATIC ${GLAD_ROOT}/src/glad.c)
 target_link_libraries(effects libglad)
 
+# window's uuid
+target_link_libraries(effects rpcrt4)
+
 include(CMake/InstallConfig.cmake)

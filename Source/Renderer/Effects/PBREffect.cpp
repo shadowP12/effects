@@ -6,7 +6,7 @@
 #include "Renderer/RenderHelper.h"
 #include "Importers/GltfImporter.h"
 #include "Scene/Node.h"
-#include "Renderer/Resources/Mesh.h"
+#include "Resources/Mesh.h"
 #include "Datas/MeshData.h"
 #include "Core/Utility/Hash.h"
 #include "Core/Utility/FileUtility.h"
