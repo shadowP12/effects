@@ -28,7 +28,7 @@ void CameraController::update(float dt) {
     if (InputSystem::instance().getMouseButtonHeld(1)) {
         glm::vec2 offset = InputSystem::instance().getMousePosition() - mLastMousePosition;
         glm::vec3 euler = mCameraNode->getEuler();
-        euler.x -= offset.y * 0.003f;
+        euler.x += offset.y * 0.003f;
         euler.y -= offset.x * 0.003f;
         mCameraNode->setEuler(euler);
         mLastMousePosition = InputSystem::instance().getMousePosition();

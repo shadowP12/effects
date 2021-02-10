@@ -116,7 +116,7 @@ void Editor::render() {
         ccamera->setViewPort(0.0f, 0.0f, curRegion.x, curRegion.y);
         region = ImVec2(curRegion.x, curRegion.y);
     }
-    ImGui::Image(reinterpret_cast<void*>(ccamera->getRenderView()->getColorTex()->handle), curRegion);
+    ImGui::Image(reinterpret_cast<void*>(ccamera->getRenderView()->getColorTex()->handle), curRegion, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
     ImGui::End();
 
     ImGui::End();
