@@ -9,6 +9,8 @@
 #include "Resources/Mesh.h"
 #include "Resources/Material.h"
 #include "UI/UISystem.h"
+#include "Editor/HierarchyTab.h"
+#include "Editor/InspectorTab.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Editor::Editor() {
@@ -18,6 +20,10 @@ Editor::~Editor() {
 }
 
 void Editor::init() {
+    // tabs
+    mHierarchyTab = std::make_shared<HierarchyTab>();
+    mInspectorTab = std::make_shared<InspectorTab>();
+
     mEditCamera = et::SceneNode::create("MainCamera");
     et::CCamera* ccamera = mEditCamera->addComponent<et::CCamera>();
     ccamera->setViewPort(0.0f, 0.0f, 1200.0f, 1000.0f);
@@ -25,6 +31,13 @@ void Editor::init() {
     ccamera->setNear(0.1f);
     ccamera->setFar(100.0f);
     ccamera->initialized();
+
+    et::SceneNode* t0 = et::SceneNode::create("t0");
+    et::SceneNode* t1 = et::SceneNode::create("t1");
+    et::SceneNode* t2 = et::SceneNode::create("t2");
+    t0->setParent(mEditCamera);
+    t1->setParent(mEditCamera);
+    t2->setParent(t0);
 
     et::SceneNode* cubeNode = et::SceneNode::create("cube");
     et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
@@ -73,28 +86,17 @@ void Editor::render() {
         ImGuiID dockLog = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.30f, nullptr, &dock_main_id);
 
         ImGui::DockBuilderDockWindow("hierarchy", dockHierarchy);
+        ImGui::DockBuilderDockWindow("inspector", dockInspector);
         ImGui::DockBuilderDockWindow("resources", dockResources);
         ImGui::DockBuilderDockWindow("console", dockLog);
         ImGui::DockBuilderDockWindow("profiler", dockLog);
         ImGui::DockBuilderDockWindow("scene", dock_main_id);
-        ImGui::DockBuilderDockWindow("inspector", dockInspector);
         ImGui::DockBuilderFinish(dockspaceID);
     }
 
-    ImGui::Begin("hierarchy");
-    for (int i = 0; i < et::Scene::instance().getNodes().size(); ++i) {
-        et::SceneNode* node = et::Scene::instance().getNodes()[i];
-        ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow;
-        treeNodeFlags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-        bool opened = ImGui::TreeNodeEx((void*)node, treeNodeFlags, "node");
-        if (ImGui::IsItemClicked()) {
-            mSelectionNode = node;
-        }
-        if (opened) {
-            ImGui::TreePop();
-        }
-    }
-    ImGui::End();
+    mHierarchyTab->render();
+
+    mInspectorTab->render();
 
     ImGui::Begin("resources");
     ImGui::End();
@@ -115,9 +117,6 @@ void Editor::render() {
         region = ImVec2(curRegion.x, curRegion.y);
     }
     ImGui::Image(reinterpret_cast<void*>(ccamera->getRenderView()->getColorTex()->handle), curRegion);
-    ImGui::End();
-
-    ImGui::Begin("inspector");
     ImGui::End();
 
     ImGui::End();

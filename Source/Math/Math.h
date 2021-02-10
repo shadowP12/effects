@@ -245,3 +245,64 @@ inline glm::vec3 projectPointToVector(const glm::vec3& point, const glm::vec3& p
     ret.z = mul * proj.z;
     return ret;
 }
+
+inline glm::vec3 matToEuler(const glm::mat4& inm)
+{
+    glm::mat4 m = glm::transpose(inm);
+    float m21 = m[2][1];
+    if (m21 < 1)
+    {
+        if (m21 > -1)
+        {
+            float xAngle = glm::radians(std::asin(m21));
+            float yAngle = std::atan2(-m[2][0], m[2][2]);
+            float zAngle = std::atan2(-m[0][1], m[1][1]);
+            return glm::vec3(xAngle, yAngle, zAngle);
+        }
+        else
+        {
+            // Note: Not an unique solution.
+            float xAngle = glm::radians(-3.1415926*0.5);
+            float yAngle = glm::radians(0.0f);
+            float zAngle = -std::atan2(m[0][2], m[0][0]);
+
+            return glm::vec3(xAngle, yAngle, zAngle);
+        }
+    }
+    else
+    {
+        // Note: Not an unique solution.
+        float xAngle = glm::radians(3.1415926*0.5);
+        float yAngle = glm::radians(0.0f);
+        float zAngle = std::atan2(m[0][2], m[0][0]);
+        return glm::vec3(xAngle, yAngle, zAngle);
+    }
+}
+
+inline glm::quat eulerToQuat(const glm::vec3& euler)
+{
+    float halfXAngle = euler.x * 0.5f;
+    float halfYAngle = euler.y * 0.5f;
+    float halfZAngle = euler.z * 0.5f;
+
+    float cx = std::cos(halfXAngle);
+    float sx = std::sin(halfXAngle);
+
+    float cy = std::cos(halfYAngle);
+    float sy = std::sin(halfYAngle);
+
+    float cz = std::cos(halfZAngle);
+    float sz = std::sin(halfZAngle);
+
+    glm::quat quatX(cx, sx, 0.0f, 0.0f);
+    glm::quat quatY(cy, 0.0f, sy, 0.0f);
+    glm::quat quatZ(cz, 0.0f, 0.0f, sz);
+
+    return quatZ * (quatX * quatY);
+}
+
+inline glm::vec3 quatToEuler(const glm::quat& rot)
+{
+    glm::mat4 matRot = glm::toMat4(rot);
+    return matToEuler(matRot);
+}

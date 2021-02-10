@@ -43,6 +43,7 @@ public:
     std::vector<SceneNode*>& getChildren() {
         return mChildren;
     }
+    const std::string& getId() { return mId; }
     void setParent(SceneNode* newParent);
     void appendChildren(SceneNode* newChildren);
     void removeChildren(SceneNode* oldChildren);
@@ -58,8 +59,9 @@ public:
     glm::vec3 getRightVector();
     glm::vec3 getUpVector();
     glm::vec3 getFrontVector();
+    void setEuler(const glm::vec3& euler);
+    const glm::vec3& getEuler() { return mLEuler; }
     void rotate(const glm::vec3 axis, const float& angle);
-
 private:
     SceneNode();
     ~SceneNode();
@@ -74,6 +76,7 @@ protected:
     glm::vec3 mLPos;
     glm::vec3 mLScale;
     glm::quat mLRot;
+    glm::vec3 mLEuler;
     glm::mat4 mLocalMatrix;
     glm::mat4 mWorldMatrix;
     bool mDirtyFlag;

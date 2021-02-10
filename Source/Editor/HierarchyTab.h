@@ -1,14 +1,17 @@
-//
-// Created by pan on 2021/2/9.
-//
+#pragma once
 
-#ifndef EFFECTS_HIERARCHYTAB_H
-#define EFFECTS_HIERARCHYTAB_H
+#include "Core/Base.h"
+EFFECTS_NAMESPACE_BEGIN
 
+class SceneNode;
 
 class HierarchyTab {
-
+public:
+    HierarchyTab();
+    ~HierarchyTab();
+    void render();
+private:
+    void renderNode(SceneNode* node);
 };
 
-
-#endif //EFFECTS_HIERARCHYTAB_H
+EFFECTS_NAMESPACE_END

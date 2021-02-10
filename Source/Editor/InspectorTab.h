@@ -1,14 +1,14 @@
-//
-// Created by pan on 2021/2/9.
-//
 
-#ifndef EFFECTS_INSPECTORTAB_H
-#define EFFECTS_INSPECTORTAB_H
+#pragma once
 
+#include "Core/Base.h"
+EFFECTS_NAMESPACE_BEGIN
 
 class InspectorTab {
-
+public:
+    InspectorTab();
+    ~InspectorTab();
+    void render();
 };
 
-
-#endif //EFFECTS_INSPECTORTAB_H
+EFFECTS_NAMESPACE_END

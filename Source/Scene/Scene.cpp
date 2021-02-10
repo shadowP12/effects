@@ -19,6 +19,7 @@ SceneNode* SceneNode::create(const std::string& id) {
     node->mLPos = glm::vec3(0,0,0);
     node->mLScale = glm::vec3(1,1,1);
     node->mLRot = glm::quat(1,0,0,0);
+    node->mLEuler = glm::vec3(0.0);
     node->mDirtyFlag = true;
     return node;
 }
@@ -207,6 +208,12 @@ glm::vec3 SceneNode::getUpVector() {
 glm::vec3 SceneNode::getFrontVector() {
     return getAxisZ(getWorldMatrix());
 }
+
+void SceneNode::setEuler(const glm::vec3& euler) {
+    mLEuler = euler;
+    setRotation(glm::quat(mLEuler));
+}
+
 
 Scene::Scene(){
 }
