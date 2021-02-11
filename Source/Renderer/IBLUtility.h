@@ -3,6 +3,7 @@
 #include "Core/Base.h"
 #include "Core/Gfx/GfxResources.h"
 #include <string>
+#include <memory>
 EFFECTS_NAMESPACE_BEGIN
 
     class Mesh;
@@ -26,8 +27,8 @@ EFFECTS_NAMESPACE_BEGIN
         GfxTexture* getLUTMap(){ return mLUTMap; }
         GfxFramebuffer* getCaptureFramebuffer(){ return mCaptureFramebuffer; }
     private:
-        Mesh* mCubeMesh;
-        Mesh* mQuadMesh;
+        std::shared_ptr<Mesh> mCubeMesh;
+        std::shared_ptr<Mesh> mQuadMesh;
         GfxSampler* mSampler;
         GfxTexture* mHDRMap;
         GfxTexture* mEnvCubeMap;

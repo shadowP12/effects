@@ -10,7 +10,7 @@
 #include "Core/Utility/Hash.h"
 #include "Scene/Scene.h"
 #include "Editor/Editor.h"
-
+#include "Resources/ResourceManager.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -37,6 +37,7 @@ void init()
     onMouseScrollEvent.bind(CALLBACK_1(et::InputSystem::onMouseScroll, et::InputSystem::instancePtr()));
     onFrameFinishEvent.bind(CALLBACK_0(et::InputSystem::reset, et::InputSystem::instancePtr()));
 
+    et::ResourceManager::startUp();
 	et::Renderer::startUp();
 	et::Scene::startUp();
 	et::Editor::startUp();
@@ -45,6 +46,7 @@ void init()
 
 void release() {
 	et::InputSystem::shutDown();
+    et::ResourceManager::shutDown();
 	et::Renderer::shutDown();
 	et::Scene::shutDown();
 	et::Editor::shutDown();

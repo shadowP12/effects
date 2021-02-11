@@ -250,7 +250,7 @@ uint32_t VertexLayout::getVertexAttributeStride()
 MeshData::MeshData(uint32_t numVertices, uint32_t numIndices, VertexLayout* vertexLayout)
 	:mNumVertices(numVertices), mNumIndices(numIndices), mVertexLayout(vertexLayout)
 {
-	// ·ÖÅäÄÚ´æ¿Õ¼ä
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Õ¼ï¿½
 	uint32_t totalSize = getStreamSize() + getIndexBufferSize();
 	mData = new uint8_t[totalSize];
 }
@@ -258,9 +258,9 @@ MeshData::MeshData(uint32_t numVertices, uint32_t numIndices, VertexLayout* vert
 MeshData::~MeshData()
 {
 	if (mData)
-		delete[] mData;
+	    SAFE_DELETE_ARRAY(mData);
 	if(mVertexLayout)
-	    delete mVertexLayout;
+	    SAFE_DELETE(mVertexLayout)
 }
 
 void MeshData::setIndexes(void* data, uint32_t size)

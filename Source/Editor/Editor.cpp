@@ -32,18 +32,11 @@ void Editor::init() {
     ccamera->setFar(100.0f);
     ccamera->initialized();
 
-    et::SceneNode* t0 = et::SceneNode::create("t0");
-    et::SceneNode* t1 = et::SceneNode::create("t1");
-    et::SceneNode* t2 = et::SceneNode::create("t2");
-    t0->setParent(mEditCamera);
-    t1->setParent(mEditCamera);
-    t2->setParent(t0);
-
     et::SceneNode* cubeNode = et::SceneNode::create("cube");
     et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
-    std::shared_ptr<et::Mesh> cubeMesh = std::shared_ptr<et::Mesh>(et::genQuadMesh());
+    std::shared_ptr<et::Mesh> cubeMesh = et::genQuadMesh();
     std::shared_ptr<et::Material> cubeMaterial = std::make_shared<et::Material>();
-    cubeMaterial->setType(et::EffectType::DEFAULT);
+    cubeMaterial->setEffectType(et::EffectType::DEFAULT);
     crenderable->setMesh(cubeMesh);
     crenderable->setMaterial(cubeMaterial);
     crenderable->initialized();

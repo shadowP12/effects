@@ -274,7 +274,7 @@ void GfxBuffer::resize(int size)
         }
     }
 
-    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize, uint32_t depth, uint32_t level)
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t arraySize, uint32_t level)
     {
         if(tex->arraySize == 1 && tex->depth == 1)
         {
@@ -291,7 +291,7 @@ void GfxBuffer::resize(int size)
         }
     }
 
-    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height,uint32_t arraySize, uint32_t depth, uint32_t level)
+    void writeGfxTextureData(const GfxTexture* tex, void* data, uint32_t width, uint32_t height,uint32_t arraySize, uint32_t level)
     {
         if(tex->arraySize == 1 && tex->depth == 1)
         {

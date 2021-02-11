@@ -7,7 +7,7 @@
 EFFECTS_NAMESPACE_BEGIN
 
 Renderer::Renderer() {
-    mQuadMesh = std::shared_ptr<Mesh>(genQuadMesh());
+    mQuadMesh = genQuadMesh();
     mDefaultEffect = std::make_shared<DefaultEffect>();
 }
 

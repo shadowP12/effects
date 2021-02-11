@@ -79,10 +79,6 @@ EFFECTS_NAMESPACE_BEGIN
 
     IBLUtility::~IBLUtility()
     {
-        if(mCubeMesh)
-            delete mCubeMesh;
-        if(mQuadMesh)
-            delete mQuadMesh;
         destroyGfxTexture(mHDRMap);
         destroyGfxTexture(mEnvCubeMap);
         destroyGfxTexture(mIrradianceMap);

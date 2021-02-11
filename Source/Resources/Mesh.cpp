@@ -2,7 +2,9 @@
 #include "Mesh.h"
 #include "Math/Math.h"
 #include "Datas/MeshData.h"
+#include "Resources/ResourceManager.h"
 #include "Core/Gfx/GfxResources.h"
+#include "Core/Utility/UUID.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Mesh::Mesh(MeshData *data)
@@ -17,6 +19,19 @@ Mesh::~Mesh()
     glDeleteVertexArrays(1, &mVertexArrayObject);
     glDeleteBuffers(1, &mVertexBuffer);
     glDeleteBuffers(1, &mIndexBuffer);
+}
+
+std::shared_ptr<Mesh> Mesh::create(const std::string& id, MeshData* data) {
+    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(data);
+    mesh->mId = id;
+    mesh->mUUID = generateUUID();
+    mesh->mType = ResourceType::MESH;
+    ResourceManager::instance().addRes(mesh);
+    return mesh;
+}
+
+void Mesh::remove(std::shared_ptr<Mesh> mesh) {
+    ResourceManager::instance().removeRes(mesh);
 }
 
 void Mesh::prepareGfxData()
@@ -120,7 +135,7 @@ uint32_t Mesh::getLayout()
     return mData->getVertexLayout()->getLayout();
 }
 
-    Mesh* genCubeMesh()
+    std::shared_ptr<Mesh> genCubeMesh()
     {
         float ws = 1;
         float hs = 1;
@@ -229,12 +244,12 @@ uint32_t Mesh::getLayout()
         meshData->setAttribute(SEMANTIC_TEXCOORD0, uvs.data(), uvs.size() * sizeof(float));
         meshData->setAttribute(SEMANTIC_NORMAL, normals.data(), normals.size() * sizeof(float));
         meshData->setIndexes(indices.data(), indices.size() * sizeof(uint32_t));
-        Mesh* mesh = new Mesh(meshData);
+        std::shared_ptr<Mesh> mesh = Mesh::create("cube", meshData);
         mesh->prepareGfxData();
         return mesh;
     }
 
-Mesh* genQuadMesh()
+std::shared_ptr<Mesh> genQuadMesh()
 {
     uint32_t layout = (uint32_t)SEMANTIC_POSITION;
     layout |= (uint32_t)SEMANTIC_TEXCOORD0;
@@ -263,7 +278,7 @@ Mesh* genQuadMesh()
     meshData->setAttribute(SEMANTIC_TEXCOORD0, texcoordData, 8 * sizeof(float));
     meshData->setAttribute(SEMANTIC_NORMAL, normalData, 12 * sizeof(float));
     meshData->setIndexes(indexData, 6 * sizeof(uint32_t));
-    Mesh* mesh = new Mesh(meshData);
+    std::shared_ptr<Mesh> mesh = Mesh::create("quad", meshData);
     mesh->prepareGfxData();
     return mesh;
 }
