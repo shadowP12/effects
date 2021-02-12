@@ -1,9 +1,15 @@
 #include "GltfImporter.h"
-#include "Scene/Node.h"
+#include "Scene/Scene.h"
 #include "Datas/MeshData.h"
+#include "Datas/PixelData.h"
+#include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
+#include "Resources/Material.h"
+#include "Resources/Texture.h"
+#include "Scene/Components/CRenderable.h"
 #include "Core/Gfx/GfxResources.h"
 #include "TextureImporter.h"
+#include "filesystem/path.h"
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
 #include <algorithm>
@@ -26,114 +32,128 @@ GltfImporter::~GltfImporter()
 {
 }
 
-void GltfImporter::load(std::string filePath, GltfScene* scene)
+bool GltfImporter::load(const std::string& filePath)
 {
-    /*
     cgltf_options options = {static_cast<cgltf_file_type>(0)};
     cgltf_data* data = NULL;
-    cgltf_result result = cgltf_parse_file(&options, filePath.c_str(), &data);
-    if (result == cgltf_result_success)
-        result = cgltf_load_buffers(&options, data, filePath.c_str());
+    if (cgltf_parse_file(&options, filePath.c_str(), &data) != cgltf_result_success) {
+        cgltf_free(data);
+        return false;
+    }
 
-    if (result == cgltf_result_success)
-        result = cgltf_validate(data);
+    if (cgltf_load_buffers(&options, data, filePath.c_str()) != cgltf_result_success) {
+        cgltf_free(data);
+        return false;
+    }
+
+    if (cgltf_validate(data) != cgltf_result_success) {
+        cgltf_free(data);
+        return false;
+    }
 
     // load images
-    std::map<cgltf_image*, GfxTexture*> imageHelper;
-    for (int i = 0; i < data->images_count; ++i)
-    {
+    std::map<cgltf_image*, std::shared_ptr<Texture>> imageHelper;
+    for (int i = 0; i < data->images_count; ++i) {
         cgltf_image* CImage = &data->images[i];
         std::string imageURI = filePath + "/../" + CImage->uri;
+        filesystem::path imagePath(imageURI);
         int width, height, channels;
         unsigned char* pixels = loadImage(imageURI.c_str(), width, height, channels);
-        GfxTextureDesc textureDesc;
-        textureDesc.width = width;
-        textureDesc.height = height;
-        textureDesc.componentType = GL_UNSIGNED_BYTE;
-        if (channels == 4)
-        {
-            textureDesc.internalFormat = GL_RGBA8;
-            textureDesc.format = GL_RGBA;
+        PixelDataDesc pixelDataDesc;
+        pixelDataDesc.width = width;
+        pixelDataDesc.height = height;
+        pixelDataDesc.depth = 1;
+        pixelDataDesc.array = 1;
+        if (channels == 4) {
+            pixelDataDesc.format = GL_RGBA8;
         }
-        else if (channels == 3)
-        {
-            textureDesc.internalFormat = GL_RGB8;
-            textureDesc.format = GL_RGB;
+        else if (channels == 3) {
+            pixelDataDesc.format = GL_RGB8;
         }
+        else {
+            LOGE("error image format\n");
+        }
+        PixelData* pixelData = new PixelData(pixelDataDesc);
 
-        GfxTexture* texture = createGfxTexture(textureDesc);
-        writeGfxTextureData(texture, pixels);
-        delete[] pixels;
-        imageHelper[CImage] = texture;
-        scene->textures.push_back(texture);
+        pixelData->setData(0, pixels, width * height * channels * sizeof(unsigned char));
+        std::shared_ptr<Texture> etTex = Texture::create(imagePath.filename(), pixelData);
+        etTex->prepareGfxData();
+        SAFE_DELETE_ARRAY(pixels);
+        imageHelper[CImage] = etTex;
     }
 
-    // load sampler
-    std::map<cgltf_sampler*, GfxSampler*> samplerHelper;
-    for (int i = 0; i < data->samplers_count; ++i)
-    {
-        cgltf_sampler* CSampler = &data->samplers[i];
-        GfxSamplerDesc samplerDesc;
-        samplerDesc.magFilter = getGLFilter(CSampler->mag_filter);
-        samplerDesc.minFilter = getGLFilter(CSampler->min_filter);
-        samplerDesc.wrapS = getGLWrap(CSampler->wrap_s);
-        samplerDesc.wrapT = getGLWrap(CSampler->wrap_t);
-        GfxSampler* sampler = createGfxSampler(samplerDesc);
-
-        scene->samples.push_back(sampler);
-        samplerHelper[CSampler] = sampler;
-    }
+//    // load sampler
+//    std::map<cgltf_sampler*, GfxSampler*> samplerHelper;
+//    for (int i = 0; i < data->samplers_count; ++i)
+//    {
+//        cgltf_sampler* CSampler = &data->samplers[i];
+//        GfxSamplerDesc samplerDesc;
+//        samplerDesc.magFilter = getGLFilter(CSampler->mag_filter);
+//        samplerDesc.minFilter = getGLFilter(CSampler->min_filter);
+//        samplerDesc.wrapS = getGLWrap(CSampler->wrap_s);
+//        samplerDesc.wrapT = getGLWrap(CSampler->wrap_t);
+//        GfxSampler* sampler = createGfxSampler(samplerDesc);
+//
+//        scene->samples.push_back(sampler);
+//        samplerHelper[CSampler] = sampler;
+//    }
 
     // load material
-    std::map<cgltf_material*, GltfMaterial*> materialHelper;
-    for (int i = 0; i < data->materials_count; ++i)
-    {
+    std::map<cgltf_material*, std::shared_ptr<Material>> materialHelper;
+    for (int i = 0; i < data->materials_count; ++i) {
         cgltf_material* CMaterial = &data->materials[i];
-        GltfMaterial* material = new GltfMaterial();
-        PBRMaterialBit materialBits = PBR_UNDEFINED;
-        if(CMaterial->pbr_metallic_roughness.base_color_texture.texture)
-        {
+
+        std::shared_ptr<Material> etMaterial = Material::create(std::string(CMaterial->name) + "_Mat");
+        etMaterial->getTextureParams()["BaseColor"] = nullptr;
+        if(CMaterial->pbr_metallic_roughness.base_color_texture.texture) {
             cgltf_image* CImage = CMaterial->pbr_metallic_roughness.base_color_texture.texture->image;
             cgltf_sampler* CSampler = CMaterial->pbr_metallic_roughness.base_color_texture.texture->sampler;
-            materialBits |= PBR_BASE_COLOR_MAP;
-            material->baseColorMap.texture = imageHelper[CImage];
-            material->baseColorMap.sampler = samplerHelper[CSampler];
+            etMaterial->getTextureParams()["BaseColor"] = imageHelper[CImage];
         }
-        if(CMaterial->normal_texture.texture)
-        {
+
+        etMaterial->getTextureParams()["Normal"] = nullptr;
+        if(CMaterial->normal_texture.texture) {
             cgltf_image* CImage = CMaterial->normal_texture.texture->image;
             cgltf_sampler* CSampler = CMaterial->normal_texture.texture->sampler;
-            materialBits |= PBR_NORMAL_MAP;
-            material->normalMap.texture = imageHelper[CImage];
-            material->normalMap.sampler = samplerHelper[CSampler];
+            etMaterial->getTextureParams()["Normal"] = imageHelper[CImage];
         }
-        if(CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture)
-        {
+
+        etMaterial->getTextureParams()["MetallicRoughness"] = nullptr;
+        if(CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture) {
             cgltf_image* CImage = CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture->image;
             cgltf_sampler* CSampler = CMaterial->pbr_metallic_roughness.metallic_roughness_texture.texture->sampler;
-            materialBits |= PBR_METALLIC_ROUGHNESS_MAP;
-            material->metallicRoughnessMap.texture = imageHelper[CImage];
-            material->metallicRoughnessMap.sampler = samplerHelper[CSampler];
+            etMaterial->getTextureParams()["MetallicRoughness"] = imageHelper[CImage];
         }
 
-        if(CMaterial->alpha_mode == cgltf_alpha_mode_blend)
-        {
-            materialBits |= PBR_ALPHA;
+        MaterialCombo alphaCombo;
+        alphaCombo.fields.push_back("Opaque");
+        alphaCombo.fields.push_back("Mask");
+        alphaCombo.fields.push_back("Blend");
+        if (CMaterial->alpha_mode == cgltf_alpha_mode_opaque) {
+            alphaCombo.idx = 0;
+        } else if(CMaterial->alpha_mode == cgltf_alpha_mode_mask) {
+            alphaCombo.idx = 1;
+        } else {
+            alphaCombo.idx = 2;
         }
-        material->alphaMode = getAlphaMode(CMaterial->alpha_mode);
-        material->doubleSided = CMaterial->double_sided;
-        material->baseColor = glm::make_vec4(CMaterial->pbr_metallic_roughness.base_color_factor);
-        material->metallic = CMaterial->pbr_metallic_roughness.metallic_factor;
-        material->roughness = CMaterial->pbr_metallic_roughness.roughness_factor;
-        material->bits = materialBits;
-        materialHelper[CMaterial] = material;
-        scene->materials.push_back(material);
+        etMaterial->getComboParams()["alphaMode"] = alphaCombo;
+
+        etMaterial->getBoolParams()["DoubleSided"] = CMaterial->double_sided;
+
+        etMaterial->getFloat4Params()["BaseColor"] = glm::make_vec4(CMaterial->pbr_metallic_roughness.base_color_factor);
+
+        etMaterial->getFloatParams()["Metallic"] = CMaterial->pbr_metallic_roughness.metallic_factor;
+
+        etMaterial->getFloatParams()["Roughness"] = CMaterial->pbr_metallic_roughness.roughness_factor;
+
+        materialHelper[CMaterial] = etMaterial;
     }
 
+    std::map<cgltf_node*, SceneNode*> nodeHelper;
     for (size_t i = 0; i < data->nodes_count; ++i)
     {
         cgltf_node* cNode = &data->nodes[i];
-        std::shared_ptr<Node> obj = std::make_shared<Node>();
+        SceneNode* obj = SceneNode::create(cNode->name);
 
         glm::vec3 translation = glm::vec3(0.0f);
         if (cNode->has_translation)
@@ -167,35 +187,28 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
             glm::vec4 perspective;
             glm::decompose(mat, scale, rotation, translation, skew, perspective);
         }
-
-        obj->setTransform(translation, scale, rotation);
-        scene->nodes.push_back(obj);
+        obj->setPosition(translation);
+        obj->setEuler(glm::eulerAngles(rotation));
+        obj->setScale(scale);
+        nodeHelper[cNode] = obj;
     }
 
-    for (size_t i = 0; i < data->nodes_count; ++i)
-    {
+    for (size_t i = 0; i < data->nodes_count; ++i) {
         cgltf_node* cNode = &data->nodes[i];
-        std::shared_ptr<Node> obj = scene->nodes[i];
-        if(cNode->parent != nullptr)
-        {
-            int parentInx = getCNodeInxFromCData(cNode->parent, data);
-            if(parentInx != -1)
-            {
-                std::shared_ptr<Node> parentObj = scene->nodes[parentInx];
-                obj->setParent(parentObj);
-            }
+        if(cNode->parent != nullptr) {
+            SceneNode* currentNode = nodeHelper[cNode];
+            SceneNode* parentNode = nodeHelper[cNode->parent];
+            currentNode->setParent(parentNode);
         }
     }
 
-    for (size_t i = 0; i < data->nodes_count; ++i)
-    {
+    for (size_t i = 0; i < data->nodes_count; ++i) {
         cgltf_node* cNode = &data->nodes[i];
         cgltf_mesh* cMesh = cNode->mesh;
         cgltf_material* cMaterial = nullptr;
-        std::shared_ptr<Node> node = scene->nodes[i];
+        SceneNode* node = nodeHelper[cNode];
 
-        if(!cMesh)
-        {
+        if(!cMesh) {
             continue;
         }
 
@@ -395,26 +408,23 @@ void GltfImporter::load(std::string filePath, GltfScene* scene)
         meshData->setAttribute(SEMANTIC_POSITION, positionBuffer.data(), positionBuffer.size() * sizeof(float));
         meshData->setAttribute(SEMANTIC_TEXCOORD0, texcoordBuffer.data(), texcoordBuffer.size() * sizeof(float));
         meshData->setAttribute(SEMANTIC_NORMAL, normalBuffer.data(), normalBuffer.size() * sizeof(float));
-        if ((meshAttLayout & (uint32_t)SEMANTIC_TANGENT) != 0)
-        {
+        if ((meshAttLayout & (uint32_t)SEMANTIC_TANGENT) != 0) {
             meshData->setAttribute(SEMANTIC_TANGENT, tangentBuffer.data(), tangentBuffer.size() * sizeof(float));
         }
 
-        if((meshAttLayout & (uint32_t)SEMANTIC_JOINTS) != 0)
-        {
+        if((meshAttLayout & (uint32_t)SEMANTIC_JOINTS) != 0) {
             meshData->setAttribute(SEMANTIC_JOINTS, jointsBuffer.data(), jointsBuffer.size() * sizeof(int));
             meshData->setAttribute(SEMANTIC_WEIGHTS, weightsBuffer.data(), weightsBuffer.size() * sizeof(float));
         }
 
-        Mesh* mesh = new Mesh(meshData);
-        mesh->prepareGfxData();
-        scene->meshs.push_back(mesh);
-        scene->meshHelper[node] = mesh;
-        scene->materialHelper[mesh] = materialHelper[cMaterial];
+        std::shared_ptr<Mesh> etMesh = Mesh::create(std::string(cMesh->name) + "_Mesh", meshData);
+        etMesh->prepareGfxData();
+        CRenderable* crenderable = node->addComponent<CRenderable>();
+        crenderable->setMesh(etMesh);
+        crenderable->setMaterial(materialHelper[cMaterial]);
     }
 
     cgltf_free(data);
-    */
 }
 
 int getCNodeInxFromCData(const cgltf_node* node, const cgltf_data* data)

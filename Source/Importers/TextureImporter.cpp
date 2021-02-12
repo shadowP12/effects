@@ -6,7 +6,7 @@ EFFECTS_NAMESPACE_BEGIN
 unsigned char* loadImage(const char* filePath, int& width, int& height, int& channel, bool flip)
 {
     stbi_set_flip_vertically_on_load(flip);
-    unsigned char* pixels = stbi_load(filePath, &width, &height, &channel, 0);
+    unsigned char* pixels = stbi_load(filePath, &width, &height, &channel, STBI_rgb_alpha);
     return pixels;
 }
 

@@ -8,6 +8,7 @@ EFFECTS_NAMESPACE_BEGIN
 
 class SceneNode;
 class Resource;
+class GltfImporter;
 class CameraController;
 class HierarchyTab;
 class InspectorTab;
@@ -25,9 +26,10 @@ class Editor : public Module<Editor>
 public:
     Editor();
     ~Editor();
-    void init();
+    void init(void* windowPtr);
     void update(float dt);
     void render();
+    void* getWindowPtr() { return mWindowPtr; }
     void setSelectionTab(SelectionTabType type) { mSelectionTab = type; }
     SelectionTabType getSelectionTab() { return mSelectionTab; }
     void setSelectionNode(SceneNode* node) { mSelectionNode = node; }
@@ -35,11 +37,15 @@ public:
     void setSelectionResource(std::shared_ptr<Resource> res) { mSelectionResource = res; }
     std::shared_ptr<Resource> getSelectionResource() { return mSelectionResource; }
 private:
+    bool openFile(const std::string& filter, std::string& file);
+private:
+    void* mWindowPtr;
     SceneNode* mEditCamera = nullptr;
     SelectionTabType mSelectionTab = SelectionTabType::NONE;
     SceneNode* mSelectionNode = nullptr;
     std::shared_ptr<Resource> mSelectionResource = nullptr;
     std::shared_ptr<CameraController> mEditCameraController;
+    std::shared_ptr<GltfImporter> mGltfImporter = nullptr;
     std::shared_ptr<HierarchyTab> mHierarchyTab;
     std::shared_ptr<InspectorTab> mInspectorTab;
     std::shared_ptr<ResourceTab> mResourceTab;

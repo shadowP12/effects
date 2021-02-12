@@ -1,6 +1,7 @@
 #include "Renderer/Effects/DefaultEffect.h"
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderable.h"
+#include "Renderer/MeshRenderable.h"
 #include "Resources/Mesh.h"
 #include "Resources/Material.h"
 #include "Core/Gfx/GfxResources.h"
@@ -35,9 +36,10 @@ void DefaultEffect::render(std::vector<RenderView*> views, std::vector<Renderabl
         glm::mat4 viewMatrix = views[i]->getViewMatrix();
         glm::mat4 projMatrix = views[i]->getProjMatrix();
         for (int j = 0; j < renderables.size(); ++j) {
-            GfxProgram* program = getProgram(renderables[i]);
-            std::shared_ptr<Mesh> mesh = renderables[i]->getMesh();
-            glm::mat4 modelMatrix = renderables[i]->getTransform();
+            MeshRenderable* meshRenderable = static_cast<MeshRenderable*>(renderables[j]);
+            GfxProgram* program = getProgram(meshRenderable);
+            std::shared_ptr<Mesh> mesh = meshRenderable->getMesh();
+            glm::mat4 modelMatrix = meshRenderable->getTransform();
             setGfxProgramMat4(program, "u_model", &modelMatrix[0][0]);
             setGfxProgramMat4(program, "u_view", &viewMatrix[0][0]);
             setGfxProgramMat4(program, "u_projection", &projMatrix[0][0]);
@@ -50,7 +52,7 @@ void DefaultEffect::render(std::vector<RenderView*> views, std::vector<Renderabl
     }
 }
 
-GfxProgram* DefaultEffect::getProgram(Renderable* renderable) {
+GfxProgram* DefaultEffect::getProgram(MeshRenderable* renderable) {
     size_t hash = 0;
     Hash(hash, renderable->getMesh()->getLayout());
 

@@ -12,7 +12,36 @@
 #include "Editor/HierarchyTab.h"
 #include "Editor/InspectorTab.h"
 #include "Editor/ResourceTab.h"
+#include "Importers/GltfImporter.h"
+#include "Core/Utility/Log.h"
+
+#include "GLFW/glfw3native.h"
+#include <windows.h>
+#include <commdlg.h>
+#include <string>
 EFFECTS_NAMESPACE_BEGIN
+
+bool Editor::openFile(const std::string& filter, std::string& file) {
+    OPENFILENAMEA ofn;
+    CHAR szFile[260] = { 0 };
+    CHAR currentDir[256] = { 0 };
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = static_cast<HWND>(mWindowPtr);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    if (GetCurrentDirectoryA(256, currentDir))
+        ofn.lpstrInitialDir = currentDir;
+    ofn.lpstrFilter = filter.c_str();
+    ofn.nFilterIndex = 1;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+    if (GetOpenFileNameA(&ofn) == TRUE) {
+        file = ofn.lpstrFile;
+        return true;
+    }
+    return false;
+}
 
 Editor::Editor() {
 }
@@ -20,7 +49,11 @@ Editor::Editor() {
 Editor::~Editor() {
 }
 
-void Editor::init() {
+void Editor::init(void* windowPtr) {
+    mWindowPtr = windowPtr;
+    // importers
+    mGltfImporter = std::make_shared<GltfImporter>();
+
     // tabs
     mHierarchyTab = std::make_shared<HierarchyTab>();
     mInspectorTab = std::make_shared<InspectorTab>();
@@ -60,7 +93,7 @@ void Editor::render() {
     ImGui::SetNextWindowViewport(viewport->ID);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("DockSpace", 0, flags);
     ImGui::PopStyleVar();
@@ -87,6 +120,24 @@ void Editor::render() {
         ImGui::DockBuilderDockWindow("profiler", dockLog);
         ImGui::DockBuilderDockWindow("scene", dock_main_id);
         ImGui::DockBuilderFinish(dockspaceID);
+    }
+
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Open...", "Ctrl+O")) {
+                std::string filePath;
+                if (openFile("", filePath)) {
+                    if (!mGltfImporter->load(filePath)) {
+                        LOGE("Load filed : %s\n", filePath.c_str());
+                    }
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMenuBar();
     }
 
     mHierarchyTab->render();

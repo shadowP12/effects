@@ -5,7 +5,7 @@
 EFFECTS_NAMESPACE_BEGIN
 
 class SceneNode;
-class Renderable;
+class MeshRenderable;
 class Mesh;
 class Material;
 
@@ -22,7 +22,7 @@ public:
     std::shared_ptr<Mesh> getMesh();
     std::shared_ptr<Material> getMaterial();
 protected:
-    Renderable* mInternal;
+    MeshRenderable* mInternal;
 };
 
 EFFECTS_NAMESPACE_END

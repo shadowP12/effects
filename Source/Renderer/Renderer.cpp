@@ -29,10 +29,8 @@ RenderView* Renderer::addRenderView() {
     return view;
 }
 
-Renderable* Renderer::addRenderable() {
-    Renderable* renderable = new Renderable();
+void Renderer::addRenderable(Renderable* renderable) {
     mRenderables.push_back(renderable);
-    return renderable;
 }
 
 void Renderer::render()

@@ -12,4 +12,9 @@ target_link_libraries(effects libglad)
 # window's uuid
 target_link_libraries(effects rpcrt4)
 
+# file system
+add_library(filesystem INTERFACE)
+target_include_directories(filesystem INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/filesystem)
+target_link_libraries(effects filesystem)
+
 include(CMake/InstallConfig.cmake)

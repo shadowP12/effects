@@ -5,10 +5,10 @@
 #include <memory>
 EFFECTS_NAMESPACE_BEGIN
 
-enum class RenderableAnimType
-{
-    None,
-    Skinned,
+enum class RenderableType {
+    NONE,
+    MESH,
+    SEA
 };
 
 class Mesh;
@@ -18,19 +18,12 @@ class Renderable
 {
 public:
     Renderable();
-    ~Renderable();
-    void initialize();
-    void setTransform(const glm::mat4& mat);
-    void setMesh(std::shared_ptr<Mesh> mesh);
-    void setMaterial(std::shared_ptr<Material> material);
-    glm::mat4 getTransform();
-    std::shared_ptr<Mesh> getMesh();
-    std::shared_ptr<Material> getMaterial();
-
+    virtual ~Renderable();
+    virtual void initialize() = 0;
+    RenderableType getType() { return mType; }
+    void setType(RenderableType type) { mType = type; }
 protected:
-    glm::mat4 mWorldMatrix;
-    std::shared_ptr<Mesh> mMesh;
-    std::shared_ptr<Material> mMaterial;
+    RenderableType mType;
 };
 
 EFFECTS_NAMESPACE_END

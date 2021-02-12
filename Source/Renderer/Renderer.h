@@ -21,7 +21,7 @@ public:
     ~Renderer();
     void render();
     RenderView* addRenderView();
-    Renderable* addRenderable();
+    void addRenderable(Renderable* renderable);
     std::vector<RenderView*>& getViews() { return mViews; }
     std::vector<Renderable*>& getRenderables() { return mRenderables; }
     std::shared_ptr<Mesh> getQuadMesh() { return mQuadMesh; }

@@ -3,14 +3,14 @@
 #include "BaseEffect.h"
 #include <map>
 EFFECTS_NAMESPACE_BEGIN
-
+class MeshRenderable;
 class DefaultEffect : public BaseEffect {
 public:
     DefaultEffect();
     ~DefaultEffect();
     void render(std::vector<RenderView*>, std::vector<Renderable*>) override;
 private:
-    GfxProgram* getProgram(Renderable* renderable);
+    GfxProgram* getProgram(MeshRenderable* renderable);
 
 private:
     std::map<size_t, GfxProgram*> mProgramCache;

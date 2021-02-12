@@ -389,16 +389,16 @@
       "uri": "textures/test_baseColor.png"
     },
     {
-      "uri": "textures/material_baseColor.jpeg"
+      "uri": "textures/material_baseColor.png"
     },
     {
-      "uri": "textures/ground_baseColor.jpeg"
+      "uri": "textures/ground_baseColor.png"
     },
     {
       "uri": "textures/material_3_baseColor.png"
     },
     {
-      "uri": "textures/material_4_baseColor.jpeg"
+      "uri": "textures/material_4_baseColor.png"
     }
   ],
   "materials": [

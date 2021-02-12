@@ -11,6 +11,8 @@
 #include "Scene/Scene.h"
 #include "Editor/Editor.h"
 #include "Resources/ResourceManager.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 600
 
@@ -36,12 +38,12 @@ void init()
     onMouseButtonEvent.bind(CALLBACK_2(et::InputSystem::onMouseButton, et::InputSystem::instancePtr()));
     onMouseScrollEvent.bind(CALLBACK_1(et::InputSystem::onMouseScroll, et::InputSystem::instancePtr()));
     onFrameFinishEvent.bind(CALLBACK_0(et::InputSystem::reset, et::InputSystem::instancePtr()));
-
     et::ResourceManager::startUp();
 	et::Renderer::startUp();
 	et::Scene::startUp();
-	et::Editor::startUp();
-	et::Editor::instance().init();
+	// editor
+    et::Editor::startUp();
+	et::Editor::instance().init(glfwGetWin32Window(g_window));
 }
 
 void release() {
@@ -49,6 +51,7 @@ void release() {
     et::ResourceManager::shutDown();
 	et::Renderer::shutDown();
 	et::Scene::shutDown();
+	// editor
 	et::Editor::shutDown();
 }
 
@@ -67,7 +70,7 @@ int main()
 	g_window = glfwCreateWindow(1200, 800, "effects", NULL, NULL);
 	if (g_window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+	    LOGE("Failed to create GLFW window\n");
 		glfwTerminate();
 		return -1;
 	}
@@ -76,13 +79,11 @@ int main()
 	glfwSetCursorPosCallback(g_window, cursor_pos_callback);
 	glfwSetScrollCallback(g_window, mouse_scroll_callback);
 	glfwSetFramebufferSizeCallback(g_window, window_size_callback);
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        LOGE("Failed to initialize GLAD\n");
 		return -1;
 	}
 	init();
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;

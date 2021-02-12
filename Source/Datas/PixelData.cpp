@@ -9,6 +9,7 @@ PixelData::PixelData(const PixelDataDesc& desc) {
     mFormat = desc.format;
     for (int i = 0; i < mArray; ++i) {
         uint8_t* data = new uint8_t[mWidth * mHeight * mDepth * getGLFormatStride(mFormat)];
+        mDatas.push_back(data);
     }
 }
 

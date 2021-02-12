@@ -69,7 +69,7 @@ class GltfImporter
 public:
     GltfImporter();
     ~GltfImporter();
-    void load(std::string filePath, GltfScene* scene);
+    bool load(const std::string& filePath);
 private:
 };
 

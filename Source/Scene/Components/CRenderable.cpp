@@ -1,12 +1,13 @@
 #include "Scene/Components/CRenderable.h"
 #include "Scene/Scene.h"
-#include "Renderer/Renderable.h"
+#include "Renderer/MeshRenderable.h"
 #include "Renderer/Renderer.h"
 EFFECTS_NAMESPACE_BEGIN
 
 CRenderable::CRenderable(SceneNode* node)
     :Component(node) {
-    mInternal = Renderer::instance().addRenderable();
+    mInternal = new MeshRenderable();
+    Renderer::instance().addRenderable(mInternal);
 }
 
 CRenderable::~CRenderable() {
