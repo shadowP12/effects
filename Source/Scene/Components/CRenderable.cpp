@@ -28,4 +28,12 @@ void CRenderable::setMaterial(std::shared_ptr<Material> material) {
     mInternal->setMaterial(material);
 }
 
+std::shared_ptr<Mesh> CRenderable::getMesh() {
+    return mInternal->getMesh();
+}
+
+std::shared_ptr<Material> CRenderable::getMaterial() {
+    return mInternal->getMaterial();
+}
+
 EFFECTS_NAMESPACE_END

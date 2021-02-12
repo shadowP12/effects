@@ -19,6 +19,8 @@ public:
     void initialized() override;
     void setMesh(std::shared_ptr<Mesh> mesh);
     void setMaterial(std::shared_ptr<Material> material);
+    std::shared_ptr<Mesh> getMesh();
+    std::shared_ptr<Material> getMaterial();
 protected:
     Renderable* mInternal;
 };

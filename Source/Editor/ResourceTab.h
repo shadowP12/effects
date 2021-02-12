@@ -3,11 +3,12 @@
 #include "Core/Base.h"
 EFFECTS_NAMESPACE_BEGIN
 
-class InspectorTab {
+class ResourceTab {
 public:
-    InspectorTab();
-    ~InspectorTab();
+    ResourceTab();
+    ~ResourceTab();
     void render();
 };
 
 EFFECTS_NAMESPACE_END
+

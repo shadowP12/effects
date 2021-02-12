@@ -6,6 +6,10 @@
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderer.h"
 #include "UI/UISystem.h"
+#include "Resources/ResourceManager.h"
+#include "Resources/Mesh.h"
+#include "Resources/Material.h"
+#include "Resources/Texture.h"
 EFFECTS_NAMESPACE_BEGIN
 
 InspectorTab::InspectorTab() {
@@ -16,7 +20,7 @@ InspectorTab::~InspectorTab() {
 
 void InspectorTab::render() {
     ImGui::Begin("inspector");
-    if (Editor::instance().getSelectionNode() != nullptr) {
+    if (Editor::instance().getSelectionTab() == SelectionTabType::HIERARCHY && Editor::instance().getSelectionNode() != nullptr) {
         SceneNode* node = Editor::instance().getSelectionNode();
 
         // Transform
@@ -61,6 +65,51 @@ void InspectorTab::render() {
         ImGui::PopItemWidth();
 
         ImGui::Columns(1);
+
+        // Resources
+        std::vector<std::shared_ptr<Mesh>> meshes;
+        std::vector<std::shared_ptr<Material>> materials;
+        std::vector<std::shared_ptr<Texture>> textures;
+        std::map<std::string, std::shared_ptr<Resource>> rs = ResourceManager::instance().getAllRes();
+        for (auto& var : rs) {
+            if (var.second->getType() == ResourceType::MESH) {
+                meshes.push_back(std::dynamic_pointer_cast<Mesh>(var.second));
+            }
+            if (var.second->getType() == ResourceType::MATERIAL) {
+                materials.push_back(std::dynamic_pointer_cast<Material>(var.second));
+            }
+            if (var.second->getType() == ResourceType::TEXTURE) {
+                textures.push_back(std::dynamic_pointer_cast<Texture>(var.second));
+            }
+        }
+        // CRenderable
+        if (node->getComponent<CRenderable>()) {
+            ImGui::Separator();
+            CRenderable* crenderable = node->getComponent<CRenderable>();
+            if (ImGui::BeginCombo("Mesh", crenderable->getMesh()->getId().c_str())) {
+                for (int i = 0; i < meshes.size(); ++i) {
+                    ImGui::PushID(i);
+                    if (ImGui::Selectable(meshes[i]->getId().c_str())) {
+                        crenderable->setMesh(meshes[i]);
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndCombo();
+            }
+
+            if (ImGui::BeginCombo("Material", crenderable->getMaterial()->getId().c_str())) {
+                for (int i = 0; i < materials.size(); ++i) {
+                    if (ImGui::Selectable(materials[i]->getId().c_str())) {
+                        crenderable->setMaterial(materials[i]);
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+    }
+
+    if (Editor::instance().getSelectionTab() == SelectionTabType::RESOURCE && Editor::instance().getSelectionResource() != nullptr) {
+
     }
     ImGui::End();
 }

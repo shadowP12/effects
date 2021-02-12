@@ -35,6 +35,7 @@ void HierarchyTab::renderNode(SceneNode* node) {
     }
     bool opened = ImGui::TreeNodeEx((void*)node, treeNodeFlags, node->getId().c_str());
     if (ImGui::IsItemClicked()) {
+        Editor::instance().setSelectionTab(SelectionTabType::HIERARCHY);
         Editor::instance().setSelectionNode(node);
     }
 

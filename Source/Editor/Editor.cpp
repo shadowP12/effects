@@ -11,6 +11,7 @@
 #include "UI/UISystem.h"
 #include "Editor/HierarchyTab.h"
 #include "Editor/InspectorTab.h"
+#include "Editor/ResourceTab.h"
 EFFECTS_NAMESPACE_BEGIN
 
 Editor::Editor() {
@@ -23,6 +24,7 @@ void Editor::init() {
     // tabs
     mHierarchyTab = std::make_shared<HierarchyTab>();
     mInspectorTab = std::make_shared<InspectorTab>();
+    mResourceTab = std::make_shared<ResourceTab>();
 
     mEditCamera = et::SceneNode::create("MainCamera");
     et::CCamera* ccamera = mEditCamera->addComponent<et::CCamera>();
@@ -34,8 +36,8 @@ void Editor::init() {
 
     et::SceneNode* cubeNode = et::SceneNode::create("cube");
     et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
-    std::shared_ptr<et::Mesh> cubeMesh = et::genQuadMesh();
-    std::shared_ptr<et::Material> cubeMaterial = std::make_shared<et::Material>();
+    std::shared_ptr<et::Mesh> cubeMesh = et::genCubeMesh();
+    std::shared_ptr<et::Material> cubeMaterial = Material::create("Test_Material");
     cubeMaterial->setEffectType(et::EffectType::DEFAULT);
     crenderable->setMesh(cubeMesh);
     crenderable->setMaterial(cubeMaterial);
@@ -91,8 +93,7 @@ void Editor::render() {
 
     mInspectorTab->render();
 
-    ImGui::Begin("resources");
-    ImGui::End();
+    mResourceTab->render();
 
     ImGui::Begin("console");
     ImGui::End();
