@@ -1,8 +1,8 @@
-#include "Renderer/Effects/DefaultEffect.h"
+#include "Renderer/Effects/SeaEffect.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/MeshRenderable.h"
+#include "Renderer/SeaRenderable.h"
 #include "Renderer/RenderLight.h"
 #include "Resources/Mesh.h"
 #include "Resources/Material.h"
@@ -15,19 +15,19 @@ EFFECTS_NAMESPACE_BEGIN
 static std::string gVertSource;
 static std::string gFragSource;
 
-DefaultEffect::DefaultEffect()
+SeaEffect::SeaEffect()
     :BaseEffect() {
-    readFileData("./BuiltinResources/Shaders/DefaultEffect.vert", gVertSource);
-    readFileData("./BuiltinResources/Shaders/DefaultEffect.frag", gFragSource);
+    readFileData("./BuiltinResources/Shaders/SeaEffect.vert", gVertSource);
+    readFileData("./BuiltinResources/Shaders/SeaEffect.frag", gFragSource);
 }
 
-DefaultEffect::~DefaultEffect() {
+SeaEffect::~SeaEffect() {
     for (auto& program : mProgramCache) {
         destroyGfxProgram(program.second);
     }
 }
 
-void DefaultEffect::render(std::vector<RenderView*> views, std::vector<Renderable*> renderables) {
+void SeaEffect::render(std::vector<RenderView*> views, std::vector<Renderable*> renderables) {
     for (int i = 0; i < views.size(); ++i) {
         glm::vec4 viewport = views[i]->getViewPort();
         glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
@@ -39,14 +39,8 @@ void DefaultEffect::render(std::vector<RenderView*> views, std::vector<Renderabl
         glm::mat4 viewMatrix = views[i]->getViewMatrix();
         glm::mat4 projMatrix = views[i]->getProjMatrix();
         for (int j = 0; j < renderables.size(); ++j) {
-            MeshRenderable* meshRenderable = static_cast<MeshRenderable*>(renderables[j]);
-
+            SeaRenderable* meshRenderable = static_cast<SeaRenderable*>(renderables[j]);
             uint32_t bits = 0;
-            if (meshRenderable->getMaterial()->getTextureParams().find("BaseColor") != meshRenderable->getMaterial()->getTextureParams().end()) {
-                if (meshRenderable->getMaterial()->getTextureParams()["BaseColor"] != nullptr)
-                    bits |= (uint32_t)Bit::USE_BASE_COLOR_MAP;
-            }
-
             if (Renderer::instance().getDirectLights().size() > 0) {
                 bits |= (uint32_t)Bit::USE_DIRECT_LIGHT;
             }
@@ -58,20 +52,11 @@ void DefaultEffect::render(std::vector<RenderView*> views, std::vector<Renderabl
             setGfxProgramMat4(program, "u_view", &viewMatrix[0][0]);
             setGfxProgramMat4(program, "u_projection", &projMatrix[0][0]);
 
-            if((bits & (uint32_t)Bit::USE_BASE_COLOR_MAP) != 0) {
-                setGfxProgramSampler(program, "u_baseColorMap", meshRenderable->getMaterial()->getTextureParams()["BaseColor"]->getInternel());
-            }
             if((bits & (uint32_t)Bit::USE_DIRECT_LIGHT) != 0) {
                 setGfxProgramFloat4(program, "u_mainLitDirection", &Renderer::instance().getDirectLights()[0]->getDirection()[0]);
                 setGfxProgramFloat4(program, "u_mainLitColorAndIntensity", &Renderer::instance().getDirectLights()[0]->getLightColorAndIntensity()[0]);
             }
 
-            if (meshRenderable->getMaterial()->getFloat4Params().find("BaseColor") != meshRenderable->getMaterial()->getFloat4Params().end()) {
-                setGfxProgramFloat4(program, "u_baseColor", &meshRenderable->getMaterial()->getFloat4Params()["BaseColor"][0]);
-            } else {
-                static glm::vec4 defaultBaseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-                setGfxProgramFloat4(program, "u_baseColor", &defaultBaseColor[0]);
-            }
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);
@@ -81,13 +66,10 @@ void DefaultEffect::render(std::vector<RenderView*> views, std::vector<Renderabl
     }
 }
 
-GfxProgram* DefaultEffect::getProgram(uint32_t bits) {
+GfxProgram* SeaEffect::getProgram(uint32_t bits) {
     auto it = mProgramCache.find(bits);
     if (it == mProgramCache.end()) {
         std::string defines = "";
-        if((bits & (uint32_t)Bit::USE_BASE_COLOR_MAP) != 0) {
-            defines += "#define USE_BASE_COLOR_MAP \n";
-        }
         if((bits & (uint32_t)Bit::USE_DIRECT_LIGHT) != 0) {
             defines += "#define USE_DIRECT_LIGHT \n";
         }

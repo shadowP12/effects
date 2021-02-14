@@ -17,7 +17,7 @@ void CCamera::initialized() {
 }
 
 void CCamera::onNodeDirty() {
-    mInternal->setTransform(mNode->getLocalMatrix());
+    mInternal->setTransform(mNode->getWorldMatrix());
 }
 
 void CCamera::setFov(const float& fov) {

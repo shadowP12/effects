@@ -9,6 +9,8 @@ enum class ComponentType {
     None,
     Renderable,
     Camera,
+    Light,
+    Sea
 };
 
 class Component

@@ -4,7 +4,8 @@
 #include "Resources/Material.h"
 EFFECTS_NAMESPACE_BEGIN
 
-SeaRenderable::SeaRenderable(){
+SeaRenderable::SeaRenderable(CSea* csea){
+    mCSea = csea;
     mType = RenderableType::SEA;
 }
 
@@ -36,6 +37,14 @@ std::shared_ptr<Material> SeaRenderable::getMaterial() {
 
 glm::mat4 SeaRenderable::getTransform() {
     return mWorldMatrix;
+}
+
+void SeaRenderable::updateSeaMap() {
+    if (mShouldReset) {
+
+        mShouldReset = false;
+    }
+
 }
 
 EFFECTS_NAMESPACE_END

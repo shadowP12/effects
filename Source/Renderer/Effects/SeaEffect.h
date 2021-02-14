@@ -4,16 +4,15 @@
 #include "BaseEffect.h"
 #include <map>
 EFFECTS_NAMESPACE_BEGIN
-class MeshRenderable;
+class SeaRenderable;
 
-class DefaultEffect : public BaseEffect {
+class SeaEffect : public BaseEffect {
 public:
     enum class Bit {
         USE_DIRECT_LIGHT = 1 << 0,
-        USE_BASE_COLOR_MAP = 1 << 1
     };
-    DefaultEffect();
-    ~DefaultEffect();
+    SeaEffect();
+    ~SeaEffect();
     void render(std::vector<RenderView*>, std::vector<Renderable*>) override;
 private:
     GfxProgram* getProgram(uint32_t bits);

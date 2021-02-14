@@ -12,6 +12,7 @@ class GfxProgram;
 
 enum class EffectType {
     DEFAULT = 0,
+    SEA = 1,
     MAX_EFFECT_TYPES
 };
 

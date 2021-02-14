@@ -74,7 +74,6 @@ bool GltfImporter::load(const std::string& filePath)
             LOGE("error image format\n");
         }
         PixelData* pixelData = new PixelData(pixelDataDesc);
-
         pixelData->setData(0, pixels, width * height * channels * sizeof(unsigned char));
         std::shared_ptr<Texture> etTex = Texture::create(imagePath.filename(), pixelData);
         etTex->prepareGfxData();
@@ -104,6 +103,7 @@ bool GltfImporter::load(const std::string& filePath)
         cgltf_material* CMaterial = &data->materials[i];
 
         std::shared_ptr<Material> etMaterial = Material::create(std::string(CMaterial->name) + "_Mat");
+        etMaterial->setEffectType(EffectType::DEFAULT);
         etMaterial->getTextureParams()["BaseColor"] = nullptr;
         if(CMaterial->pbr_metallic_roughness.base_color_texture.texture) {
             cgltf_image* CImage = CMaterial->pbr_metallic_roughness.base_color_texture.texture->image;

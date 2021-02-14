@@ -4,6 +4,7 @@
 #include "GamePlay/CameraController.h"
 #include "Scene/Components/CCamera.h"
 #include "Scene/Components/CRenderable.h"
+#include "Scene/Components/CLight.h"
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderer.h"
 #include "Resources/Mesh.h"
@@ -67,14 +68,20 @@ void Editor::init(void* windowPtr) {
     ccamera->setFar(100.0f);
     ccamera->initialized();
 
-    et::SceneNode* cubeNode = et::SceneNode::create("cube");
-    et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
-    std::shared_ptr<et::Mesh> cubeMesh = et::genCubeMesh();
-    std::shared_ptr<et::Material> cubeMaterial = Material::create("Test_Material");
-    cubeMaterial->setEffectType(et::EffectType::DEFAULT);
-    crenderable->setMesh(cubeMesh);
-    crenderable->setMaterial(cubeMaterial);
-    crenderable->initialized();
+//    et::SceneNode* cubeNode = et::SceneNode::create("cube");
+//    et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
+//    std::shared_ptr<et::Mesh> cubeMesh = et::genCubeMesh();
+//    std::shared_ptr<et::Material> cubeMaterial = Material::create("Test_Material");
+//    cubeMaterial->setEffectType(et::EffectType::DEFAULT);
+//    crenderable->setMesh(cubeMesh);
+//    crenderable->setMaterial(cubeMaterial);
+//    crenderable->initialized();
+
+    et::SceneNode* sunNode = et::SceneNode::create("Sun");
+    sunNode->setEuler(glm::vec3(3.1415926 / 2.0f, 0.0f, 0.0f));
+    et::CLight* clight = sunNode->addComponent<et::CLight>();
+    clight->setLightType(RenderLightType::DIRECT_LIGHT);
+    clight->setLightColorAndIntensity(glm::vec4(0.9, 0.9, 0.9, 2.5));
 
     mEditCameraController = std::make_shared<et::CameraController>();
     mEditCameraController->setCamera(mEditCamera);

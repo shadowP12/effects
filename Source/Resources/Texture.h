@@ -14,6 +14,7 @@ public:
     static std::shared_ptr<Texture> create(const std::string& id, PixelData* data);
     static void remove(std::shared_ptr<Texture> texture);
     void prepareGfxData();
+    GfxTexture* getInternel() { return mInternelTexture; }
     void setFilter(uint32_t min, uint32_t mag);
     void setWrap(uint32_t s, uint32_t t, uint32_t r);
 private:

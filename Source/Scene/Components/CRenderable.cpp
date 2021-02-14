@@ -18,7 +18,7 @@ void CRenderable::initialized() {
 }
 
 void CRenderable::onNodeDirty() {
-    mInternal->setTransform(mNode->getLocalMatrix());
+    mInternal->setTransform(mNode->getWorldMatrix());
 }
 
 void CRenderable::setMesh(std::shared_ptr<Mesh> mesh) {

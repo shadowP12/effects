@@ -35,4 +35,5 @@ std::shared_ptr<Mesh> genCubeMesh();
 
 std::shared_ptr<Mesh> genQuadMesh();
 
+std::shared_ptr<Mesh> genGridMesh(float horizontalLen, float verticalLen, uint32_t rows, uint32_t columns);
 EFFECTS_NAMESPACE_END

@@ -244,7 +244,7 @@ uint32_t Mesh::getLayout()
         meshData->setAttribute(SEMANTIC_TEXCOORD0, uvs.data(), uvs.size() * sizeof(float));
         meshData->setAttribute(SEMANTIC_NORMAL, normals.data(), normals.size() * sizeof(float));
         meshData->setIndexes(indices.data(), indices.size() * sizeof(uint32_t));
-        std::shared_ptr<Mesh> mesh = Mesh::create("cube", meshData);
+        std::shared_ptr<Mesh> mesh = Mesh::create("Cube_Mesh", meshData);
         mesh->prepareGfxData();
         return mesh;
     }
@@ -278,9 +278,61 @@ std::shared_ptr<Mesh> genQuadMesh()
     meshData->setAttribute(SEMANTIC_TEXCOORD0, texcoordData, 8 * sizeof(float));
     meshData->setAttribute(SEMANTIC_NORMAL, normalData, 12 * sizeof(float));
     meshData->setIndexes(indexData, 6 * sizeof(uint32_t));
-    std::shared_ptr<Mesh> mesh = Mesh::create("quad", meshData);
+    std::shared_ptr<Mesh> mesh = Mesh::create("Quad_Mesh", meshData);
     mesh->prepareGfxData();
     return mesh;
 }
 
+std::shared_ptr<Mesh> genGridMesh(float horizontalLen, float verticalLen, uint32_t rows, uint32_t columns) {
+    std::vector<float> positions;
+    std::vector<float> normals;
+    std::vector<float> uvs;
+    std::vector<uint32_t> indices;
+
+    int numVertices = (rows + 1) * (columns + 1);
+    int numIndices = rows * columns * 6;
+
+    float x, y;
+    for (int i = 0; i < numVertices; i++) {
+        x = (float)(i % (columns + 1)) / (float)columns;
+        y = 1.0 - (float)(i / (columns + 1)) / (float)rows;
+
+        positions.push_back(horizontalLen * (x - 0.5f));
+        positions.push_back(verticalLen * (y - 0.5f));
+        positions.push_back(0.0f);
+
+        normals.push_back(0.0f);
+        normals.push_back(1.0f);
+        normals.push_back(0.0f);
+
+        uvs.push_back(x);
+        uvs.push_back(y);
+    }
+
+    uint32_t currentColumn, currentRow;
+    for (uint32_t i = 0; i < rows * columns; i++) {
+        currentColumn = i % columns;
+        currentRow = i / columns;
+        indices.push_back(currentColumn + currentRow * (columns + 1));
+        indices.push_back(currentColumn + (currentRow + 1) * (columns + 1));
+        indices.push_back((currentColumn + 1) + (currentRow + 1) * (columns + 1));
+        indices.push_back((currentColumn + 1) + (currentRow + 1) * (columns + 1));
+        indices.push_back((currentColumn + 1) + currentRow * (columns + 1));
+        indices.push_back(currentColumn + currentRow * (columns + 1));
+    }
+
+    uint32_t layout = (uint32_t)SEMANTIC_POSITION;
+    layout |= (uint32_t)SEMANTIC_TEXCOORD0;
+    layout |= (uint32_t)SEMANTIC_NORMAL;
+    VertexLayout* vertexLayout = new VertexLayout(layout);
+    MeshData* meshData = new MeshData(positions.size() / 3, indices.size(), vertexLayout);
+    meshData->setAttribute(SEMANTIC_POSITION, positions.data(), positions.size() * sizeof(float));
+    meshData->setAttribute(SEMANTIC_TEXCOORD0, uvs.data(), uvs.size() * sizeof(float));
+    meshData->setAttribute(SEMANTIC_NORMAL, normals.data(), normals.size() * sizeof(float));
+    meshData->setIndexes(indices.data(), indices.size() * sizeof(uint32_t));
+    std::shared_ptr<Mesh> mesh = Mesh::create("Grid_Mesh", meshData);
+    mesh->prepareGfxData();
+    return mesh;
+
+}
 EFFECTS_NAMESPACE_END
