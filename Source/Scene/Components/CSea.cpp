@@ -7,7 +7,10 @@ EFFECTS_NAMESPACE_BEGIN
 CSea::CSea(SceneNode* node)
     :Component(node) {
     mInternal = new SeaRenderable(this);
+    mInternal->mShouldReset = true;
     Renderer::instance().addRenderable(mInternal);
+    mSeaX = 1024;
+    mSeaY = 1024;
 }
 
 CSea::~CSea() {
@@ -18,6 +21,10 @@ void CSea::initialized() {
 
 void CSea::onNodeDirty() {
     mInternal->setTransform(mNode->getWorldMatrix());
+}
+
+void CSea::update(float dt) {
+    mSeaTime += dt;
 }
 
 void CSea::setMesh(std::shared_ptr<Mesh> mesh) {

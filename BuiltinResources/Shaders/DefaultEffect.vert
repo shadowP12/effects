@@ -8,7 +8,8 @@ out vec3 v_normal;
 out vec2 v_texCoords;
 void main()
 {
-    v_normal = a_normal;
+	mat3 normalMatrix = transpose(inverse(mat3(u_model)));
+    v_normal = normalize(normalMatrix * a_normal);
     v_texCoords = a_texCoords;
     gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
 }

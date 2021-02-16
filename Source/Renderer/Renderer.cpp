@@ -3,6 +3,7 @@
 #include "RenderView.h"
 #include "RenderLight.h"
 #include "Renderer/MeshRenderable.h"
+#include "Renderer/SeaRenderable.h"
 #include "Resources/Mesh.h"
 #include "Resources/Material.h"
 #include "Renderer/Effects/DefaultEffect.h"
@@ -68,8 +69,22 @@ void Renderer::render()
             seaRenderables.push_back(mRenderables[i]);
         }
     }
+    for (int i = 0; i < mViews.size(); ++i) {
+        glm::vec4 viewport = mViews[i]->getViewPort();
+        glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+        bindGfxFramebuffer(mViews[i]->getRenderTarget());
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        unbindGfxFramebuffer(mViews[i]->getRenderTarget());
+    }
 
     mDefaultEffect->render(mViews, defaultRenderables);
+
+    for (int i = 0; i < seaRenderables.size(); ++i) {
+        SeaRenderable* seaRenderable = (SeaRenderable*)seaRenderables[i];
+        seaRenderable->updateSeaMap();
+    }
+
     mSeaEffect->render(mViews, seaRenderables);
 }
 

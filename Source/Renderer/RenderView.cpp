@@ -125,4 +125,8 @@ glm::vec4 RenderView::getViewPort()
     return mViewPort;
 }
 
+glm::vec3 RenderView::getPosition() {
+    return getTranslate(mWorldMatrix);
+}
+
 EFFECTS_NAMESPACE_END

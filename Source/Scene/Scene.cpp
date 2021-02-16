@@ -145,35 +145,23 @@ void SceneNode::setTransform(const glm::vec3 &pos, const glm::vec3 &scale, const
 
 void SceneNode::setPosition(const glm::vec3& pos) {
     mLPos = pos;
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
+    setDirty();
 }
 
 void SceneNode::setRotation(const glm::quat& rot) {
     mLRot = rot;
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
+    setDirty();
 }
 
 void SceneNode::setScale(const glm::vec3& scale) {
     mLScale = scale;
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
+    setDirty();
 }
 
 void SceneNode::rotate(const glm::vec3 axis, const float &angle) {
     glm::quat r = fromAxisAngle(axis, glm::radians(angle));
     mLRot = mLRot * r;
-    mDirtyFlag = true;
-    for (int i = 0; i < mChildren.size(); ++i) {
-        mChildren[i]->mDirtyFlag = true;
-    }
+    setDirty();
 }
 
 glm::mat4 SceneNode::getLocalMatrix() {

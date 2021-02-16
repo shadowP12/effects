@@ -26,6 +26,7 @@ public:
     float getNear();
     float getFar();
     glm::vec4 getViewPort();
+    glm::vec3 getPosition();
     void setTransform(const glm::mat4& mat);
     const glm::mat4& getTransform() const;
     const glm::mat4& getViewMatrix() const;

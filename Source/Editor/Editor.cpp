@@ -5,6 +5,7 @@
 #include "Scene/Components/CCamera.h"
 #include "Scene/Components/CRenderable.h"
 #include "Scene/Components/CLight.h"
+#include "Scene/Components/CSea.h"
 #include "Renderer/RenderView.h"
 #include "Renderer/Renderer.h"
 #include "Resources/Mesh.h"
@@ -61,6 +62,8 @@ void Editor::init(void* windowPtr) {
     mResourceTab = std::make_shared<ResourceTab>();
 
     mEditCamera = et::SceneNode::create("MainCamera");
+    mEditCamera->setPosition(glm::vec3(0.0f, 10.0f, -13.0f));
+    mEditCamera->setEuler(glm::vec3(glm::vec3(3.1415926f / 6.0f, 0.0f, 0.0f)));
     et::CCamera* ccamera = mEditCamera->addComponent<et::CCamera>();
     ccamera->setViewPort(0.0f, 0.0f, 1200.0f, 1000.0f);
     ccamera->setFov(60.0f);
@@ -68,20 +71,21 @@ void Editor::init(void* windowPtr) {
     ccamera->setFar(100.0f);
     ccamera->initialized();
 
-//    et::SceneNode* cubeNode = et::SceneNode::create("cube");
-//    et::CRenderable* crenderable = cubeNode->addComponent<et::CRenderable>();
-//    std::shared_ptr<et::Mesh> cubeMesh = et::genCubeMesh();
-//    std::shared_ptr<et::Material> cubeMaterial = Material::create("Test_Material");
-//    cubeMaterial->setEffectType(et::EffectType::DEFAULT);
-//    crenderable->setMesh(cubeMesh);
-//    crenderable->setMaterial(cubeMaterial);
-//    crenderable->initialized();
+    et::SceneNode* seaNode = et::SceneNode::create("Sea");
+    seaNode->setEuler(glm::vec3(3.1415926 / 2.0f, 0.0f, 0.0f));
+    et::CSea* crenderable = seaNode->addComponent<et::CSea>();
+    std::shared_ptr<et::Mesh> seaMesh = et::genGridMesh(80, 80, 500, 500);
+    std::shared_ptr<et::Material> seaMaterial = Material::create("Sea_Material");
+    seaMaterial->setEffectType(et::EffectType::DEFAULT);
+    crenderable->setMesh(seaMesh);
+    crenderable->setMaterial(seaMaterial);
+    crenderable->initialized();
 
     et::SceneNode* sunNode = et::SceneNode::create("Sun");
-    sunNode->setEuler(glm::vec3(3.1415926 / 2.0f, 0.0f, 0.0f));
+    sunNode->setEuler(glm::vec3(3.1415926, 0.0f, 0.0f));
     et::CLight* clight = sunNode->addComponent<et::CLight>();
     clight->setLightType(RenderLightType::DIRECT_LIGHT);
-    clight->setLightColorAndIntensity(glm::vec4(0.9, 0.9, 0.9, 2.5));
+    clight->setLightColorAndIntensity(glm::vec4(0.9, 0.9, 0.9, 1.5));
 
     mEditCameraController = std::make_shared<et::CameraController>();
     mEditCameraController->setCamera(mEditCamera);

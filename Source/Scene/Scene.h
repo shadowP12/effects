@@ -43,6 +43,14 @@ public:
     std::vector<SceneNode*>& getChildren() {
         return mChildren;
     }
+
+    void setDirty() {
+        mDirtyFlag = true;
+        for (int i = 0; i < mChildren.size(); ++i) {
+            mChildren[i]->setDirty();
+        }
+    }
+
     const std::string& getId() { return mId; }
     void setParent(SceneNode* newParent);
     void appendChildren(SceneNode* newChildren);

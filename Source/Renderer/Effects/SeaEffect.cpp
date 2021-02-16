@@ -32,8 +32,6 @@ void SeaEffect::render(std::vector<RenderView*> views, std::vector<Renderable*> 
         glm::vec4 viewport = views[i]->getViewPort();
         glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
         bindGfxFramebuffer(views[i]->getRenderTarget());
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         // render
         glm::mat4 viewMatrix = views[i]->getViewMatrix();
@@ -51,12 +49,13 @@ void SeaEffect::render(std::vector<RenderView*> views, std::vector<Renderable*> 
             setGfxProgramMat4(program, "u_model", &modelMatrix[0][0]);
             setGfxProgramMat4(program, "u_view", &viewMatrix[0][0]);
             setGfxProgramMat4(program, "u_projection", &projMatrix[0][0]);
-
+            setGfxProgramFloat3(program, "u_viewPos", glm::value_ptr(views[i]->getPosition()));
             if((bits & (uint32_t)Bit::USE_DIRECT_LIGHT) != 0) {
                 setGfxProgramFloat4(program, "u_mainLitDirection", &Renderer::instance().getDirectLights()[0]->getDirection()[0]);
                 setGfxProgramFloat4(program, "u_mainLitColorAndIntensity", &Renderer::instance().getDirectLights()[0]->getLightColorAndIntensity()[0]);
             }
-
+            setGfxProgramSampler(program, "u_heightMap", meshRenderable->getHeightMap());
+            setGfxProgramSampler(program, "u_normalMap", meshRenderable->getNormalMap());
             bindGfxProgram(program);
             mesh->draw(GL_TRIANGLES);
             unbindGfxProgram(program);

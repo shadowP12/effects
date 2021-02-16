@@ -27,7 +27,7 @@ void main()
 #if defined(USE_DIRECT_LIGHT)
     vec3 N = normalize(v_normal);
     vec3 L = normalize(-u_mainLitDirection.rgb);
-    color += (baseColor.rgb / PI) * u_mainLitColorAndIntensity.rgb * u_mainLitColorAndIntensity.w * saturate(dot(N, L));
+    color += (baseColor.rgb / PI) * u_mainLitColorAndIntensity.rgb * u_mainLitColorAndIntensity.w * saturate(dot(N, L));;
 #endif
     FragColor = vec4(color, 1.0);
 }
